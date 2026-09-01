@@ -52,11 +52,31 @@
       align-items: center;
     }
 
-    .header-logo-img {
-      height: 44px;
-      width: auto;
-      object-fit: contain;
-      display: block;
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-branding-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-branding-text .main {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--guh-petrol);
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+    .header-branding-text .sub {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--guh-petrol);
+      letter-spacing: 4.5px;
+      line-height: 1.3;
     }
 
     .step-card {
@@ -325,7 +345,18 @@
 <div class="wizard-container">
   
   <div class="app-header">
-    <img id="webHeaderLogo" class="header-logo-img" alt="Geothermie Unterhaching">
+    <div class="header-branding">
+      <div class="header-branding-text">
+        <span class="main">GEOTHERMIE</span>
+        <span class="sub">UNTERHACHING</span>
+      </div>
+      <!-- SVG Wellen im Web-Header -->
+      <svg width="40" height="36" viewBox="0 0 50 45">
+        <path d="M5 15 C 20 12, 35 5, 45 0 C 42 10, 25 18, 5 15 Z" fill="#e85c24"/>
+        <path d="M5 25 C 20 22, 35 15, 45 10 C 42 20, 25 28, 5 25 Z" fill="#e85c24" opacity="0.85"/>
+        <path d="M5 35 C 20 32, 35 25, 45 20 C 42 30, 25 38, 5 35 Z" fill="#475569"/>
+      </svg>
+    </div>
     <div style="font-size: 12px; color: #64748b; text-align: right;">
       <div style="font-weight: bold; color: var(--guh-petrol); font-size: 14px;">Spleiß- & Messprotokoll LWL</div>
       <div>Datum: <span id="lblDate"></span></div>
@@ -519,9 +550,6 @@
 </div>
 
 <script>
-  // Sauberes, hochaufgelöstes Original-Logo als PNG (Base64)
-  const GUH_LOGO_BASE64 = "data:image/png;base64,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";
-
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444" },
@@ -561,7 +589,6 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
-    document.getElementById('webHeaderLogo').src = GUH_LOGO_BASE64;
     renderCassetteForms();
   });
 
@@ -955,7 +982,37 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Generierung des offiziellen GUH-PDFs mit unverzerrtem Original-Logo
+  // Zeichnet das originale GUH Logo als native, gestochen scharfe Vektorgrafik im PDF
+  function drawGuhVectorLogo(doc, x, y) {
+    // Schriftzug "GEOTHERMIE"
+    doc.setTextColor(23, 84, 103);
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(16);
+    doc.text("GEOTHERMIE", x, y + 5);
+
+    // Schriftzug "UNTERHACHING" (mit Spacing)
+    doc.setFontSize(8.5);
+    doc.setFont(undefined, 'normal');
+    doc.text("U N T E R H A C H I N G", x, y + 9.5);
+
+    // Dreifarbige GUH-Welle
+    const waveX = x + 44;
+    const waveY = y + 1;
+
+    // 1. Welle (Orange)
+    doc.setFillColor(232, 92, 36);
+    doc.lines([[10, -5], [1, 2], [-8, 4]], waveX, waveY + 2, [1, 1], 'F', true);
+
+    // 2. Welle (Helles Orange)
+    doc.setFillColor(242, 114, 52);
+    doc.lines([[10, -5], [1, 2], [-8, 4]], waveX, waveY + 5, [1, 1], 'F', true);
+
+    // 3. Welle (Grau/Petrol)
+    doc.setFillColor(71, 85, 105);
+    doc.lines([[10, -5], [1, 2], [-8, 4]], waveX, waveY + 8, [1, 1], 'F', true);
+  }
+
+  // Generierung des offiziellen GUH-PDFs mit nativer Vektor-Platzierung
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -965,15 +1022,8 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Originales Logo mit exaktem Seitenverhältnis (48mm x 14mm)
-    try {
-      doc.addImage(GUH_LOGO_BASE64, 'PNG', 14, 9, 48, 14);
-    } catch(e) {
-      doc.setFontSize(13);
-      doc.setTextColor(23, 84, 103);
-      doc.setFont(undefined, 'bold');
-      doc.text("GEOTHERMIE UNTERHACHING", 14, 17);
-    }
+    // Logo oben links
+    drawGuhVectorLogo(doc, 14, 10);
 
     // Dokumententitel (oben rechts)
     doc.setFontSize(12);
@@ -1131,7 +1181,7 @@
       });
     }
 
-    // Fußzeile auf allen Seiten
+    // Fußzeile
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
