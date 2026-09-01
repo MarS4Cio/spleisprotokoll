@@ -3,28 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glasfaser Spleißprotokoll & Fotodokumentation</title>
+  <title>LWL Spleißprotokoll - Geothermie Unterhaching</title>
   
-  <!-- Bibliotheken für hochauflösende PDF-Generierung -->
+  <!-- Bibliotheken für PDF-Generierung -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     :root {
       --primary: #00558f;
-      --primary-dark: #003b63;
+      --primary-dark: #003860;
       --primary-light: #e8f1f7;
       --border-color: #cbd5e1;
-      --card-bg: #ffffff;
-      --bg-color: #f1f5f9;
+      --bg-color: #f8fafc;
       --text: #0f172a;
       --danger: #ef4444;
       --success: #16a34a;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -37,30 +34,30 @@
     .app-container {
       max-width: 1050px;
       margin: 0 auto;
-      background: var(--card-bg);
+      background: #ffffff;
       padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
-    /* Header & Branding */
+    /* Header */
     .app-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid var(--primary-light);
-      padding-bottom: 16px;
-      margin-bottom: 20px;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
     }
 
     .app-header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 22px;
       color: var(--primary);
     }
 
     .app-header .company {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       color: #475569;
     }
@@ -71,24 +68,24 @@
       text-align: right;
     }
 
-    /* Formulare & Grids */
+    /* Abschnitte */
     .section-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--primary-dark);
-      margin: 20px 0 12px 0;
-      padding-bottom: 6px;
+      margin: 18px 0 10px 0;
+      padding-bottom: 4px;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .grid-4 {
+    .grid-3 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
     .form-group {
@@ -99,28 +96,46 @@
     .form-group label {
       font-size: 12px;
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       color: #475569;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .form-group input, .form-group select, .form-group textarea {
-      padding: 9px 12px;
+      padding: 8px 10px;
       border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 5px;
+      font-size: 13px;
       color: var(--text);
       background-color: #fff;
     }
 
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px var(--primary-light);
+    /* Einheiten-Manager (Muffen & Spleißboxen) */
+    .unit-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
     }
 
-    /* DIN VDE Farbcode CSS Klassen */
+    .unit-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f1f5f9;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .unit-badge select, .unit-badge input {
+      padding: 4px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    /* Farb-Klassen */
     .col-rot       { background-color: #ef4444 !important; color: #ffffff !important; }
     .col-gruen     { background-color: #22c55e !important; color: #ffffff !important; }
     .col-blau      { background-color: #3b82f6 !important; color: #ffffff !important; }
@@ -137,10 +152,10 @@
     /* Tabelle */
     .table-container {
       overflow-x: auto;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       background: #fff;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     table {
@@ -160,13 +175,13 @@
       background-color: var(--primary);
       color: #ffffff;
       font-weight: 600;
-      padding: 10px 8px;
+      padding: 8px;
     }
 
     .color-cell {
-      padding: 4px !important;
-      font-weight: 600;
-      transition: background-color 0.2s ease;
+      padding: 3px !important;
+      font-weight: bold;
+      transition: background 0.2s;
     }
 
     .color-cell select {
@@ -181,7 +196,7 @@
     }
 
     .color-cell select option {
-      background-color: #fff;
+      background: #fff;
       color: #000;
     }
 
@@ -192,13 +207,12 @@
       text-align: center;
       font-weight: bold;
       color: inherit;
-      font-size: 13px;
     }
 
     .input-cell {
       width: 100%;
       border: 1px solid transparent;
-      border-radius: 4px;
+      border-radius: 3px;
       padding: 4px;
       text-align: center;
       background: transparent;
@@ -214,99 +228,92 @@
       border: none;
       color: var(--danger);
       cursor: pointer;
-      font-size: 16px;
-      padding: 2px 6px;
+      font-weight: bold;
+      font-size: 15px;
     }
 
     /* Fotodokumentation */
     .photo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-      margin-top: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 12px;
     }
 
     .photo-card {
       background: #ffffff;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       position: relative;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
 
     .photo-card img {
       width: 100%;
-      height: 160px;
+      height: 150px;
       object-fit: cover;
       background-color: #e2e8f0;
     }
 
     .photo-card-body {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      padding: 6px;
     }
 
     .photo-card-body input {
+      width: 100%;
       font-size: 12px;
-      padding: 5px;
+      padding: 4px;
       border: 1px solid var(--border-color);
-      border-radius: 4px;
+      border-radius: 3px;
     }
 
     .delete-photo-btn {
       position: absolute;
-      top: 6px;
-      right: 6px;
+      top: 5px;
+      right: 5px;
       background: rgba(239, 68, 68, 0.9);
       color: white;
       border: none;
       border-radius: 50%;
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
     }
 
     /* Aktionsleiste */
     .action-panel {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 24px;
-      padding-top: 18px;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
       border-top: 2px solid var(--primary-light);
     }
 
     .btn {
-      padding: 10px 18px;
+      padding: 9px 16px;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      transition: opacity 0.15s ease, transform 0.05s ease;
+      gap: 6px;
     }
 
-    .btn:active {
-      transform: scale(0.98);
-    }
-
+    .btn:hover { opacity: 0.92; }
     .btn-primary { background-color: var(--primary); color: #fff; }
     .btn-success { background-color: var(--success); color: #fff; }
     .btn-secondary { background-color: #64748b; color: #fff; }
     .btn-outline { background-color: #fff; border: 1px solid var(--border-color); color: var(--text); }
 
-    /* Print / PDF Rendering Modus */
+    /* Print / PDF Mode */
     @media print {
       body { background: #fff; padding: 0; }
       .app-container { box-shadow: none; padding: 0; max-width: 100%; }
@@ -326,57 +333,47 @@
       <div class="company">Geothermie Unterhaching GmbH & Co. KG</div>
     </div>
     <div class="meta-date">
-      <div><strong>Protokolldatum:</strong> <span id="lblDate"></span></div>
-      <div><strong>Protokoll-ID:</strong> <span id="lblId"></span></div>
+      <div><strong>Datum:</strong> <span id="lblDate"></span></div>
+      <div><strong>Protokoll-Nr:</strong> <span id="lblId"></span></div>
     </div>
   </div>
 
-  <!-- Stammdaten / Projektinfo -->
-  <div class="section-title">1. Auftrags- & Trassendaten</div>
-  <div class="grid-4">
+  <!-- Auftrags- & Projektdaten -->
+  <div class="section-title">1. Projektdaten</div>
+  <div class="grid-3">
     <div class="form-group">
       <label>Projekt / Trasse</label>
-      <input type="text" id="inProject" value="Fernwärmetrasse Nord - BA 2">
+      <input type="text" id="inProject" value="Fernwärmetrasse Nord">
     </div>
     <div class="form-group">
-      <label>Standort / Muffennummer</label>
-      <input type="text" id="inLocation" value="Muffe M-04 (Schacht 12)">
+      <label>Standort / Bezeichnung</label>
+      <input type="text" id="inLocation" value="Schacht 14 / Übergabestation">
     </div>
     <div class="form-group">
       <label>Monteur / Spleißer</label>
       <input type="text" id="inTechnician" value="Technik GUH">
     </div>
-    <div class="form-group">
-      <label>Spleißgerät / Seriennr.</label>
-      <input type="text" id="inDevice" value="Fujikura 90S+">
+  </div>
+
+  <!-- Verbaute Gehäuse / Einheiten (Muffen & Spleißboxen mit Kassetten) -->
+  <div class="section-title">
+    <span>2. Verbaute Einheiten (Muffen / Spleißboxen)</span>
+    <div class="no-print" style="display: flex; gap: 6px;">
+      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addUnit('Muffe')">➕ Muffe</button>
+      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addUnit('Spleißbox')">➕ Spleißbox</button>
     </div>
   </div>
 
-  <div class="grid-4">
-    <div class="form-group">
-      <label>Kabel A (Hersteller / Typ)</label>
-      <input type="text" id="inCableA" value="A-DQ(ZN)2Y 24G.652.D">
-    </div>
-    <div class="form-group">
-      <label>Kabel A (Herkunft)</label>
-      <input type="text" id="inOriginA" value="Zentrale Energiezentrale">
-    </div>
-    <div class="form-group">
-      <label>Kabel B (Hersteller / Typ)</label>
-      <input type="text" id="inCableB" value="A-DQ(ZN)2Y 24G.652.D">
-    </div>
-    <div class="form-group">
-      <label>Kabel B (Ziel)</label>
-      <input type="text" id="inOriginB" value="Übergabestation Nord">
-    </div>
+  <div class="unit-container" id="unitContainer">
+    <!-- Initial: 1x Spleißbox und 1x Muffe -->
   </div>
 
   <!-- Spleißplan Tabelle -->
   <div class="section-title">
-    <span>2. Faserbelegungsplan & Dämpfungswerte</span>
-    <div class="no-print" style="display: flex; gap: 8px;">
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="presetRows(12)">12 Fasern Preset</button>
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="presetRows(24)">24 Fasern Preset</button>
+    <span>3. Faserbelegungsplan & Dämpfung</span>
+    <div class="no-print" style="display: flex; gap: 6px;">
+      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="presetTable(12)">12 Fasern Preset</button>
+      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="presetTable(24)">24 Fasern Preset</button>
     </div>
   </div>
 
@@ -384,296 +381,360 @@
     <table id="spliceTable">
       <thead>
         <tr>
-          <th style="width: 40px;">Nr.</th>
-          <th style="width: 140px;">Kabel A Farbe</th>
-          <th style="width: 70px;">Faser A</th>
-          <th style="width: 35px;">⟷</th>
-          <th style="width: 140px;">Kabel B Farbe</th>
-          <th style="width: 70px;">Faser B</th>
-          <th style="width: 90px;">Dämpfung</th>
-          <th style="width: 90px;">Status</th>
+          <th style="width: 35px;">Nr.</th>
+          <th style="width: 95px;">Kabel A Typ</th>
+          <th style="width: 120px;">Kabel A Farbe</th>
+          <th style="width: 60px;">Faser A</th>
+          <th style="width: 30px;">⟷</th>
+          <th style="width: 95px;">Kabel B Typ</th>
+          <th style="width: 120px;">Kabel B Farbe</th>
+          <th style="width: 60px;">Faser B</th>
+          <th style="width: 80px;">Dämpfung</th>
           <th>Bemerkung</th>
-          <th class="no-print" style="width: 40px;">Aktion</th>
+          <th class="no-print" style="width: 35px;">Aktion</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <!-- Dynamischer Inhalt -->
+        <!-- Dynamischer Zeilenaufbau -->
       </tbody>
     </table>
   </div>
 
-  <!-- Fotodokumentation & Kamera -->
+  <!-- Fotodokumentation -->
   <div class="section-title">
-    <span>3. Fotodokumentation (Kamera / Upload)</span>
+    <span>4. Fotodokumentation</span>
   </div>
 
   <div class="no-print" style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-    <!-- Kamera Direktaufruf (Smartphone) -->
     <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this)">
     <button class="btn btn-primary" onclick="document.getElementById('cameraInput').click()">📷 Foto mit Kamera aufnehmen</button>
 
-    <!-- Normaler Dateiupload / Galerie -->
     <input type="file" id="galleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this)">
-    <button class="btn btn-secondary" onclick="document.getElementById('galleryInput').click()">📁 Bild aus Galerie wählen</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('galleryInput').click()">📁 Galerie / Datei wählen</button>
   </div>
 
-  <div class="photo-grid" id="photoContainer">
-    <!-- Dynamische Fotos -->
-  </div>
+  <div class="photo-grid" id="photoContainer"></div>
 
   <!-- Bemerkungen -->
-  <div class="section-title" style="margin-top: 24px;">4. Zusätzliche Hinweise / Trassenbesonderheiten</div>
+  <div class="section-title" style="margin-top: 20px;">5. Bemerkungen / Trassenbesonderheiten</div>
   <div class="form-group">
-    <textarea id="inNotes" rows="2" placeholder="z. B. Muffe mit 2x Trockenmittelbeutel bestückt, Biegeradien eingehalten..."></textarea>
+    <textarea id="inNotes" rows="2" placeholder="z. B. Muffe mit Dichtband versiegelt, Biegeradien geprüft..."></textarea>
   </div>
 
-  <!-- Button Aktionen -->
-  <div class="action-panel no-print">
+  <!-- Aktionen -->
+  <div class="action-panel no-print" id="actionPanel">
     <button class="btn btn-primary" onclick="generateAndDownloadPDF()">📄 PDF Generieren & Herunterladen</button>
     <button class="btn btn-success" onclick="sendPDFByEmail()">✉️ PDF erstellen & per E-Mail senden</button>
-    <button class="btn btn-outline" onclick="addNewRow()">➕ Einzelne Zeile hinzufügen</button>
+    <button class="btn btn-outline" onclick="addRow()">➕ Zeile hinzufügen</button>
   </div>
 
 </div>
 
 <script>
-  // DIN VDE Farbcodes (12er Schema)
-  const FIBER_COLORS = [
-    { name: "Rot", class: "col-rot" },
-    { name: "Grün", class: "col-gruen" },
-    { name: "Blau", class: "col-blau" },
-    { name: "Gelb", class: "col-gelb" },
-    { name: "Weiß", class: "col-weiss" },
-    { name: "Grau", class: "col-grau" },
-    { name: "Braun", class: "col-braun" },
-    { name: "Violett", class: "col-violett" },
-    { name: "Türkis", class: "col-tuerkis" },
-    { name: "Schwarz", class: "col-schwarz" },
-    { name: "Orange", class: "col-orange" },
-    { name: "Rosa", class: "col-rosa" }
-  ];
+  // Farb-Definitionen: Neu (DIN VDE 0888) vs. Alt (Historisch 4er / erweitert)
+  const COLOR_PALETTES = {
+    neu: [
+      { name: "Rot", class: "col-rot" },
+      { name: "Grün", class: "col-gruen" },
+      { name: "Blau", class: "col-blau" },
+      { name: "Gelb", class: "col-gelb" },
+      { name: "Weiß", class: "col-weiss" },
+      { name: "Grau", class: "col-grau" },
+      { name: "Braun", class: "col-braun" },
+      { name: "Violett", class: "col-violett" },
+      { name: "Türkis", class: "col-tuerkis" },
+      { name: "Schwarz", class: "col-schwarz" },
+      { name: "Orange", class: "col-orange" },
+      { name: "Rosa", class: "col-rosa" }
+    ],
+    alt: [
+      { name: "Braun", class: "col-braun" },
+      { name: "Orange", class: "col-orange" },
+      { name: "Blau", class: "col-blau" },
+      { name: "Grün", class: "col-gruen" },
+      { name: "Rot", class: "col-rot" },
+      { name: "Grau", class: "col-grau" },
+      { name: "Gelb", class: "col-gelb" },
+      { name: "Weiß", class: "col-weiss" },
+      { name: "Rosa", class: "col-rosa" },
+      { name: "Schwarz", class: "col-schwarz" },
+      { name: "Türkis", class: "col-tuerkis" },
+      { name: "Violett", class: "col-violett" }
+    ]
+  };
 
   const RECIPIENTS = "technik@geothermie-unterhaching.de,f.elstein@geothermie-unterhaching.de";
 
-  // Initiale Seitenvorbereitung
+  // Initialisierung
   document.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
     document.getElementById('lblDate').textContent = today.toLocaleDateString('de-DE');
-    document.getElementById('lblId').textContent = "GUH-SP-" + today.getFullYear() + "-" + String(Math.floor(Math.random() * 9000) + 1000);
+    document.getElementById('lblId').textContent = "GUH-" + today.getFullYear() + "-" + String(Math.floor(Math.random() * 9000) + 1000);
     
-    // Standard: 12 Fasern initial aufbauen
-    presetRows(12);
+    // Initial Einheiten anlegen
+    addUnit('Spleißbox', 2);
+    addUnit('Muffe', 1);
+
+    // Initial 12 Zeilen
+    presetTable(12);
   });
 
-  // Zeilen-Presets
-  function presetRows(count) {
+  // Einheiten hinzufügen (Muffe / Spleißbox)
+  function addUnit(type, defaultKassetten = 1) {
+    const container = document.getElementById('unitContainer');
+    const unitDiv = document.createElement('div');
+    unitDiv.className = 'unit-badge';
+
+    const isBox = type === 'Spleißbox';
+    unitDiv.innerHTML = `
+      <span style="font-weight: bold; color: var(--primary); min-width: 90px;">Typ:</span>
+      <select onchange="handleUnitTypeChange(this)">
+        <option value="Spleißbox" ${isBox ? 'selected' : ''}>Spleißbox</option>
+        <option value="Muffe" ${!isBox ? 'selected' : ''}>Muffe</option>
+      </select>
+
+      <input type="text" placeholder="Bezeichnung / Nr." value="${type} 01" style="width: 140px;">
+
+      <div class="kassette-wrapper" style="display: ${isBox ? 'flex' : 'none'}; align-items: center; gap: 6px;">
+        <span style="font-size: 12px; font-weight: bold; color: #475569;">Kassetten:</span>
+        <select>
+          <option value="1" ${defaultKassetten === 1 ? 'selected' : ''}>1 Kassette</option>
+          <option value="2" ${defaultKassetten === 2 ? 'selected' : ''}>2 Kassetten</option>
+          <option value="3" ${defaultKassetten === 3 ? 'selected' : ''}>3 Kassetten</option>
+          <option value="4" ${defaultKassetten === 4 ? 'selected' : ''}>4 Kassetten</option>
+          <option value="6">6 Kassetten</option>
+        </select>
+      </div>
+
+      <button class="delete-btn no-print" onclick="this.closest('.unit-badge').remove()" style="margin-left: auto;">✕</button>
+    `;
+    container.appendChild(unitDiv);
+  }
+
+  function handleUnitTypeChange(select) {
+    const wrapper = select.closest('.unit-badge').querySelector('.kassette-wrapper');
+    wrapper.style.display = select.value === 'Spleißbox' ? 'flex' : 'none';
+  }
+
+  // Preset Tabelle
+  function presetTable(count) {
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
     for (let i = 1; i <= count; i++) {
-      addNewRow(i);
+      addRow(i);
     }
   }
 
-  // Zeile generieren & einfügen
-  function addNewRow(optIndex) {
+  // Zeile dynamisch hinzufügen
+  function addRow(optIndex) {
     const tbody = document.getElementById('tableBody');
-    const currentIndex = optIndex || (tbody.children.length + 1);
-    const colorIndex = (currentIndex - 1) % FIBER_COLORS.length;
-    const defaultColor = FIBER_COLORS[colorIndex];
+    const idx = optIndex || (tbody.children.length + 1);
+    const colorIndex = (idx - 1) % 12;
+    const defaultColor = COLOR_PALETTES.neu[colorIndex];
 
     const tr = document.createElement('tr');
-    tr.id = `row-${currentIndex}`;
+    tr.id = `row-${idx}`;
     tr.innerHTML = `
-      <td style="font-weight: bold; background: #f8fafc;">${currentIndex}</td>
-      
-      <!-- Kabel A Farbe & Faser (Hintergrundfarbe über gesamte Zelle) -->
-      <td class="color-cell ${defaultColor.class}" id="cell-colA-${currentIndex}">
-        <select onchange="updateCellColor(this, 'cell-colA-${currentIndex}', 'cell-fasA-${currentIndex}')">
-          ${FIBER_COLORS.map((c, i) => `<option value="${c.class}" ${i === colorIndex ? 'selected' : ''}>${c.name}</option>`).join('')}
+      <td style="font-weight: bold; background: #f8fafc;">${idx}</td>
+
+      <!-- Kabel A Typ & Farbe -->
+      <td>
+        <select onchange="updateRowColorType(this, 'A', ${idx})" style="font-size: 11px; font-weight: bold;">
+          <option value="neu" selected>Neu (Rot...)</option>
+          <option value="alt">Alt (Braun...)</option>
         </select>
       </td>
-      <td class="color-cell ${defaultColor.class}" id="cell-fasA-${currentIndex}">
-        <input type="number" value="${currentIndex}">
+      <td class="color-cell ${defaultColor.class}" id="cell-colA-${idx}">
+        <select id="sel-colA-${idx}" onchange="updateCellBg(this, 'cell-colA-${idx}', 'cell-fasA-${idx}')">
+          ${getColorOptionsHTML('neu', colorIndex)}
+        </select>
+      </td>
+      <td class="color-cell ${defaultColor.class}" id="cell-fasA-${idx}">
+        <input type="number" value="${idx}">
       </td>
 
       <td style="color: #64748b; font-weight: bold; background: #f8fafc;">➜</td>
 
-      <!-- Kabel B Farbe & Faser (Hintergrundfarbe über gesamte Zelle) -->
-      <td class="color-cell ${defaultColor.class}" id="cell-colB-${currentIndex}">
-        <select onchange="updateCellColor(this, 'cell-colB-${currentIndex}', 'cell-fasB-${currentIndex}')">
-          ${FIBER_COLORS.map((c, i) => `<option value="${c.class}" ${i === colorIndex ? 'selected' : ''}>${c.name}</option>`).join('')}
+      <!-- Kabel B Typ & Farbe -->
+      <td>
+        <select onchange="updateRowColorType(this, 'B', ${idx})" style="font-size: 11px; font-weight: bold;">
+          <option value="neu" selected>Neu (Rot...)</option>
+          <option value="alt">Alt (Braun...)</option>
         </select>
       </td>
-      <td class="color-cell ${defaultColor.class}" id="cell-fasB-${currentIndex}">
-        <input type="number" value="${currentIndex}">
+      <td class="color-cell ${defaultColor.class}" id="cell-colB-${idx}">
+        <select id="sel-colB-${idx}" onchange="updateCellBg(this, 'cell-colB-${idx}', 'cell-fasB-${idx}')">
+          ${getColorOptionsHTML('neu', colorIndex)}
+        </select>
+      </td>
+      <td class="color-cell ${defaultColor.class}" id="cell-fasB-${idx}">
+        <input type="number" value="${idx}">
       </td>
 
-      <!-- Messwert & Status -->
+      <!-- Dämpfung & Bemerkung -->
       <td><input class="input-cell" type="text" value="0.02 dB"></td>
-      <td>
-        <select class="input-cell" style="font-weight: 600; color: #16a34a;">
-          <option value="OK">OK</option>
-          <option value="Nacharbeit">Nacharbeit</option>
-          <option value="Blind">Blind</option>
-        </select>
-      </td>
-      <td><input class="input-cell" type="text" placeholder="-"></td>
-      <td class="no-print"><button class="delete-btn" onclick="removeRow(this)">✕</button></td>
+      <td><input class="input-cell" type="text" placeholder="z. B. OK / Spleiß 1"></td>
+      <td class="no-print"><button class="delete-btn" onclick="this.closest('tr').remove()">✕</button></td>
     `;
     tbody.appendChild(tr);
   }
 
-  // Zellenfarben aktualisieren (sowohl Farbe als auch Fasernummer-Zelle)
-  function updateCellColor(selectElement, colorCellId, fiberCellId) {
+  function getColorOptionsHTML(type, selectedIndex) {
+    const list = COLOR_PALETTES[type];
+    return list.map((c, i) => `<option value="${c.class}" ${i === selectedIndex ? 'selected' : ''}>${c.name}</option>`).join('');
+  }
+
+  // Wenn Kabeltyp (Neu/Alt) geändert wird
+  function updateRowColorType(typeSelect, side, idx) {
+    const paletteType = typeSelect.value;
+    const colorSelect = document.getElementById(`sel-col${side}-${idx}`);
+    const colorCell = document.getElementById(`cell-col${side}-${idx}`);
+    const faserCell = document.getElementById(`cell-fas${side}-${idx}`);
+
+    const selectedIndex = (idx - 1) % 12;
+    colorSelect.innerHTML = getColorOptionsHTML(paletteType, selectedIndex);
+
+    const activeClass = COLOR_PALETTES[paletteType][selectedIndex].class;
+    applyColorClass(colorCell, faserCell, activeClass);
+  }
+
+  // Hintergrundfarbe bei manueller Farbwahl anpassen
+  function updateCellBg(selectEl, colorCellId, faserCellId) {
     const colorCell = document.getElementById(colorCellId);
-    const fiberCell = document.getElementById(fiberCellId);
-    
-    // Alle Farbklassen entfernen
-    FIBER_COLORS.forEach(c => {
-      colorCell.classList.remove(c.class);
-      if (fiberCell) fiberCell.classList.remove(c.class);
+    const faserCell = document.getElementById(faserCellId);
+    applyColorClass(colorCell, faserCell, selectEl.value);
+  }
+
+  function applyColorClass(cell1, cell2, newClass) {
+    const allClasses = Object.values(COLOR_PALETTES).flat().map(c => c.class);
+    allClasses.forEach(cls => {
+      cell1.classList.remove(cls);
+      if (cell2) cell2.classList.remove(cls);
     });
-
-    // Neue Farbklasse zuweisen
-    colorCell.classList.add(selectElement.value);
-    if (fiberCell) fiberCell.classList.add(selectElement.value);
+    cell1.classList.add(newClass);
+    if (cell2) cell2.classList.add(newClass);
   }
 
-  function removeRow(btn) {
-    btn.closest('tr').remove();
-  }
-
-  // Foto Upload & Komprimierung
+  // Fotodokumentation & Bildkompression
   function handlePhotoUpload(input) {
     if (!input.files || input.files.length === 0) return;
 
     Array.from(input.files).forEach(file => {
       const reader = new FileReader();
       reader.onload = function(e) {
-        // Bild zur Komprimierung in Canvas laden
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
+          const MAX_DIM = 1200;
+          let w = img.width, h = img.height;
 
-          // Max Bilddimensionen auf 1200px begrenzen (hält PDF klein und scharf)
-          const MAX_WIDTH = 1200;
-          const MAX_HEIGHT = 1200;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
+          if (w > h && w > MAX_DIM) {
+            h *= MAX_DIM / w;
+            w = MAX_DIM;
+          } else if (h > MAX_DIM) {
+            w *= MAX_DIM / h;
+            h = MAX_DIM;
           }
 
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
+          canvas.width = w;
+          canvas.height = h;
+          ctx.drawImage(img, 0, 0, w, h);
 
-          // Als komprimiertes JPEG exportieren
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
-          createPhotoCard(compressedDataUrl, file.name);
+          const compressedData = canvas.toDataURL('image/jpeg', 0.75);
+          createPhotoCard(compressedData);
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     });
-
-    // Reset Input
     input.value = '';
   }
 
-  function createPhotoCard(src, filename) {
+  function createPhotoCard(src) {
     const container = document.getElementById('photoContainer');
     const card = document.createElement('div');
     card.className = 'photo-card';
     card.innerHTML = `
-      <img src="${src}" alt="Dokumentationsfoto">
+      <img src="${src}" alt="Foto">
       <button class="delete-photo-btn no-print" onclick="this.closest('.photo-card').remove()">✕</button>
       <div class="photo-card-body">
-        <input type="text" value="Muffenansicht / Kassette" placeholder="Bildbeschreibung">
+        <input type="text" value="Muffe / Spleißkassette geöffnet" placeholder="Beschreibung">
       </div>
     `;
     container.appendChild(card);
   }
 
-  // PDF Erstellung & Rendering
+  // PDF Rendering Kern-Funktion (Absicherung mit try/finally)
   async function generatePDFBlob() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('pdf-container');
-    const noPrintElements = document.querySelectorAll('.no-print');
+    const actionPanel = document.getElementById('actionPanel');
+    const noPrints = document.querySelectorAll('.no-print');
 
-    // UI-Elemente für den PDF-Export ausblenden
-    noPrintElements.forEach(el => el.style.display = 'none');
+    // UI-Elemente ausblenden
+    noPrints.forEach(el => el.style.setProperty('display', 'none', 'important'));
 
-    // Screenshot des HTML-Containers erstellen
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false
-    });
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
 
-    // UI-Elemente wieder anzeigen
-    noPrintElements.forEach(el => el.style.display = '');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = 210;
-    const pdfHeight = 297;
-    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-    // Mehrseitiges Rendering falls nötig
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
       pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
       heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      const locationStr = document.getElementById('inLocation').value.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `Spleissprotokoll_${locationStr}.pdf`;
+
+      return { blob: pdf.output('blob'), pdfDoc: pdf, filename: filename };
+    } finally {
+      // Garantiert die Leiste immer wieder einblenden
+      noPrints.forEach(el => el.style.display = '');
     }
-
-    const filename = `Spleissprotokoll_${document.getElementById('inLocation').value.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
-
-    return {
-      blob: pdf.output('blob'),
-      pdfDoc: pdf,
-      filename: filename
-    };
   }
 
   // PDF Herunterladen
   async function generateAndDownloadPDF() {
-    const { pdfDoc, filename } = await generatePDFBlob();
-    pdfDoc.save(filename);
+    try {
+      const { pdfDoc, filename } = await generatePDFBlob();
+      pdfDoc.save(filename);
+    } catch (e) {
+      console.error("Fehler bei PDF Erstellung:", e);
+      alert("Fehler bei der PDF-Erstellung. Bitte prüfe die Eingaben.");
+    }
   }
 
-  // PDF per E-Mail versenden (mit automatischer Dateianbindung via Web Share API)
+  // PDF per E-Mail versenden
   async function sendPDFByEmail() {
     const project = document.getElementById('inProject').value;
     const location = document.getElementById('inLocation').value;
-    const technician = document.getElementById('inTechnician').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
     const emailSubject = `Spleißprotokoll: ${project} - ${location}`;
-    const emailBody = `Hallo Technik-Team,\n\nanbei das abgeschlossene Spleiß- und Messprotokoll.\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nProjekt: ${project}\nStandort: ${location}\nMonteur: ${technician}\nDatum: ${dateStr}`;
+    const emailBody = `Hallo Technik-Team,\n\nanbei das abgeschlossene Spleißprotokoll.\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nProjekt: ${project}\nStandort: ${location}\nDatum: ${dateStr}`;
 
     try {
       const { blob, filename } = await generatePDFBlob();
       const pdfFile = new File([blob], filename, { type: 'application/pdf' });
 
-      // Prüfen, ob Dateifreigabe direkt unterstützt wird (z. B. Chrome/Safari auf Smartphones)
       if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
         await navigator.share({
           title: emailSubject,
@@ -681,18 +742,18 @@
           files: [pdfFile]
         });
       } else {
-        // Desktop-Fallback: Datei herunterladen und Mailclient öffnen
+        // Fallback: Download & Mailto
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(blob);
         downloadLink.download = filename;
         downloadLink.click();
 
-        const mailtoUrl = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody + "\n\n[Hinweis: Die PDF wurde automatisch in Ihren Downloads gespeichert und kann als Anhang angefügt werden.]")}`;
+        const mailtoUrl = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody + "\n\n(Die PDF-Datei wurde im Download-Ordner abgelegt.)")}`;
         window.location.href = mailtoUrl;
       }
     } catch (err) {
       console.error("Fehler beim Versenden:", err);
-      alert("PDF wurde generiert. Download startet jetzt.");
+      alert("PDF wurde generiert und als Download bereitgestellt.");
       generateAndDownloadPDF();
     }
   }
