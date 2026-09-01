@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FiberPro LWL - Geothermie Unterhaching</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- jsPDF & AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <!-- SheetJS (Excel) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-32">
+
+  <!-- Header -->
+  <header class="bg-blue-900 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-white/10 p-2 rounded-lg">
+          <i class="fa-solid fa-network-wired text-blue-300 text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold tracking-wide">FiberPro LWL</h1>
+          <p class="text-xs text-blue-200">Geothermie Unterhaching GmbH & Co KG</p>
+        </div>
+      </div>
+      <button onclick="resetDataWithConfirm()" class="text-xs bg-red-800/80 hover:bg-red-700 text-white px-2.5 py-1.5 rounded-lg border border-red-400/30 flex items-center gap-1.5 shadow-sm">
+        <i class="fa-solid fa-rotate-left"></i> Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl mx-auto px-3 sm:px-4 py-4 space-y-4">
+
+    <!-- 1. Stammdaten -->
+    <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-clipboard-list text-blue-600"></i> Auftragsdaten
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Standort / Bezeichnung</label>
+          <input type="text" id="metaLocation" placeholder="z. B. Bahnhofsplatz oder Gleißentalstr. 8" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Monteur / Techniker</label>
+          <input type="text" id="metaTechnician" placeholder="Name des Monteurs" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Datum</label>
+          <input type="date" id="metaDate" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Auftraggeber</label>
+          <input type="text" id="metaCompany" value="Geothermie Unterhaching GmbH & Co KG" readonly class="w-full bg-slate-100 text-slate-600 border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium outline-none cursor-not-allowed">
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Typ & Kabelauswahl -->
+    <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-blue-600"></i> Spleiß-Konfiguration
+      </h2>
+
+      <!-- Modus Radio -->
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <label class="cursor-pointer border-2 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/70 border-slate-200 bg-white">
+          <input type="radio" name="spliceMode" value="box" checked onchange="handleModeChange()" class="hidden">
+          <i class="fa-solid fa-server text-blue-700 text-xl mb-1"></i>
+          <span class="text-xs font-bold text-slate-800">Spleißbox / ODF</span>
+          <span class="text-[10px] text-slate-500">Pigtails + Messwerte</span>
+        </label>
+        <label class="cursor-pointer border-2 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/70 border-slate-200 bg-white">
+          <input type="radio" name="spliceMode" value="muffe" onchange="handleModeChange()" class="hidden">
+          <i class="fa-solid fa-bezier-curve text-blue-700 text-xl mb-1"></i>
+          <span class="text-xs font-bold text-slate-800">Kabelmuffe</span>
+          <span class="text-[10px] text-slate-500">Kabel A zu Kabel B</span>
+        </label>
+      </div>
+
+      <!-- Kabel-Farbcode-Standard -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Standard-Farbcode für Kabelfasern:</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="setCableStd('new')" id="btnStdNew" class="py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white border-blue-600">
+            <span class="flex gap-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 inline-block"></span>
+            </span>
+            Neu (Rot, Grün, Blau, Gelb)
+          </button>
+          <button type="button" onclick="setCableStd('old')" id="btnStdOld" class="py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 bg-white text-slate-700 border-slate-200 hover:bg-slate-50">
+            <span class="flex gap-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-800 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-green-600 inline-block"></span>
+            </span>
+            Alt Breakout (Braun, Ora, Blau, Grün)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Kassetten & Spleißplan Matrix -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between px-1">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-blue-600"></i> Kassetten & Spleißplan
+        </h2>
+        <button onclick="addCassette()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1.5 px-3 rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition">
+          <i class="fa-solid fa-plus"></i> Neue Kassette
+        </button>
+      </div>
+
+      <!-- Kassetten Container -->
+      <div id="cassettesContainer" class="space-y-4"></div>
+    </section>
+
+    <!-- 4. Fotodokumentation -->
+    <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-camera text-blue-600"></i> Fotodokumentation
+        </h2>
+        <label class="cursor-pointer bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-1.5 px-3 rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition">
+          <i class="fa-solid fa-camera-retro"></i> Foto aufnehmen / hochladen
+          <input type="file" accept="image/*" capture="environment" onchange="handleImageUpload(event)" class="hidden" multiple>
+        </label>
+      </div>
+
+      <div id="photoGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+      <p id="noPhotosHint" class="text-xs text-slate-400 text-center py-6 border-2 border-dashed border-slate-200 rounded-xl">
+        Noch keine Fotos hinzugefügt. Klicke oben auf den Button für Kamera-Aufnahmen.
+      </p>
+    </section>
+
+    <!-- 5. Bemerkungen -->
+    <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-comment-dots text-blue-600"></i> Bemerkungen / Besonderheiten
+      </label>
+      <textarea id="metaNotes" rows="2" placeholder="Zusätzliche Hinweise zu Trasse, Muffenlage, Dämpfungen..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+    </section>
+
+  </main>
+
+  <!-- Sticky Bottom Toolbar -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 z-30 shadow-lg">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex gap-2">
+        <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition">
+          <i class="fa-solid fa-file-excel"></i> Excel
+        </button>
+        <button onclick="sendViaEmail()" class="bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition">
+          <i class="fa-solid fa-paper-plane"></i> E-Mail
+        </button>
+      </div>
+
+      <div class="flex gap-2">
+        <!-- Vorschau Button -->
+        <button onclick="showPDFPreview()" class="bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold py-2.5 px-3.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition">
+          <i class="fa-solid fa-eye"></i> Vorschau
+        </button>
+        <button onclick="generatePDF(true)" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition">
+          <i class="fa-solid fa-share-nodes"></i> Teilen
+        </button>
+        <button onclick="generatePDF(false)" class="bg-blue-900 hover:bg-blue-800 active:scale-95 text-white font-bold py-2.5 px-3.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition">
+          <i class="fa-solid fa-download"></i> PDF
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PDF Vorschau Modal -->
+  <div id="previewModal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-3xl h-[92vh] sm:h-[88vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+      <!-- Modal Header -->
+      <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf text-red-400"></i>
+          <h3 class="text-sm font-bold">PDF-Vorschau</h3>
+        </div>
+        <button onclick="closePreviewModal()" class="text-slate-400 hover:text-white p-1 rounded-lg text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (iFrame für PDF) -->
+      <div class="flex-1 bg-slate-200 relative overflow-hidden">
+        <iframe id="pdfPreviewFrame" class="w-full h-full border-none" title="PDF Vorschau"></iframe>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between gap-2 flex-shrink-0">
+        <button onclick="closePreviewModal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-3.5 rounded-xl transition">
+          Schließen
+        </button>
+        <div class="flex gap-2">
+          <button onclick="generatePDF(true); closePreviewModal();" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3.5 rounded-xl flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-share-nodes"></i> Teilen
+          </button>
+          <button onclick="generatePDF(false); closePreviewModal();" class="text-xs bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 px-3.5 rounded-xl flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-download"></i> Herunterladen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Logic -->
+  <script>
+    // --- 1. Farbdefinitionen & Standards ---
+    const PIGTAIL_12 = [
+      { name: "Rot", rgb: [239, 68, 68], hex: "#ef4444" },
+      { name: "Grün", rgb: [34, 197, 94], hex: "#22c55e" },
+      { name: "Blau", rgb: [59, 130, 246], hex: "#3b82f6" },
+      { name: "Gelb", rgb: [234, 179, 8], hex: "#eab308" },
+      { name: "Weiß", rgb: [248, 250, 252], hex: "#f8fafc", border: "#94a3b8" },
+      { name: "Grau", rgb: [100, 116, 139], hex: "#64748b" },
+      { name: "Braun", rgb: [146, 64, 14], hex: "#92400e" },
+      { name: "Violett", rgb: [168, 85, 247], hex: "#a855f7" },
+      { name: "Türkis", rgb: [20, 184, 166], hex: "#14b8a6" },
+      { name: "Schwarz", rgb: [15, 23, 42], hex: "#0f172a" },
+      { name: "Orange", rgb: [249, 115, 22], hex: "#f97316" },
+      { name: "Pink", rgb: [236, 72, 153], hex: "#ec4899" }
+    ];
+
+    const CABLE_NEW_4 = [
+      { name: "Rot", rgb: [239, 68, 68], hex: "#ef4444" },
+      { name: "Grün", rgb: [34, 197, 94], hex: "#22c55e" },
+      { name: "Blau", rgb: [59, 130, 246], hex: "#3b82f6" },
+      { name: "Gelb", rgb: [234, 179, 8], hex: "#eab308" }
+    ];
+
+    const CABLE_OLD_4 = [
+      { name: "Braun", rgb: [146, 64, 14], hex: "#92400e" },
+      { name: "Orange", rgb: [249, 115, 22], hex: "#f97316" },
+      { name: "Blau", rgb: [59, 130, 246], hex: "#3b82f6" },
+      { name: "Grün", rgb: [34, 197, 94], hex: "#22c55e" }
+    ];
+
+    const ALL_COLOR_MAP = {
+      "Rot": { rgb: [239, 68, 68], hex: "#ef4444" },
+      "Grün": { rgb: [34, 197, 94], hex: "#22c55e" },
+      "Blau": { rgb: [59, 130, 246], hex: "#3b82f6" },
+      "Gelb": { rgb: [234, 179, 8], hex: "#eab308" },
+      "Weiß": { rgb: [248, 250, 252], hex: "#f8fafc", border: "#94a3b8" },
+      "Grau": { rgb: [100, 116, 139], hex: "#64748b" },
+      "Braun": { rgb: [146, 64, 14], hex: "#92400e" },
+      "Violett": { rgb: [168, 85, 247], hex: "#a855f7" },
+      "Türkis": { rgb: [20, 184, 166], hex: "#14b8a6" },
+      "Schwarz": { rgb: [15, 23, 42], hex: "#0f172a" },
+      "Orange": { rgb: [249, 115, 22], hex: "#f97316" },
+      "Pink": { rgb: [236, 72, 153], hex: "#ec4899" }
+    };
+
+    // --- 2. State & Datenstruktur ---
+    let state = {
+      mode: 'box',
+      cableStd: 'new',
+      meta: {
+        location: '',
+        technician: '',
+        date: new Date().toISOString().split('T')[0],
+        company: 'Geothermie Unterhaching GmbH & Co KG',
+        notes: ''
+      },
+      cassettes: [],
+      photos: []
+    };
+
+    // --- 3. Initialisierung ---
+    window.addEventListener('DOMContentLoaded', () => {
+      loadFromStorage();
+      if (!state.cassettes || state.cassettes.length === 0) {
+        initDefaultCassettes();
+      }
+      syncMetaInputs();
+      renderAllCassettes();
+      renderPhotos();
+    });
+
+    function initDefaultCassettes() {
+      state.cassettes = [
+        createCassetteObject("Kassette 1", 8),
+        createCassetteObject("Kassette 2", 8)
+      ];
+    }
+
+    function createCassetteObject(name, fiberCount = 4) {
+      const fibers = [];
+      for (let i = 1; i <= fiberCount; i++) {
+        fibers.push(createFiberRow(i, fibers.length));
+      }
+      return { id: 'cas_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4), name: name, fibers: fibers };
+    }
+
+    function createFiberRow(fiberNr, existingCount = 0) {
+      const pIdx = existingCount % 12;
+      const cSeq = state.cableStd === 'new' ? CABLE_NEW_4 : CABLE_OLD_4;
+      const cIdx = existingCount % cSeq.length;
+
+      return {
+        id: 'fib_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        pigtailFiber: fiberNr,
+        pigtailColor: PIGTAIL_12[pIdx].name,
+        cableFiber: (cIdx + 1),
+        cableColor: cSeq[cIdx].name,
+        cableBColor: cSeq[cIdx].name,
+        damping: '',
+        signal: '',
+        patchFiber: ''
+      };
+    }
+
+    // --- 4. Render Logik ---
+    function renderAllCassettes() {
+      const container = document.getElementById('cassettesContainer');
+      container.innerHTML = '';
+
+      state.cassettes.forEach((cas, cIndex) => {
+        const isFull = cas.fibers.length >= 12;
+        const progressPct = Math.round((cas.fibers.length / 12) * 100);
+
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200";
+
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-6 bg-blue-600 rounded-full inline-block"></span>
+              <input type="text" value="${escapeHtml(cas.name)}" onchange="updateCassetteName(${cIndex}, this.value)"
+                class="font-bold text-sm text-slate-800 border-b border-dashed border-transparent hover:border-slate-300 focus:border-blue-600 outline-none bg-transparent px-1 py-0.5">
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${isFull ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'}">
+                ${cas.fibers.length} / 12 Fasern
+              </span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button onclick="addFiberToCassette(${cIndex})" ${isFull ? 'disabled' : ''} class="text-xs ${isFull ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-blue-50 hover:bg-blue-100 text-blue-700 active:scale-95'} font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
+                <i class="fa-solid fa-plus"></i> Faser
+              </button>
+              <button onclick="fillCassetteFibers(${cIndex}, 4)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2 py-1.5 rounded-lg active:scale-95 transition">4F</button>
+              <button onclick="fillCassetteFibers(${cIndex}, 6)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2 py-1.5 rounded-lg active:scale-95 transition">6F</button>
+              <button onclick="fillCassetteFibers(${cIndex}, 12)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2 py-1.5 rounded-lg active:scale-95 transition">12F</button>
+              <button onclick="deleteCassette(${cIndex})" class="text-xs text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition" title="Kassette löschen">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="w-full bg-slate-100 h-1 rounded-full mb-3 overflow-hidden">
+            <div class="h-full ${isFull ? 'bg-amber-500' : 'bg-blue-600'} transition-all" style="width: ${progressPct}%"></div>
+          </div>
+
+          <div class="overflow-x-auto custom-scroll">
+            <table class="w-full text-left text-xs border-collapse min-w-[620px]">
+              <thead>
+                <tr class="text-[11px] font-bold text-slate-400 uppercase border-b border-slate-100">
+                  <th class="py-1.5 px-1 text-center w-12">Pos</th>
+                  ${state.mode === 'box' ? `
+                    <th class="py-1.5 px-2">Pigtail (1-12)</th>
+                    <th class="py-1.5 px-2">Kabel-Faser</th>
+                    <th class="py-1.5 px-2 w-20">Dämpfung</th>
+                    <th class="py-1.5 px-2">Signal von</th>
+                    <th class="py-1.5 px-2 w-14">Patch</th>
+                  ` : `
+                    <th class="py-1.5 px-2">Kabel A (Faser/Farbe)</th>
+                    <th class="py-1.5 px-2">Kabel B (Farbe/Faser)</th>
+                    <th class="py-1.5 px-2">Signal / Bemerkung</th>
+                  `}
+                  <th class="py-1.5 px-1 text-right w-24">Aktion</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${cas.fibers.map((fib, fIndex) => renderFiberRowHTML(cIndex, fIndex, fib)).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      saveToStorage();
+    }
+
+    function renderFiberRowHTML(cIndex, fIndex, fib) {
+      const pColor = ALL_COLOR_MAP[fib.pigtailColor] || { hex: '#64748b' };
+      const cColor = ALL_COLOR_MAP[fib.cableColor] || { hex: '#64748b' };
+      const cBColor = ALL_COLOR_MAP[fib.cableBColor] || { hex: '#64748b' };
+
+      const otherCassettesOptions = state.cassettes
+        .map((c, idx) => idx !== cIndex ? `<option value="${idx}">${c.name}</option>` : '')
+        .join('');
+
+      if (state.mode === 'box') {
+        return `
+          <tr class="hover:bg-slate-50/60 transition group">
+            <td class="py-2 px-1 text-center text-slate-400 font-mono text-[11px]">${fIndex + 1}</td>
+            <td class="py-2 px-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 shadow-inner flex-shrink-0" style="background-color: ${pColor.hex};"></span>
+                <select onchange="updateFiberField(${cIndex}, ${fIndex}, 'pigtailColor', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-semibold text-slate-700 outline-none">
+                  ${PIGTAIL_12.map(c => `<option value="${c.name}" ${c.name === fib.pigtailColor ? 'selected' : ''}>${c.name}</option>`).join('')}
+                </select>
+                <span class="text-[11px] text-slate-400">#${fib.pigtailFiber || (fIndex + 1)}</span>
+              </div>
+            </td>
+            <td class="py-2 px-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 shadow-inner flex-shrink-0" style="background-color: ${cColor.hex};"></span>
+                <select onchange="updateFiberField(${cIndex}, ${fIndex}, 'cableColor', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-semibold text-slate-700 outline-none">
+                  ${(state.cableStd === 'new' ? CABLE_NEW_4 : CABLE_OLD_4).map(c => `<option value="${c.name}" ${c.name === fib.cableColor ? 'selected' : ''}>${c.name}</option>`).join('')}
+                </select>
+                <input type="number" min="1" max="96" value="${fib.cableFiber || ''}" placeholder="Faser" onchange="updateFiberField(${cIndex}, ${fIndex}, 'cableFiber', this.value)"
+                  class="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs text-center font-bold text-slate-700 outline-none">
+              </div>
+            </td>
+            <td class="py-2 px-2">
+              <input type="text" placeholder="-18.5" value="${escapeHtml(fib.damping || '')}" onchange="updateFiberField(${cIndex}, ${fIndex}, 'damping', this.value)"
+                class="w-20 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-center font-mono font-bold text-slate-800 outline-none">
+            </td>
+            <td class="py-2 px-2">
+              <input type="text" placeholder="z. B. Bahnhofsweg 8-10" value="${escapeHtml(fib.signal || '')}" onchange="updateFiberField(${cIndex}, ${fIndex}, 'signal', this.value)"
+                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none">
+            </td>
+            <td class="py-2 px-2">
+              <input type="text" placeholder="7" value="${escapeHtml(fib.patchFiber || '')}" onchange="updateFiberField(${cIndex}, ${fIndex}, 'patchFiber', this.value)"
+                class="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs text-center font-bold text-slate-700 outline-none">
+            </td>
+            <td class="py-2 px-1 text-right whitespace-nowrap">
+              <div class="flex items-center justify-end gap-1">
+                <button onclick="moveFiberWithinCassette(${cIndex}, ${fIndex}, -1)" ${fIndex === 0 ? 'disabled' : ''} class="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 text-[10px]" title="Nach oben">
+                  <i class="fa-solid fa-arrow-up"></i>
+                </button>
+                <button onclick="moveFiberWithinCassette(${cIndex}, ${fIndex}, 1)" ${fIndex === state.cassettes[cIndex].fibers.length - 1 ? 'disabled' : ''} class="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 text-[10px]" title="Nach unten">
+                  <i class="fa-solid fa-arrow-down"></i>
+                </button>
+                ${otherCassettesOptions ? `
+                  <select onchange="transferFiberToAnotherCassette(${cIndex}, ${fIndex}, this.value)" class="bg-slate-100 hover:bg-slate-200 text-[10px] text-slate-600 rounded px-1 py-0.5 border border-slate-200 outline-none" title="In andere Kassette verschieben">
+                    <option value="" disabled selected>📂</option>
+                    ${otherCassettesOptions}
+                  </select>
+                ` : ''}
+                <button onclick="deleteFiber(${cIndex}, ${fIndex})" class="p-1 text-red-400 hover:text-red-600 text-[11px]" title="Faser löschen">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      } else {
+        return `
+          <tr class="hover:bg-slate-50/60 transition group">
+            <td class="py-2 px-1 text-center text-slate-400 font-mono text-[11px]">${fIndex + 1}</td>
+            <td class="py-2 px-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 shadow-inner flex-shrink-0" style="background-color: ${cColor.hex};"></span>
+                <select onchange="updateFiberField(${cIndex}, ${fIndex}, 'cableColor', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-semibold text-slate-700 outline-none">
+                  ${(state.cableStd === 'new' ? CABLE_NEW_4 : CABLE_OLD_4).map(c => `<option value="${c.name}" ${c.name === fib.cableColor ? 'selected' : ''}>${c.name}</option>`).join('')}
+                </select>
+                <input type="number" min="1" max="96" value="${fib.cableFiber || (fIndex + 1)}" placeholder="Faser" onchange="updateFiberField(${cIndex}, ${fIndex}, 'cableFiber', this.value)"
+                  class="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs text-center font-bold text-slate-700 outline-none">
+              </div>
+            </td>
+            <td class="py-2 px-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 shadow-inner flex-shrink-0" style="background-color: ${cBColor.hex};"></span>
+                <select onchange="updateFiberField(${cIndex}, ${fIndex}, 'cableBColor', this.value)" class="bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs font-semibold text-slate-700 outline-none">
+                  ${(state.cableStd === 'new' ? CABLE_NEW_4 : CABLE_OLD_4).map(c => `<option value="${c.name}" ${c.name === fib.cableBColor ? 'selected' : ''}>${c.name}</option>`).join('')}
+                </select>
+                <input type="number" min="1" max="96" value="${fib.patchFiber || (fIndex + 1)}" placeholder="Faser" onchange="updateFiberField(${cIndex}, ${fIndex}, 'patchFiber', this.value)"
+                  class="w-12 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1 text-xs text-center font-bold text-slate-700 outline-none">
+              </div>
+            </td>
+            <td class="py-2 px-2">
+              <input type="text" placeholder="z. B. Durchgangsverbindung Hausanschluss" value="${escapeHtml(fib.signal || '')}" onchange="updateFiberField(${cIndex}, ${fIndex}, 'signal', this.value)"
+                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 outline-none">
+            </td>
+            <td class="py-2 px-1 text-right whitespace-nowrap">
+              <div class="flex items-center justify-end gap-1">
+                <button onclick="moveFiberWithinCassette(${cIndex}, ${fIndex}, -1)" ${fIndex === 0 ? 'disabled' : ''} class="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 text-[10px]">
+                  <i class="fa-solid fa-arrow-up"></i>
+                </button>
+                <button onclick="moveFiberWithinCassette(${cIndex}, ${fIndex}, 1)" ${fIndex === state.cassettes[cIndex].fibers.length - 1 ? 'disabled' : ''} class="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-20 text-[10px]">
+                  <i class="fa-solid fa-arrow-down"></i>
+                </button>
+                ${otherCassettesOptions ? `
+                  <select onchange="transferFiberToAnotherCassette(${cIndex}, ${fIndex}, this.value)" class="bg-slate-100 text-[10px] text-slate-600 rounded px-1 py-0.5 border border-slate-200 outline-none">
+                    <option value="" disabled selected>📂</option>
+                    ${otherCassettesOptions}
+                  </select>
+                ` : ''}
+                <button onclick="deleteFiber(${cIndex}, ${fIndex})" class="p-1 text-red-400 hover:text-red-600 text-[11px]">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // --- 5. Aktionen ---
+    function addCassette() {
+      const nextNum = state.cassettes.length + 1;
+      state.cassettes.push(createCassetteObject(`Kassette ${nextNum}`, 4));
+      renderAllCassettes();
+    }
+
+    function deleteCassette(cIndex) {
+      if (confirm(`Möchtest du "${state.cassettes[cIndex].name}" wirklich löschen?`)) {
+        state.cassettes.splice(cIndex, 1);
+        renderAllCassettes();
+      }
+    }
+
+    function updateCassetteName(cIndex, name) {
+      state.cassettes[cIndex].name = name;
+      saveToStorage();
+    }
+
+    function addFiberToCassette(cIndex) {
+      const cas = state.cassettes[cIndex];
+      if (cas.fibers.length >= 12) {
+        alert("Eine Kassette kann maximal 12 Fasern aufnehmen! Bitte lege eine neue Kassette an.");
+        return;
+      }
+      cas.fibers.push(createFiberRow(cas.fibers.length + 1, cas.fibers.length));
+      renderAllCassettes();
+    }
+
+    function fillCassetteFibers(cIndex, targetCount) {
+      const cas = state.cassettes[cIndex];
+      const count = Math.min(12, targetCount);
+      cas.fibers = [];
+      for (let i = 1; i <= count; i++) {
+        cas.fibers.push(createFiberRow(i, i - 1));
+      }
+      renderAllCassettes();
+    }
+
+    function deleteFiber(cIndex, fIndex) {
+      state.cassettes[cIndex].fibers.splice(fIndex, 1);
+      renderAllCassettes();
+    }
+
+    function updateFiberField(cIndex, fIndex, field, value) {
+      state.cassettes[cIndex].fibers[fIndex][field] = value;
+      saveToStorage();
+      if (field.includes('Color')) {
+        renderAllCassettes();
+      }
+    }
+
+    function moveFiberWithinCassette(cIndex, fIndex, direction) {
+      const fibers = state.cassettes[cIndex].fibers;
+      const targetIndex = fIndex + direction;
+      if (targetIndex < 0 || targetIndex >= fibers.length) return;
+
+      const temp = fibers[fIndex];
+      fibers[fIndex] = fibers[targetIndex];
+      fibers[targetIndex] = temp;
+      renderAllCassettes();
+    }
+
+    function transferFiberToAnotherCassette(fromCIndex, fIndex, toCIndexStr) {
+      const toCIndex = parseInt(toCIndexStr, 10);
+      if (isNaN(toCIndex) || toCIndex === fromCIndex) return;
+
+      const targetCas = state.cassettes[toCIndex];
+      if (targetCas.fibers.length >= 12) {
+        alert(`Die Ziel-Kassette "${targetCas.name}" ist bereits mit 12 Fasern voll!`);
+        renderAllCassettes();
+        return;
+      }
+
+      const [fiber] = state.cassettes[fromCIndex].fibers.splice(fIndex, 1);
+      targetCas.fibers.push(fiber);
+      renderAllCassettes();
+    }
+
+    function handleModeChange() {
+      const selectedMode = document.querySelector('input[name="spliceMode"]:checked').value;
+      state.mode = selectedMode;
+      renderAllCassettes();
+    }
+
+    function setCableStd(std) {
+      state.cableStd = std;
+      document.getElementById('btnStdNew').className = std === 'new'
+        ? 'py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white border-blue-600'
+        : 'py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 bg-white text-slate-700 border-slate-200 hover:bg-slate-50';
+
+      document.getElementById('btnStdOld').className = std === 'old'
+        ? 'py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white border-blue-600'
+        : 'py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 bg-white text-slate-700 border-slate-200 hover:bg-slate-50';
+
+      renderAllCassettes();
+    }
+
+    // --- 6. Fotos Handling ---
+    function handleImageUpload(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          compressImage(event.target.result, 1200, 0.75, (compressedDataUrl) => {
+            state.photos.push({
+              id: 'pic_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              data: compressedDataUrl,
+              caption: file.name.replace(/\.[^/.]+$/, "")
+            });
+            renderPhotos();
+            saveToStorage();
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+      e.target.value = '';
+    }
+
+    function compressImage(dataUrl, maxDimension, quality, callback) {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        callback(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = dataUrl;
+    }
+
+    function renderPhotos() {
+      const grid = document.getElementById('photoGrid');
+      const hint = document.getElementById('noPhotosHint');
+      grid.innerHTML = '';
+
+      if (state.photos.length === 0) {
+        hint.style.display = 'block';
+        return;
+      }
+      hint.style.display = 'none';
+
+      state.photos.forEach((pic, pIndex) => {
+        const div = document.createElement('div');
+        div.className = "relative bg-slate-50 border border-slate-200 rounded-xl overflow-hidden p-2 flex flex-col";
+        div.innerHTML = `
+          <img src="${pic.data}" class="w-full h-28 object-cover rounded-lg mb-2">
+          <input type="text" value="${escapeHtml(pic.caption)}" onchange="updatePhotoCaption(${pIndex}, this.value)" placeholder="Beschreibung"
+            class="text-[11px] bg-white border border-slate-200 rounded px-1.5 py-0.5 outline-none font-medium text-slate-700">
+          <button onclick="deletePhoto(${pIndex})" class="absolute top-3 right-3 bg-red-600/90 text-white rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function updatePhotoCaption(pIndex, caption) {
+      state.photos[pIndex].caption = caption;
+      saveToStorage();
+    }
+
+    function deletePhoto(pIndex) {
+      state.photos.splice(pIndex, 1);
+      renderPhotos();
+      saveToStorage();
+    }
+
+    // --- 7. Local Storage & Sync ---
+    function syncMetaInputs() {
+      document.getElementById('metaLocation').value = state.meta.location || '';
+      document.getElementById('metaTechnician').value = state.meta.technician || '';
+      document.getElementById('metaDate').value = state.meta.date || new Date().toISOString().split('T')[0];
+      document.getElementById('metaNotes').value = state.meta.notes || '';
+
+      const modeRadio = document.querySelector(`input[name="spliceMode"][value="${state.mode}"]`);
+      if (modeRadio) modeRadio.checked = true;
+
+      setCableStd(state.cableStd || 'new');
+
+      ['metaLocation', 'metaTechnician', 'metaDate', 'metaNotes'].forEach(id => {
+        document.getElementById(id).addEventListener('input', (e) => {
+          const key = id.replace('meta', '').toLowerCase();
+          state.meta[key] = e.target.value;
+          saveToStorage();
+        });
+      });
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('fiberpro_app_state_v3', JSON.stringify(state));
+    }
+
+    function loadFromStorage() {
+      const saved = localStorage.getItem('fiberpro_app_state_v3');
+      if (saved) {
+        try {
+          state = JSON.parse(saved);
+        } catch (e) {
+          console.error("Storage loading error:", e);
+        }
+      }
+    }
+
+    function resetDataWithConfirm() {
+      if (confirm("Möchtest du wirklich alle eingegebenen Daten zurücksetzen?")) {
+        localStorage.removeItem('fiberpro_app_state_v3');
+        state.meta = {
+          location: '',
+          technician: '',
+          date: new Date().toISOString().split('T')[0],
+          company: 'Geothermie Unterhaching GmbH & Co KG',
+          notes: ''
+        };
+        state.photos = [];
+        initDefaultCassettes();
+        syncMetaInputs();
+        renderAllCassettes();
+        renderPhotos();
+      }
+    }
+
+    // --- 8. PDF Dokument Builder (Gemeinsam für Download, Share & Vorschau) ---
+    function buildPDFDocument() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageHeight = doc.internal.pageSize.height;
+      const pageWidth = doc.internal.pageSize.width;
+
+      // Header
+      doc.setFillColor(30, 58, 138);
+      doc.rect(0, 0, pageWidth, 24, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text("LWL Spleiß- & Messprotokoll", 14, 11);
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(219, 234, 254);
+      doc.text("Geothermie Unterhaching GmbH & Co KG", 14, 18);
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Typ: ${state.mode === 'box' ? 'Spleißbox / ODF' : 'Kabelmuffe'}`, pageWidth - 14, 15, { align: 'right' });
+
+      // Stammdaten Box
+      let y = 30;
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(14, y, pageWidth - 28, 18, 2, 2, 'FD');
+
+      doc.setTextColor(51, 65, 85);
+      doc.setFontSize(8.5);
+
+      doc.setFont(undefined, 'bold');
+      doc.text("Standort:", 18, y + 6);
+      doc.setFont(undefined, 'normal');
+      doc.text(state.meta.location || "-", 38, y + 6);
+
+      doc.setFont(undefined, 'bold');
+      doc.text("Techniker:", pageWidth / 2 + 10, y + 6);
+      doc.setFont(undefined, 'normal');
+      doc.text(state.meta.technician || "-", pageWidth / 2 + 30, y + 6);
+
+      doc.setFont(undefined, 'bold');
+      doc.text("Datum:", 18, y + 13);
+      doc.setFont(undefined, 'normal');
+      doc.text(state.meta.date || "-", 38, y + 13);
+
+      doc.setFont(undefined, 'bold');
+      doc.text("Farbstandard:", pageWidth / 2 + 10, y + 13);
+      doc.setFont(undefined, 'normal');
+      doc.text(state.cableStd === 'new' ? 'Neu (Rot, Grün, Blau, Gelb)' : 'Alt (Braun, Orange, Blau, Grün)', pageWidth / 2 + 34, y + 13);
+
+      y += 24;
+
+      // Tabellen je Kassette
+      for (let cIdx = 0; cIdx < state.cassettes.length; cIdx++) {
+        const cas = state.cassettes[cIdx];
+
+        if (y > pageHeight - 40) {
+          doc.addPage();
+          y = 20;
+        }
+
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(30, 58, 138);
+        doc.text(`${cas.name} (${cas.fibers.length} / 12 Fasern)`, 14, y);
+        y += 3;
+
+        let tableHeaders = [];
+        let tableBody = [];
+
+        if (state.mode === 'box') {
+          tableHeaders = [['Pos', 'Pigtail (1-12)', 'Kabel-Farbe', 'Kabel-Faser', 'Dämpfung', 'Signal ist von', 'Patch']];
+          tableBody = cas.fibers.map((fib, fIdx) => [
+            fIdx + 1,
+            fib.pigtailColor || '-',
+            fib.cableColor || '-',
+            fib.cableFiber || '-',
+            fib.damping ? `${fib.damping} dB` : '-',
+            fib.signal || '-',
+            fib.patchFiber || '-'
+          ]);
+        } else {
+          tableHeaders = [['Pos', 'Kabel A Farbe', 'Faser A', 'Kabel B Farbe', 'Faser B', 'Signal / Bemerkung']];
+          tableBody = cas.fibers.map((fib, fIdx) => [
+            fIdx + 1,
+            fib.cableColor || '-',
+            fib.cableFiber || '-',
+            fib.cableBColor || '-',
+            fib.patchFiber || '-',
+            fib.signal || '-'
+          ]);
+        }
+
+        doc.autoTable({
+          startY: y,
+          head: tableHeaders,
+          body: tableBody,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [30, 58, 138],
+            textColor: 255,
+            fontSize: 7.5,
+            fontStyle: 'bold',
+            halign: 'left'
+          },
+          bodyStyles: {
+            fontSize: 7.5,
+            textColor: 50,
+            cellPadding: 2.2
+          },
+          columnStyles: {
+            0: { halign: 'center', cellWidth: 10 },
+            4: { halign: 'center' }
+          },
+          margin: { left: 14, right: 14 },
+          didDrawCell: function (data) {
+            if (data.section === 'body') {
+              let colorInfo = null;
+              if (state.mode === 'box') {
+                if (data.column.index === 1) colorInfo = ALL_COLOR_MAP[data.cell.raw];
+                if (data.column.index === 2) colorInfo = ALL_COLOR_MAP[data.cell.raw];
+              } else {
+                if (data.column.index === 1) colorInfo = ALL_COLOR_MAP[data.cell.raw];
+                if (data.column.index === 3) colorInfo = ALL_COLOR_MAP[data.cell.raw];
+              }
+
+              if (colorInfo) {
+                const rgb = colorInfo.rgb;
+                doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+                if (colorInfo.border) {
+                  doc.setDrawColor(180, 180, 180);
+                  doc.circle(data.cell.x + 3.5, data.cell.y + data.cell.height / 2, 1.8, 'FD');
+                } else {
+                  doc.circle(data.cell.x + 3.5, data.cell.y + data.cell.height / 2, 1.8, 'F');
+                }
+              }
+            }
+          }
+        });
+
+        y = doc.lastAutoTable.finalY + 8;
+      }
+
+      // Bemerkungen
+      if (state.meta.notes && state.meta.notes.trim() !== '') {
+        if (y > pageHeight - 35) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(30, 58, 138);
+        doc.text("Bemerkungen:", 14, y);
+        y += 4;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(70, 70, 70);
+
+        const splitNotes = doc.splitTextToSize(state.meta.notes, pageWidth - 28);
+        doc.text(splitNotes, 14, y);
+        y += (splitNotes.length * 4) + 6;
+      }
+
+      // Fotodokumentation
+      if (state.photos && state.photos.length > 0) {
+        doc.addPage();
+        y = 20;
+
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(30, 58, 138);
+        doc.text("Fotodokumentation", 14, y);
+        y += 8;
+
+        const imgWidth = 85;
+        const imgHeight = 60;
+        let xOffset = 14;
+
+        for (let i = 0; i < state.photos.length; i++) {
+          const pic = state.photos[i];
+
+          if (y + imgHeight + 10 > pageHeight) {
+            doc.addPage();
+            y = 20;
+            xOffset = 14;
+          }
+
+          try {
+            doc.addImage(pic.data, 'JPEG', xOffset, y, imgWidth, imgHeight);
+            doc.setFontSize(7.5);
+            doc.setTextColor(70, 70, 70);
+            doc.setFont(undefined, 'normal');
+            doc.text(pic.caption || `Foto ${i + 1}`, xOffset, y + imgHeight + 4);
+          } catch (err) {
+            console.error("Bild Rendering Fehler:", err);
+          }
+
+          if (xOffset === 14) {
+            xOffset = 14 + imgWidth + 8;
+          } else {
+            xOffset = 14;
+            y += imgHeight + 12;
+          }
+        }
+      }
+
+      return doc;
+    }
+
+    // --- 9. PDF Vorschau Modal Steuerung ---
+    function showPDFPreview() {
+      const doc = buildPDFDocument();
+      const pdfDataUri = doc.output('datauristring');
+      const iframe = document.getElementById('pdfPreviewFrame');
+      iframe.src = pdfDataUri;
+
+      document.getElementById('previewModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
+      document.getElementById('pdfPreviewFrame').src = '';
+      document.body.style.overflow = '';
+    }
+
+    // --- 10. PDF Export & Teilen ---
+    async function generatePDF(triggerShare = false) {
+      const doc = buildPDFDocument();
+      const locClean = (state.meta.location || 'Protokoll').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `Spleissprotokoll_${locClean}_${state.meta.date}.pdf`;
+
+      if (triggerShare && navigator.canShare) {
+        const pdfBlob = doc.output('blob');
+        const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+        try {
+          await navigator.share({
+            title: `Spleißprotokoll ${state.meta.location || ''}`,
+            text: `Spleißprotokoll von Geothermie Unterhaching (${state.meta.location || ''})`,
+            files: [file]
+          });
+          return;
+        } catch (e) {
+          console.log("Share API abgebrochen:", e);
+        }
+      }
+
+      doc.save(filename);
+    }
+
+    // --- 11. Excel Export (.xlsx) ---
+    function exportToExcel() {
+      const wb = XLSX.utils.book_new();
+
+      const planData = [
+        ["Geothermie Unterhaching GmbH & Co KG - Spleiß- und Messprotokoll"],
+        [],
+        ["Standort:", state.meta.location || "-"],
+        ["Techniker:", state.meta.technician || "-"],
+        ["Datum:", state.meta.date || "-"],
+        ["Typ:", state.mode === 'box' ? 'Spleißbox / ODF' : 'Kabelmuffe'],
+        []
+      ];
+
+      state.cassettes.forEach((cas) => {
+        planData.push([`--- ${cas.name} (${cas.fibers.length}/12) ---`]);
+        if (state.mode === 'box') {
+          planData.push(["Pos", "Pigtail-Farbe", "Kabel-Farbe", "Kabel-Faser", "Dämpfung (dB)", "Signal ist von", "Patch-Faser"]);
+          cas.fibers.forEach((f, idx) => {
+            planData.push([
+              idx + 1,
+              f.pigtailColor || '',
+              f.cableColor || '',
+              f.cableFiber || '',
+              f.damping || '',
+              f.signal || '',
+              f.patchFiber || ''
+            ]);
+          });
+        } else {
+          planData.push(["Pos", "Kabel A Farbe", "Faser A", "Kabel B Farbe", "Faser B", "Signal / Bemerkung"]);
+          cas.fibers.forEach((f, idx) => {
+            planData.push([
+              idx + 1,
+              f.cableColor || '',
+              f.cableFiber || '',
+              f.cableBColor || '',
+              f.patchFiber || '',
+              f.signal || ''
+            ]);
+          });
+        }
+        planData.push([]);
+      });
+
+      if (state.meta.notes) {
+        planData.push(["Bemerkungen:"]);
+        planData.push([state.meta.notes]);
+      }
+
+      const wsPlan = XLSX.utils.aoa_to_sheet(planData);
+      XLSX.utils.book_append_sheet(wb, wsPlan, "Spleißplan");
+
+      const locClean = (state.meta.location || 'Protokoll').replace(/[^a-zA-Z0-9_-]/g, '_');
+      XLSX.writeFile(wb, `Spleissprotokoll_${locClean}_${state.meta.date}.xlsx`);
+    }
+
+    // --- 12. E-Mail Versand Assistent ---
+    function sendViaEmail() {
+      const to = "technik@geothermie-unterhaching.de;f.elstein@geothermie-unterhaching.de";
+      const subject = `Spleißprotokoll: ${state.meta.location || 'Standort'} - ${state.meta.date}`;
+
+      const totalFibers = state.cassettes.reduce((sum, c) => sum + c.fibers.length, 0);
+
+      const bodyText = `Hallo Technik-Team,\n\nanbei die Daten zum Spleißprotokoll:\n\n` +
+        `• Auftraggeber: Geothermie Unterhaching GmbH & Co KG\n` +
+        `• Standort: ${state.meta.location || '-'}\n` +
+        `• Techniker: ${state.meta.technician || '-'}\n` +
+        `• Datum: ${state.meta.date}\n` +
+        `• Typ: ${state.mode === 'box' ? 'Spleißbox / ODF' : 'Kabelmuffe'}\n` +
+        `• Kassetten: ${state.cassettes.length} (Gesamt ${totalFibers} Fasern)\n` +
+        (state.meta.notes ? `• Bemerkungen: ${state.meta.notes}\n` : '') +
+        `\n(Bitte die soeben heruntergeladene PDF-Datei an diese E-Mail anhängen.)\n\nViele Grüße\n${state.meta.technician || 'Monteur'}`;
+
+      window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+    }
+
+    // Utility
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
