@@ -1,10 +1,11 @@
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWL Montage-Assistent & Spleißprotokoll</title>
   
-  <!-- jsPDF & AutoTable Bibliotheken -->
+  <!-- jsPDF & AutoTable für saubere Vektor-PDFs mit Kassetten-Trennheadern -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
@@ -197,9 +198,9 @@
       font-weight: 600;
     }
 
-    /* Kassetten Trennzeilen im HTML */
+    /* Kassetten Trennzeile im HTML */
     .cassette-header-row td {
-      background-color: #0f3d64 !important;
+      background-color: #003860 !important;
       color: #ffffff !important;
       font-weight: bold;
       text-align: left !important;
@@ -458,7 +459,7 @@
   <!-- SCHRITT 3: Spleißplan Detailanpassung (Fasern & Farben frei ändern) -->
   <div id="step-splice-adjust" class="step-card">
     <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
-    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben und Zuordnungen bei Bedarf an.</p>
+    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben bei Bedarf an (z. B. Rot auf Grün umstellen).</p>
 
     <div class="table-container">
       <table id="wizardTable">
@@ -536,7 +537,7 @@
 </div>
 
 <script>
-  // Farbdefinitionen
+  // Farbcodes
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444" },
@@ -724,11 +725,12 @@
     tbody.innerHTML = '';
     document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
 
-    // Kopfzeile Trennung
-    const sep = document.createElement('tr');
-    sep.className = 'cassette-header-row';
-    sep.innerHTML = `<td colspan="9">📁 Muffe / Durchgangskassette (${maxCount} Fasern)</td>`;
-    tbody.appendChild(sep);
+    // Überschrift Kassette / Muffe
+    const headerRow = document.createElement('tr');
+    headerRow.className = 'cassette-header-row';
+    headerRow.setAttribute('data-cassette-title', 'MUFFE: Durchgangskassette');
+    headerRow.innerHTML = `<td colspan="9">📁 MUFFE / DURCHGANGSKASSETTE (${maxCount} Fasern)</td>`;
+    tbody.appendChild(headerRow);
 
     for (let i = 1; i <= maxCount; i++) {
       const colA = PALETTES[typeA][(i - 1) % 12];
@@ -740,7 +742,7 @@
     showStep('step-splice-adjust');
   }
 
-  // Spleißbox Tabelle erzeugen (mit klar getrennten Kassetten-Überschriften)
+  // Spleißbox Tabelle erzeugen
   function buildBoxSpliceTable() {
     const cassetteCount = parseInt(document.getElementById('box_cassette_count').value);
     const tbody = document.getElementById('wizardTableBody');
@@ -757,11 +759,12 @@
         const typePig = document.getElementById(`box_c${c}_pigtailType`).value;
         const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
 
-        // Kassetten-Trennüberschrift
-        const sep = document.createElement('tr');
-        sep.className = 'cassette-header-row';
-        sep.innerHTML = `<td colspan="9">📁 Kassette ${c} (1 Kabel • ${fiberCount} Fasern auf Pigtails)</td>`;
-        tbody.appendChild(sep);
+        // Kassetten Trenn-Überschrift
+        const headerRow = document.createElement('tr');
+        headerRow.className = 'cassette-header-row';
+        headerRow.setAttribute('data-cassette-title', `KASSETTE ${c} (${fiberCount} Fasern auf Pigtails)`);
+        headerRow.innerHTML = `<td colspan="9">📁 KASSETTE ${c} (${fiberCount} Fasern auf Pigtails)</td>`;
+        tbody.appendChild(headerRow);
 
         for (let f = 1; f <= fiberCount; f++) {
           const colA = PALETTES[typeCable][(f - 1) % 12];
@@ -773,11 +776,14 @@
       } else {
         const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
         
-        // Kassetten-Trennüberschrift für Multi-Kabel
-        const sep = document.createElement('tr');
-        sep.className = 'cassette-header-row';
-        sep.innerHTML = `<td colspan="9">📁 Kassette ${c} (${subCards.length} Teilkabel • Pigtails)</td>`;
-        tbody.appendChild(sep);
+        let totalFibers = 0;
+        subCards.forEach(card => totalFibers += parseInt(card.querySelector('.sub-count').value));
+
+        const headerRow = document.createElement('tr');
+        headerRow.className = 'cassette-header-row';
+        headerRow.setAttribute('data-cassette-title', `KASSETTE ${c} (${subCards.length} Kabel / ${totalFibers} Fasern)`);
+        headerRow.innerHTML = `<td colspan="9">📁 KASSETTE ${c} (${subCards.length} Kabel / ${totalFibers} Fasern auf Pigtails)</td>`;
+        tbody.appendChild(headerRow);
 
         let pigtailCounter = 1;
         subCards.forEach((card, subIdx) => {
@@ -855,20 +861,26 @@
     else showStep('step-box-config');
   }
 
-  // Speichern der Einheit inkl. Trennzeilen für saubere PDF-Struktur
+  // Speichern der Einheit in kassettenbasierter Struktur
   function saveCurrentUnitAndAskNext() {
     const unitName = document.getElementById('inUnitName').value || `${currentUnitType} ${completedUnits.length + 1}`;
-    const rows = [];
+    const cassettes = [];
+    let currentCassette = null;
 
     document.querySelectorAll('#wizardTableBody tr').forEach(tr => {
-      if (tr.classList.contains('cassette-header-row') || tr.cells.length === 1) {
-        rows.push({
-          isDivider: true,
-          title: tr.cells[0].textContent.trim()
-        });
-      } else if (tr.cells.length > 2) {
-        rows.push({
-          isDivider: false,
+      if (tr.classList.contains('cassette-header-row')) {
+        const title = tr.getAttribute('data-cassette-title') || tr.cells[0].textContent.trim();
+        currentCassette = {
+          title: title,
+          rows: []
+        };
+        cassettes.push(currentCassette);
+      } else if (tr.classList.contains('splice-data-row')) {
+        if (!currentCassette) {
+          currentCassette = { title: "Kassette 1", rows: [] };
+          cassettes.push(currentCassette);
+        }
+        currentCassette.rows.push({
           nr: tr.cells[0].textContent.trim(),
           cassette: tr.cells[1].querySelector('input').value,
           colA: tr.cells[2].querySelector('select').selectedOptions[0].text,
@@ -884,7 +896,7 @@
     completedUnits.push({
       type: currentUnitType,
       name: unitName,
-      rows: rows
+      cassettes: cassettes
     });
 
     updateConfiguredUnitsSummary();
@@ -895,13 +907,15 @@
     const list = document.getElementById('configuredUnitsList');
     list.innerHTML = '<h3>Bisher erfasste Einheiten:</h3>';
     completedUnits.forEach((u, i) => {
-      const fiberCount = u.rows.filter(r => !r.isDivider).length;
+      let totalFibers = 0;
+      u.cassettes.forEach(c => totalFibers += c.rows.length);
+
       const div = document.createElement('div');
       div.className = 'unit-card';
       div.innerHTML = `
         <div class="unit-card-header">
           <span>${i + 1}. ${u.name} (${u.type})</span>
-          <span style="font-size: 12px; color: #64748b;">${fiberCount} Spleiße</span>
+          <span style="font-size: 12px; color: #64748b;">${u.cassettes.length} Kassetten / ${totalFibers} Spleiße</span>
         </div>
       `;
       list.appendChild(div);
@@ -979,7 +993,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // PDF-Generierung mit prominenten Kassetten-Trennüberschriften
+  // PDF-Generierung mit KLAREN KASSETTEN-ÜBERSCHRIFTEN
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -989,125 +1003,119 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Header
+    // Hauptheader
     doc.setFontSize(15);
     doc.setTextColor(0, 85, 143);
-    doc.text("LWL-Spleiß- & Messprotokoll", 14, 16);
+    doc.text("LWL-Spleiß- & Messprotokoll", 14, 15);
 
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139);
-    doc.text("Geothermie Unterhaching GmbH & Co. KG", 14, 22);
-    doc.text(`Datum: ${dateStr}`, 196, 16, { align: 'right' });
+    doc.text("Geothermie Unterhaching GmbH & Co. KG", 14, 21);
+    doc.text(`Datum: ${dateStr}`, 196, 15, { align: 'right' });
 
-    // Meta Box
+    // Stammdaten Box
     doc.setDrawColor(203, 213, 225);
     doc.setFillColor(248, 250, 252);
-    doc.roundedRect(14, 26, 182, 16, 2, 2, 'FD');
+    doc.roundedRect(14, 25, 182, 16, 2, 2, 'FD');
 
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
-    doc.text(`Projekt / Trasse: ${project}`, 18, 32);
-    doc.text(`Standort: ${location}`, 18, 38);
-    doc.text(`Monteur: ${technician}`, 120, 32);
+    doc.text(`Projekt / Trasse: ${project}`, 18, 31);
+    doc.text(`Standort: ${location}`, 18, 37);
+    doc.text(`Monteur: ${technician}`, 120, 31);
 
-    let startY = 46;
+    let currentY = 46;
 
     completedUnits.forEach((unit, uIdx) => {
-      doc.setFontSize(11);
+      // Haupt-Überschrift für die Einheit
+      if (currentY > 240) { doc.addPage(); currentY = 20; }
+
+      doc.setFontSize(12);
       doc.setTextColor(0, 56, 96);
-      doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, startY);
+      doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, currentY);
+      currentY += 4;
 
-      // Tabellenzeilen für PDF mit Kassetten-Trennblöcken vorbereiten
-      const tableBody = [];
-      unit.rows.forEach(r => {
-        if (r.isDivider) {
-          tableBody.push([
-            {
-              content: r.title,
-              colSpan: 9,
-              styles: {
-                fillColor: [15, 61, 100],
-                textColor: [255, 255, 255],
-                fontStyle: 'bold',
-                halign: 'left',
-                fontSize: 9,
-                cellPadding: 3
-              }
-            }
-          ]);
-        } else {
-          tableBody.push([
-            r.nr,
-            r.cassette,
-            r.colA,
-            r.fasA,
-            "->",
-            r.colB,
-            r.fasB,
-            r.attenuation,
-            r.notes
-          ]);
-        }
-      });
+      // Jede Kassette bekommt eine eigene Überschrift + eigene Tabelle
+      unit.cassettes.forEach((cassette) => {
+        if (currentY > 230) { doc.addPage(); currentY = 20; }
 
-      doc.autoTable({
-        startY: startY + 3,
-        head: [['Nr.', 'Kassette', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Dämpfung', 'Bemerkung / Kabel']],
-        body: tableBody,
-        theme: 'grid',
-        headStyles: { fillColor: [0, 85, 143], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
-        styles: { fontSize: 8, halign: 'center', cellPadding: 2 },
-        columnStyles: {
-          0: { cellWidth: 10 },
-          1: { cellWidth: 16 },
-          2: { cellWidth: 28 },
-          3: { cellWidth: 14 },
-          4: { cellWidth: 8 },
-          5: { cellWidth: 28 },
-          6: { cellWidth: 14 },
-          7: { cellWidth: 22 },
-          8: { cellWidth: 'auto' }
-        },
-        didParseCell: function(data) {
-          if (data.section === 'body') {
-            const rawRow = unit.rows[data.row.index];
-            if (rawRow && !rawRow.isDivider) {
-              // Kabel A Farben
-              if (data.column.index === 2 || data.column.index === 3) {
-                const hex = getColorHex(rawRow.colA);
-                data.cell.styles.fillColor = hex;
-                data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-                data.cell.styles.fontStyle = 'bold';
-              }
-              // Kabel B / Pigtail Farben
-              if (data.column.index === 5 || data.column.index === 6) {
-                const hex = getColorHex(rawRow.colB);
-                data.cell.styles.fillColor = hex;
-                data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-                data.cell.styles.fontStyle = 'bold';
+        // Kassetten Überschriftsbanner (visuell hervorgehoben)
+        doc.setFillColor(0, 56, 96); // Dunkelblaues Kassettenbanner
+        doc.roundedRect(14, currentY, 182, 6, 1, 1, 'F');
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`📁 ${cassette.title.toUpperCase()}`, 18, currentY + 4.2);
+        currentY += 7;
+
+        const tableData = cassette.rows.map(r => [
+          r.nr,
+          r.cassette,
+          r.colA,
+          r.fasA,
+          "->",
+          r.colB,
+          r.fasB,
+          r.attenuation,
+          r.notes
+        ]);
+
+        doc.autoTable({
+          startY: currentY,
+          head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Dämpfung', 'Bemerkung / Kabel']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { fillColor: [0, 85, 143], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+          styles: { fontSize: 8, halign: 'center', cellPadding: 2 },
+          columnStyles: {
+            0: { cellWidth: 10 },
+            1: { cellWidth: 14 },
+            2: { cellWidth: 28 },
+            3: { cellWidth: 14 },
+            4: { cellWidth: 8 },
+            5: { cellWidth: 28 },
+            6: { cellWidth: 14 },
+            7: { cellWidth: 22 },
+            8: { cellWidth: 'auto' }
+          },
+          didParseCell: function(data) {
+            if (data.section === 'body') {
+              const rawRow = cassette.rows[data.row.index];
+              if (rawRow) {
+                // Kabel A Spalten einfärben
+                if (data.column.index === 2 || data.column.index === 3) {
+                  const hex = getColorHex(rawRow.colA);
+                  data.cell.styles.fillColor = hex;
+                  data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+                  data.cell.styles.fontStyle = 'bold';
+                }
+                // Kabel B Spalten einfärben
+                if (data.column.index === 5 || data.column.index === 6) {
+                  const hex = getColorHex(rawRow.colB);
+                  data.cell.styles.fillColor = hex;
+                  data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+                  data.cell.styles.fontStyle = 'bold';
+                }
               }
             }
           }
-        }
+        });
+
+        currentY = doc.lastAutoTable.finalY + 6;
       });
 
-      startY = doc.lastAutoTable.finalY + 10;
-      if (startY > 250 && uIdx < completedUnits.length - 1) {
-        doc.addPage();
-        startY = 20;
-      }
+      currentY += 4;
     });
 
     // Bemerkungen
     if (notes) {
-      if (startY > 240) { doc.addPage(); startY = 20; }
+      if (currentY > 240) { doc.addPage(); currentY = 20; }
       doc.setFontSize(10);
       doc.setTextColor(0, 56, 96);
-      doc.text("Hinweise / Bemerkungen:", 14, startY);
+      doc.text("Hinweise / Bemerkungen:", 14, currentY);
       doc.setFontSize(9);
       doc.setTextColor(15, 23, 42);
-      doc.text(notes, 14, startY + 5);
-      startY += 16;
+      doc.text(notes, 14, currentY + 5);
+      currentY += 16;
     }
 
     // Fotodokumentation
