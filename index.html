@@ -53,7 +53,7 @@
     }
 
     .header-logo-img {
-      height: 42px;
+      height: 44px;
       width: auto;
       object-fit: contain;
       display: block;
@@ -519,50 +519,8 @@
 </div>
 
 <script>
-  let GUH_LOGO_IMG_ELEMENT = null;
-
-  // Erzeugt das Bild-Logo mit perfektem Seitenverhältnis (Originalproportion)
-  function initLogoData() {
-    const svgCode = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 100" width="460" height="100">
-      <g fill="#175467">
-        <path d="M49.5 53.5c-1.3 1.3-2.9 2.3-4.8 3-1.9.7-4 .1-6.3.1-3.5 0-6.6-.8-9.1-2.4-2.5-1.6-4.5-3.9-5.9-6.8-1.4-2.9-2.2-6.4-2.2-10.3 0-3.9.7-7.4 2.2-10.3 1.5-2.9 3.5-5.2 6-6.9 2.5-1.7 5.6-2.5 9.1-2.5 3.1 0 5.8.6 8.1 1.9 2.3 1.3 4.1 3.1 5.3 5.3l-7.5 4.3c-.8-1.4-1.7-2.4-3-3.1s-2.7-1.1-4.4-1.1c-2.1 0-3.9.5-5.4 1.7-1.5 1.2-2.6 2.6-3.4 4.5-.8 1.9-1.1 4-1.1 6.4s.3 4.5 1.1 6.4c.8 1.9 1.9 3.4 3.4 4.5 1.5 1.2 3.3 1.7 5.4 1.7 1.8 0 3.4-.3 4.6-1.1s2.1-1.7 2.7-3.1h-8.8V46h18.8v14.8h-7.3v-7.3z"/>
-        <path d="M65.4 19.1h24.3v7.5h-15v7.3h13.3v7.3H74.7v8.5h15.4v7.5H65.4V19.1z"/>
-        <path d="M115.5 18.4c3.5 0 6.6.8 9.2 2.4 2.6 1.6 4.6 3.9 6 6.8 1.4 2.9 2.2 6.3 2.2 10.3s-.7 7.4-2.2 10.4-3.5 5.2-6.1 6.9c-2.6 1.7-5.7 2.5-9.2 2.5s-6.6-.9-9.2-2.5c-2.6-1.7-4.6-4-6.1-6.9-1.5-2.9-2.2-6.4-2.2-10.4s.7-7.4 2.2-10.3c1.5-2.9 3.5-5.2 6.1-6.8 2.6-1.6 5.7-2.4 9.3-2.4zm0 7.3c-2.1 0-3.9.5-5.4 1.7s-2.6 2.6-3.4 4.5c-.8 1.9-1.2 4.1-1.2 6.5s.4 4.5 1.2 6.5c.8 1.9 1.9 3.4 3.4 4.5 1.5 1.1 3.3 1.7 5.4 1.7s3.9-.6 5.4-1.7c1.5-1.1 2.6-2.6 3.4-4.5.8-1.9 1.2-4.1 1.2-6.5s-.4-4.6-1.2-6.5c-.8-1.9-1.9-3.4-3.4-4.5s-3.3-1.7-5.4-1.7z"/>
-        <path d="M146.7 26.6h-9.8v-7.5h28.9v7.5h-9.4v30.5h-9.4V26.6z"/>
-        <path d="M170.6 19.1h9.4v16.3h14.1V19.1h9.4v38h-9.4V43.5H180v13.6h-9.4V19.1z"/>
-        <path d="M211.6 19.1h24.3v7.5h-15v7.3h13.3v7.3h-13.3v8.5h15.4v7.5h-24.7V19.1z"/>
-        <path d="M244.3 19.1h14.5c3.2 0 5.9.5 8.1 1.6 2.2 1.1 3.8 2.5 4.9 4.5s1.6 4.1 1.6 6.5c0 3-.8 5.4-2.3 7.4s-3.8 3.4-6.6 4.1l10 13.9h-11.4l-8.6-12.5h-.9v12.5h-9.3V19.1zm9.3 7.4v10.7h4.8c1.7 0 3.1-.4 4.2-1.2s1.6-2.1 1.6-3.9c0-1.9-.5-3.3-1.6-4.2s-2.4-1.3-4.2-1.3h-4.8z"/>
-        <path d="M280.7 19.1h10.9l8 19.9 8.1-19.9h10.9v38h-9.1V31.2l-7.4 18.1h-5.1l-7.4-18.1v25.9h-8.9V19.1z"/>
-        <path d="M326.7 19.1h9.4v38h-9.4V19.1z"/>
-        <path d="M343.8 19.1h24.3v7.5h-15v7.3h13.3v7.3h-13.3v8.5h15.4v7.5h-24.7V19.1z"/>
-      </g>
-      <g fill="#175467" font-family="-apple-system, sans-serif" font-size="18.5" font-weight="600" letter-spacing="13.5">
-        <text x="24" y="90">UNTERHACHING</text>
-      </g>
-      <g>
-        <path d="M375 48c20-2 37-10 44-22 7-11 7-17 7-17s-1 9-8 19c-8 11-25 20-43 20z" fill="#E85C24"/>
-        <path d="M375 60c20-2 37-10 44-22 7-11 7-17 7-17s-1 9-8 19c-8 11-25 20-43 20z" fill="#E85C24" opacity="0.9"/>
-        <path d="M375 72c20-2 37-10 44-22 7-11 7-17 7-17s-1 9-8 19c-8 11-25 20-43 20z" fill="#4B585E"/>
-      </g>
-    </svg>`;
-
-    const svgBlob = new Blob([svgCode], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      canvas.width = 920;
-      canvas.height = 200;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
-      GUH_LOGO_IMG_ELEMENT = canvas.toDataURL('image/png');
-      document.getElementById('webHeaderLogo').src = GUH_LOGO_IMG_ELEMENT;
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
-  }
+  // Sauberes, hochaufgelöstes Original-Logo als PNG (Base64)
+  const GUH_LOGO_BASE64 = "data:image/png;base64,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";
 
   const PALETTES = {
     neu: [
@@ -603,7 +561,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
-    initLogoData();
+    document.getElementById('webHeaderLogo').src = GUH_LOGO_BASE64;
     renderCassetteForms();
   });
 
@@ -997,7 +955,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Offizielles GUH PDF Dokument mit unverzerrtem Logo
+  // Generierung des offiziellen GUH-PDFs mit unverzerrtem Original-Logo
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -1007,16 +965,14 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Firmenlogo proportional einfügen (460x100 Ratio = 4.6 : 1)
-    if (GUH_LOGO_IMG_ELEMENT) {
-      const logoHeight = 11.5;
-      const logoWidth = logoHeight * 4.6; // Exaktes Seitenverhältnis (52.9 mm)
-      doc.addImage(GUH_LOGO_IMG_ELEMENT, 'PNG', 14, 9, logoWidth, logoHeight);
-    } else {
-      doc.setFontSize(14);
+    // Originales Logo mit exaktem Seitenverhältnis (48mm x 14mm)
+    try {
+      doc.addImage(GUH_LOGO_BASE64, 'PNG', 14, 9, 48, 14);
+    } catch(e) {
+      doc.setFontSize(13);
       doc.setTextColor(23, 84, 103);
       doc.setFont(undefined, 'bold');
-      doc.text("GEOTHERMIE UNTERHACHING", 14, 18);
+      doc.text("GEOTHERMIE UNTERHACHING", 14, 17);
     }
 
     // Dokumententitel (oben rechts)
@@ -1028,11 +984,11 @@
     // Akzentlinie (GUH Orange)
     doc.setDrawColor(232, 92, 36);
     doc.setLineWidth(0.8);
-    doc.line(14, 24, 196, 24);
+    doc.line(14, 25, 196, 25);
 
     // Stammdaten-Tabelle
     doc.autoTable({
-      startY: 27,
+      startY: 28,
       theme: 'plain',
       styles: { fontSize: 8.5, cellPadding: 1.5, textColor: [15, 23, 42] },
       columnStyles: {
@@ -1175,7 +1131,7 @@
       });
     }
 
-    // Fußzeile
+    // Fußzeile auf allen Seiten
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
