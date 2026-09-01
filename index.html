@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWL Montage-Assistent & Spleißprotokoll</title>
   
-  <!-- jsPDF & AutoTable für saubere Vektor-PDFs -->
+  <!-- jsPDF & AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
@@ -41,7 +41,6 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
 
-    /* Header */
     .app-header {
       border-bottom: 2px solid var(--primary-light);
       padding-bottom: 12px;
@@ -63,7 +62,6 @@
       color: #64748b;
     }
 
-    /* Step Cards */
     .step-card {
       display: none;
       animation: fadeIn 0.2s ease-in-out;
@@ -195,7 +193,6 @@
       font-weight: 600;
     }
 
-    /* Kassetten Trennzeile im HTML */
     .cassette-header-row td {
       background-color: #003860 !important;
       color: #ffffff !important;
@@ -595,7 +592,7 @@
       box.id = `cassette_box_${c}`;
       box.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <h4 style="margin: 0; color: var(--primary); font-size: 14px;">📁 Kassette ${c}</h4>
+          <h4 style="margin: 0; color: var(--primary); font-size: 14px;">Kassette ${c}</h4>
           <div style="display: flex; align-items: center; gap: 8px;">
             <label style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Kabel-Modus:</label>
             <select id="box_c${c}_cableMode" onchange="toggleCableMode(${c})">
@@ -708,14 +705,14 @@
     const headerRow = document.createElement('tr');
     headerRow.className = 'cassette-header-row';
     headerRow.setAttribute('data-kassette-id', 'K1');
-    headerRow.setAttribute('data-kassette-title', `Muffe / Durchgang (${maxCount} Fasern)`);
-    headerRow.innerHTML = `<td colspan="9">📁 MUFFE / DURCHGANGSKASSETTE (${maxCount} Fasern)</td>`;
+    headerRow.setAttribute('data-kassette-title', 'Muffe');
+    headerRow.innerHTML = `<td colspan="9">Muffe</td>`;
     tbody.appendChild(headerRow);
 
     for (let i = 1; i <= maxCount; i++) {
       const colA = PALETTES[typeA][(i - 1) % 12];
       const colB = PALETTES[typeB][(i - 1) % 12];
-      const tr = createSpliceRowHTML(i, "K1", typeA, colA, i, typeB, colB, i, "Kabel 1 ➜ Kabel 2");
+      const tr = createSpliceRowHTML(i, "K1", typeA, colA, i, typeB, colB, i, "Kabel 1 -> Kabel 2");
       tbody.appendChild(tr);
     }
 
@@ -733,37 +730,27 @@
     for (let c = 1; c <= cassetteCount; c++) {
       const mode = document.getElementById(`box_c${c}_cableMode`).value;
 
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'cassette-header-row';
+      headerRow.setAttribute('data-kassette-id', `K${c}`);
+      headerRow.setAttribute('data-kassette-title', `Kassette ${c}`);
+      headerRow.innerHTML = `<td colspan="9">Kassette ${c}</td>`;
+      tbody.appendChild(headerRow);
+
       if (mode === 'single') {
         const typeCable = document.getElementById(`box_c${c}_cableType`).value;
         const typePig = document.getElementById(`box_c${c}_pigtailType`).value;
         const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
 
-        const headerRow = document.createElement('tr');
-        headerRow.className = 'cassette-header-row';
-        headerRow.setAttribute('data-kassette-id', `K${c}`);
-        headerRow.setAttribute('data-kassette-title', `Kassette ${c} (${fiberCount} Fasern auf Pigtails)`);
-        headerRow.innerHTML = `<td colspan="9">📁 KASSETTE ${c} (${fiberCount} Fasern auf Pigtails)</td>`;
-        tbody.appendChild(headerRow);
-
         for (let f = 1; f <= fiberCount; f++) {
           const colA = PALETTES[typeCable][(f - 1) % 12];
           const colB = PALETTES[typePig][(f - 1) % 12];
-          const tr = createSpliceRowHTML(globalIndex, `K${c}`, typeCable, colA, f, typePig, colB, f, "Kabel ➜ Pigtail");
+          const tr = createSpliceRowHTML(globalIndex, `K${c}`, typeCable, colA, f, typePig, colB, f, "Kabel -> Pigtail");
           tbody.appendChild(tr);
           globalIndex++;
         }
       } else {
         const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
-        let totalFibers = 0;
-        subCards.forEach(card => totalFibers += parseInt(card.querySelector('.sub-count').value));
-
-        const headerRow = document.createElement('tr');
-        headerRow.className = 'cassette-header-row';
-        headerRow.setAttribute('data-kassette-id', `K${c}`);
-        headerRow.setAttribute('data-kassette-title', `Kassette ${c} (${subCards.length} Kabel / ${totalFibers} Fasern)`);
-        headerRow.innerHTML = `<td colspan="9">📁 KASSETTE ${c} (${subCards.length} Kabel / ${totalFibers} Fasern auf Pigtails)</td>`;
-        tbody.appendChild(headerRow);
-
         let pigtailCounter = 1;
         subCards.forEach((card, subIdx) => {
           const cableName = card.querySelector('.sub-name').value || `Kabel ${subIdx + 1}`;
@@ -802,7 +789,7 @@
         <input class="input-cell" type="number" value="${faserA}">
       </td>
 
-      <td style="color: #64748b; font-weight: bold;">➜</td>
+      <td style="color: #64748b; font-weight: bold;">-></td>
 
       <td class="${defaultColB.class}" id="cell-colB-${nr}">
         <select class="color-select" onchange="updateRowColor(this, 'cell-colB-${nr}')">
@@ -838,7 +825,6 @@
     else showStep('step-box-config');
   }
 
-  // Speichert die Einheit sauber nach Kassetten gruppiert
   function saveCurrentUnitAndAskNext() {
     const unitName = document.getElementById('inUnitName').value || `${currentUnitType} ${completedUnits.length + 1}`;
     const cassetteMap = new Map();
@@ -853,7 +839,7 @@
       } else if (tr.classList.contains('splice-data-row')) {
         const kId = tr.cells[1].querySelector('input').value.trim() || 'K1';
         if (!cassetteMap.has(kId)) {
-          cassetteMap.set(kId, { title: `Kassette ${kId}`, rows: [] });
+          cassetteMap.set(kId, { title: `Kassette ${kId.replace('K', '')}`, rows: [] });
         }
         cassetteMap.get(kId).rows.push({
           nr: tr.cells[0].textContent.trim(),
@@ -967,7 +953,6 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // PDF-Generierung mit GARANTIERT getrennten Kassetten-Tabellen und Überschriften
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -977,7 +962,7 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Hauptheader
+    // Header
     doc.setFontSize(15);
     doc.setTextColor(0, 85, 143);
     doc.text("LWL-Spleiß- & Messprotokoll", 14, 15);
@@ -1003,22 +988,22 @@
     completedUnits.forEach((unit, uIdx) => {
       if (currentY > 240) { doc.addPage(); currentY = 20; }
 
-      // Einheiten-Titel
       doc.setFontSize(12);
       doc.setTextColor(0, 56, 96);
       doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, currentY);
       currentY += 5;
 
-      // Iteration über jede einzelne Kassette
       unit.cassettes.forEach((cassette) => {
         if (currentY > 230) { doc.addPage(); currentY = 20; }
 
-        // KASSETTEN-ÜBERSCHRIFT (Dunkelblaues Banner)
+        // Schlichter Kassetten-Titel ohne Sonderzeichen
+        const cleanTitle = cassette.title.replace(/[\uD800-\uDFFF].|[\u2600-\u27FF]/g, '').trim();
+
         doc.setFillColor(0, 56, 96);
         doc.roundedRect(14, currentY, 182, 6.5, 1, 1, 'F');
         doc.setFontSize(9);
         doc.setTextColor(255, 255, 255);
-        doc.text(`📁 ${cassette.title.toUpperCase()}`, 17, currentY + 4.5);
+        doc.text(cleanTitle, 17, currentY + 4.5);
         currentY += 7.5;
 
         const tableData = cassette.rows.map(r => [
