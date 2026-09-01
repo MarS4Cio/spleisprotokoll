@@ -52,31 +52,11 @@
       align-items: center;
     }
 
-    .header-branding {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .header-branding-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .header-branding-text .main {
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--guh-petrol);
-      letter-spacing: 0.5px;
-      line-height: 1;
-    }
-
-    .header-branding-text .sub {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--guh-petrol);
-      letter-spacing: 4.5px;
-      line-height: 1.3;
+    .header-logo-img {
+      height: 48px;
+      max-width: 220px;
+      object-fit: contain;
+      display: block;
     }
 
     .step-card {
@@ -345,18 +325,7 @@
 <div class="wizard-container">
   
   <div class="app-header">
-    <div class="header-branding">
-      <div class="header-branding-text">
-        <span class="main">GEOTHERMIE</span>
-        <span class="sub">UNTERHACHING</span>
-      </div>
-      <!-- SVG Wellen im Web-Header -->
-      <svg width="40" height="36" viewBox="0 0 50 45">
-        <path d="M5 15 C 20 12, 35 5, 45 0 C 42 10, 25 18, 5 15 Z" fill="#e85c24"/>
-        <path d="M5 25 C 20 22, 35 15, 45 10 C 42 20, 25 28, 5 25 Z" fill="#e85c24" opacity="0.85"/>
-        <path d="M5 35 C 20 32, 35 25, 45 20 C 42 30, 25 38, 5 35 Z" fill="#475569"/>
-      </svg>
-    </div>
+    <img id="webHeaderLogo" class="header-logo-img" src="./GUH_Logo.png" alt="Geothermie Unterhaching">
     <div style="font-size: 12px; color: #64748b; text-align: right;">
       <div style="font-weight: bold; color: var(--guh-petrol); font-size: 14px;">Spleiß- & Messprotokoll LWL</div>
       <div>Datum: <span id="lblDate"></span></div>
@@ -550,6 +519,31 @@
 </div>
 
 <script>
+  // Relativer Pfad zum Logo im Repository
+  const LOCAL_LOGO_PATH = "./GUH_Logo.png";
+
+  let loadedLogoDataUrl = null;
+  let logoAspectRatio = 3.44; // Standard-Ratio
+
+  function preloadLocalLogo() {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = function() {
+      logoAspectRatio = img.naturalWidth / img.naturalHeight;
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      loadedLogoDataUrl = canvas.toDataURL('image/png');
+      document.getElementById('webHeaderLogo').src = loadedLogoDataUrl;
+    };
+    img.onerror = function() {
+      console.warn("Logo unter ./GUH_Logo.png konnte nicht geladen werden.");
+    };
+    img.src = LOCAL_LOGO_PATH;
+  }
+
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444" },
@@ -589,6 +583,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
+    preloadLocalLogo();
     renderCassetteForms();
   });
 
@@ -982,37 +977,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Zeichnet das originale GUH Logo als native, gestochen scharfe Vektorgrafik im PDF
-  function drawGuhVectorLogo(doc, x, y) {
-    // Schriftzug "GEOTHERMIE"
-    doc.setTextColor(23, 84, 103);
-    doc.setFont(undefined, 'bold');
-    doc.setFontSize(16);
-    doc.text("GEOTHERMIE", x, y + 5);
-
-    // Schriftzug "UNTERHACHING" (mit Spacing)
-    doc.setFontSize(8.5);
-    doc.setFont(undefined, 'normal');
-    doc.text("U N T E R H A C H I N G", x, y + 9.5);
-
-    // Dreifarbige GUH-Welle
-    const waveX = x + 44;
-    const waveY = y + 1;
-
-    // 1. Welle (Orange)
-    doc.setFillColor(232, 92, 36);
-    doc.lines([[10, -5], [1, 2], [-8, 4]], waveX, waveY + 2, [1, 1], 'F', true);
-
-    // 2. Welle (Helles Orange)
-    doc.setFillColor(242, 114, 52);
-    doc.lines([[10, -5], [1, 2], [-8, 4]], waveX, waveY + 5, [1, 1], 'F', true);
-
-    // 3. Welle (Grau/Petrol)
-    doc.setFillColor(71, 85, 105);
-    doc.lines([[10, -5], [1, 2], [-8, 4]], waveX, waveY + 8, [1, 1], 'F', true);
-  }
-
-  // Generierung des offiziellen GUH-PDFs mit nativer Vektor-Platzierung
+  // Generierung des offiziellen GUH-PDFs mit dem echten Logo
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -1022,8 +987,17 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Logo oben links
-    drawGuhVectorLogo(doc, 14, 10);
+    // Logo mit exakt berechneten Proportionen
+    if (loadedLogoDataUrl) {
+      const targetHeight = 13;
+      const targetWidth = targetHeight * logoAspectRatio;
+      doc.addImage(loadedLogoDataUrl, 'PNG', 14, 9, targetWidth, targetHeight);
+    } else {
+      doc.setFontSize(14);
+      doc.setTextColor(23, 84, 103);
+      doc.setFont(undefined, 'bold');
+      doc.text("GEOTHERMIE UNTERHACHING", 14, 18);
+    }
 
     // Dokumententitel (oben rechts)
     doc.setFontSize(12);
