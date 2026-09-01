@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LWL Spleißprotokoll - Geothermie Unterhaching</title>
+  <title>LWL Montage-Assistent & Spleißprotokoll</title>
   
-  <!-- PDF Bibliotheken -->
+  <!-- jsPDF & jsPDF-AutoTable für zuverlässige Vektor-PDFs ohne Renderfehler -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     :root {
@@ -15,7 +15,8 @@
       --primary-dark: #003860;
       --primary-light: #e8f1f7;
       --border-color: #cbd5e1;
-      --bg-color: #f8fafc;
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
       --text: #0f172a;
       --danger: #ef4444;
       --success: #16a34a;
@@ -26,72 +27,70 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      padding: 16px;
+      padding: 12px;
       background-color: var(--bg-color);
       color: var(--text);
     }
 
-    .app-container {
-      max-width: 1100px;
+    .wizard-container {
+      max-width: 900px;
       margin: 0 auto;
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 10px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
 
-    /* Header */
+    /* Header & Steps */
     .app-header {
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid var(--primary-light);
-      padding-bottom: 14px;
-      margin-bottom: 18px;
     }
 
     .app-header h1 {
       margin: 0;
-      font-size: 22px;
+      font-size: 20px;
       color: var(--primary);
     }
 
     .app-header .company {
-      font-size: 14px;
-      font-weight: 700;
-      color: #475569;
-    }
-
-    .meta-date {
       font-size: 13px;
-      color: #64748b;
-      text-align: right;
-    }
-
-    .section-title {
-      font-size: 15px;
       font-weight: 700;
-      color: var(--primary-dark);
-      margin: 18px 0 10px 0;
-      padding-bottom: 4px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
+      color: #64748b;
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-bottom: 16px;
+    /* Step Cards */
+    .step-card {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .step-card.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 17px;
+      color: var(--primary-dark);
+      margin-top: 0;
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
+      margin-bottom: 12px;
     }
 
     .form-group label {
@@ -103,59 +102,56 @@
     }
 
     .form-group input, .form-group select, .form-group textarea {
-      padding: 8px 10px;
+      padding: 10px;
       border: 1px solid var(--border-color);
-      border-radius: 5px;
-      font-size: 13px;
-      color: var(--text);
-      background-color: #fff;
-    }
-
-    /* Einheiten-Manager (Muffen & Spleißboxen) */
-    .unit-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .unit-badge {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #f1f5f9;
-      padding: 8px 12px;
       border-radius: 6px;
-      border: 1px solid var(--border-color);
-      flex-wrap: wrap;
+      font-size: 14px;
+      background: #fff;
     }
 
-    .unit-badge select, .unit-badge input {
-      padding: 4px 8px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      font-size: 13px;
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
     }
 
-    /* DIN & Alt Farb-Klassen */
-    .col-rot       { background-color: #ef4444 !important; color: #ffffff !important; }
-    .col-gruen     { background-color: #22c55e !important; color: #ffffff !important; }
-    .col-blau      { background-color: #3b82f6 !important; color: #ffffff !important; }
-    .col-gelb      { background-color: #eab308 !important; color: #000000 !important; }
-    .col-weiss     { background-color: #ffffff !important; color: #000000 !important; border: 1px dashed #94a3b8 !important; }
-    .col-grau      { background-color: #94a3b8 !important; color: #ffffff !important; }
-    .col-braun     { background-color: #854d0e !important; color: #ffffff !important; }
-    .col-violett   { background-color: #a855f7 !important; color: #ffffff !important; }
-    .col-tuerkis   { background-color: #14b8a6 !important; color: #ffffff !important; }
-    .col-schwarz   { background-color: #1e293b !important; color: #ffffff !important; }
-    .col-orange    { background-color: #f97316 !important; color: #ffffff !important; }
-    .col-rosa      { background-color: #ec4899 !important; color: #ffffff !important; }
+    /* Auswahltasten */
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
 
-    /* Tabelle */
+    .choice-btn {
+      background: #fff;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--primary);
+      transition: all 0.2s;
+    }
+
+    .choice-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .choice-btn span {
+      display: block;
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    /* Tabellenstyling */
     .table-container {
       overflow-x: auto;
-      margin-bottom: 20px;
-      background: #fff;
+      margin: 16px 0;
       border: 1px solid var(--border-color);
       border-radius: 6px;
     }
@@ -177,139 +173,120 @@
       background-color: var(--primary);
       color: #ffffff;
       font-weight: 600;
-      padding: 8px;
     }
 
-    /* Kassetten-Zwischenzeile */
-    .cassette-separator {
-      background-color: #e2e8f0 !important;
-      color: #1e293b;
-      font-weight: bold;
-      text-align: left !important;
-      padding: 6px 12px !important;
-    }
+    /* Farbkodierung der Zellen */
+    .col-rot       { background-color: #ef4444 !important; color: #ffffff !important; }
+    .col-gruen     { background-color: #22c55e !important; color: #ffffff !important; }
+    .col-blau      { background-color: #3b82f6 !important; color: #ffffff !important; }
+    .col-gelb      { background-color: #eab308 !important; color: #000000 !important; }
+    .col-weiss     { background-color: #ffffff !important; color: #000000 !important; border: 1px dashed #94a3b8 !important; }
+    .col-grau      { background-color: #94a3b8 !important; color: #ffffff !important; }
+    .col-braun     { background-color: #854d0e !important; color: #ffffff !important; }
+    .col-violett   { background-color: #a855f7 !important; color: #ffffff !important; }
+    .col-tuerkis   { background-color: #14b8a6 !important; color: #ffffff !important; }
+    .col-schwarz   { background-color: #1e293b !important; color: #ffffff !important; }
+    .col-orange    { background-color: #f97316 !important; color: #ffffff !important; }
+    .col-rosa      { background-color: #ec4899 !important; color: #ffffff !important; }
 
-    .color-cell {
-      padding: 3px !important;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-
-    .color-cell select {
+    .color-select {
       width: 100%;
       border: none;
       background: transparent;
       font-weight: bold;
       color: inherit;
       cursor: pointer;
-      font-size: 12px;
       text-align-last: center;
     }
-
-    .color-cell select option {
-      background: #fff;
-      color: #000;
-    }
-
-    .color-cell input {
-      width: 100%;
-      border: none;
-      background: transparent;
-      text-align: center;
-      font-weight: bold;
-      color: inherit;
-    }
+    .color-select option { background: #fff; color: #000; }
 
     .input-cell {
       width: 100%;
-      border: 1px solid transparent;
-      border-radius: 3px;
-      padding: 4px;
-      text-align: center;
-      background: transparent;
-    }
-
-    .input-cell:focus {
-      border-color: var(--primary);
-      background: #fff;
-    }
-
-    .delete-btn {
-      background: none;
       border: none;
-      color: var(--danger);
-      cursor: pointer;
+      background: transparent;
+      text-align: center;
       font-weight: bold;
-      font-size: 15px;
+      color: inherit;
     }
 
-    /* Fotodokumentation */
+    /* Zusammenfassung & Liste */
+    .unit-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--primary);
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .unit-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    /* Fotobereich */
     .photo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 14px;
-      margin-top: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
     }
 
     .photo-card {
-      background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 6px;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
       position: relative;
+      background: #fff;
     }
 
     .photo-card img {
       width: 100%;
-      height: 150px;
+      height: 130px;
       object-fit: cover;
-      background-color: #e2e8f0;
     }
 
     .photo-card-body {
-      padding: 6px;
+      padding: 4px;
     }
 
     .photo-card-body input {
       width: 100%;
-      font-size: 12px;
+      font-size: 11px;
       padding: 4px;
       border: 1px solid var(--border-color);
-      border-radius: 3px;
     }
 
-    .delete-photo-btn {
+    .delete-btn {
       position: absolute;
-      top: 5px;
-      right: 5px;
+      top: 4px;
+      right: 4px;
       background: rgba(239, 68, 68, 0.9);
       color: white;
       border: none;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    /* Toolbar */
-    .action-panel {
+    /* Buttons & Navigation */
+    .nav-buttons {
       display: flex;
-      flex-wrap: wrap;
+      justify-content: space-between;
       gap: 10px;
       margin-top: 20px;
-      padding-top: 16px;
-      border-top: 2px solid var(--primary-light);
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
     }
 
     .btn {
-      padding: 9px 15px;
+      padding: 10px 18px;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       border: none;
       cursor: pointer;
@@ -318,333 +295,492 @@
       gap: 6px;
     }
 
-    .btn:hover { opacity: 0.92; }
-    .btn-primary { background-color: var(--primary); color: #fff; }
-    .btn-success { background-color: var(--success); color: #fff; }
-    .btn-secondary { background-color: #64748b; color: #fff; }
-    .btn-outline { background-color: #fff; border: 1px solid var(--border-color); color: var(--text); }
-    .btn-danger { background-color: var(--danger); color: #fff; }
-
-    @media print {
-      body { background: #fff; padding: 0; }
-      .app-container { box-shadow: none; padding: 0; max-width: 100%; }
-      .no-print, .action-panel, .delete-btn, .delete-photo-btn { display: none !important; }
-      th, td, .color-cell, .cassette-separator { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: #64748b; color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-outline { background: #fff; border: 1px solid var(--border-color); color: var(--text); }
   </style>
 </head>
 <body>
 
-<div class="app-container" id="pdf-container">
+<div class="wizard-container">
   
-  <!-- Protokoll-Kopf -->
   <div class="app-header">
     <div>
-      <h1>LWL-Spleiß- & Messprotokoll</h1>
+      <h1>LWL Montage- & Spleißprotokoll</h1>
       <div class="company">Geothermie Unterhaching GmbH & Co. KG</div>
     </div>
-    <div class="meta-date">
-      <div><strong>Datum:</strong> <span id="lblDate"></span></div>
-      <div><strong>Protokoll-Nr:</strong> <span id="lblId"></span></div>
+    <div style="font-size: 12px; color: #64748b; text-align: right;">
+      Datum: <span id="lblDate"></span>
     </div>
   </div>
 
-  <!-- Projektdaten -->
-  <div class="section-title">1. Projektdaten</div>
-  <div class="grid-3">
-    <div class="form-group">
-      <label>Projekt / Trasse</label>
-      <input type="text" id="inProject" value="Fernwärmetrasse Nord">
+  <!-- SCHRITT 1: Projektdaten & Typauswahl -->
+  <div id="step-start" class="step-card active">
+    <h2>1. Stammdaten & Einheit wählen</h2>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Projekt / Trasse</label>
+        <input type="text" id="inProject" value="Fernwärmetrasse Nord">
+      </div>
+      <div class="form-group">
+        <label>Standort / Schacht</label>
+        <input type="text" id="inLocation" value="Schacht 12 / Übergabe">
+      </div>
+      <div class="form-group">
+        <label>Monteur / Spleißer</label>
+        <input type="text" id="inTechnician" value="Technik GUH">
+      </div>
+      <div class="form-group">
+        <label>Bezeichnung der aktuellen Einheit</label>
+        <input type="text" id="inUnitName" value="Muffe 01 / Box 01">
+      </div>
     </div>
-    <div class="form-group">
-      <label>Standort / Bezeichnung</label>
-      <input type="text" id="inLocation" value="Schacht 14 / Übergabestation">
-    </div>
-    <div class="form-group">
-      <label>Monteur / Spleißer</label>
-      <input type="text" id="inTechnician" value="Technik GUH">
-    </div>
-  </div>
 
-  <!-- Einheiten-Manager (Muffen & Spleißboxen vor Ort) -->
-  <div class="section-title">
-    <span>2. Verbaute Einheiten (Muffen / Spleißboxen)</span>
-    <div class="no-print" style="display: flex; gap: 6px;">
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addUnit('Muffe')">➕ Muffe</button>
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addUnit('Spleißbox')">➕ Spleißbox</button>
-    </div>
-  </div>
-
-  <div class="unit-container" id="unitContainer"></div>
-
-  <!-- Spleißplan & Faserbelegung (Voll modular) -->
-  <div class="section-title">
-    <span>3. Faserbelegungsplan & Dämpfung</span>
-    <div class="no-print" style="display: flex; gap: 6px; flex-wrap: wrap;">
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addBatchRows(4)">+4 Fasern</button>
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addBatchRows(8)">+8 Fasern (Box)</button>
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addBatchRows(12)">+12 Fasern (DIN)</button>
-      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addCassetteDivider()">📁 + Kassette / Trenner</button>
-      <button class="btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="clearTable()">Tabelle leeren</button>
+    <p style="font-weight: bold; margin-top: 16px;">Was montierst / spleißt du jetzt?</p>
+    <div class="choice-grid">
+      <button class="choice-btn" onclick="startMuffeWorkflow()">
+        <span>🧰</span>
+        Muffe (Kabel zu Kabel)
+      </button>
+      <button class="choice-btn" onclick="startBoxWorkflow()">
+        <span>🔲</span>
+        Spleißbox (mit Kassetten & Pigtails)
+      </button>
     </div>
   </div>
 
-  <div class="table-container">
-    <table id="spliceTable">
-      <thead>
-        <tr>
-          <th style="width: 35px;">Nr.</th>
-          <th style="width: 50px;">Kassette</th>
-          <th style="width: 95px;">Kabel A Typ</th>
-          <th style="width: 120px;">Kabel A Farbe</th>
-          <th style="width: 55px;">Faser A</th>
-          <th style="width: 30px;">⟷</th>
-          <th style="width: 95px;">Kabel B Typ</th>
-          <th style="width: 120px;">Kabel B Farbe</th>
-          <th style="width: 55px;">Faser B</th>
-          <th style="width: 80px;">Dämpfung</th>
-          <th>Bemerkung</th>
-          <th class="no-print" style="width: 35px;">Aktion</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <!-- SCHRITT 2A: Muffen-Konfiguration -->
+  <div id="step-muffe-config" class="step-card">
+    <h2>2. Muffe konfigurieren (Kabel 1 & Kabel 2)</h2>
+    <div class="grid-2">
+      <!-- Kabel A -->
+      <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary);">Kabel A (Kommend)</h3>
+        <div class="form-group">
+          <label>Farbstandard</label>
+          <select id="muffe_cableA_type">
+            <option value="neu">Neu (DIN VDE: Rot, Grün, Blau, Gelb...)</option>
+            <option value="alt">Alt (Historisch: Braun, Orange, Blau, Grün...)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Faseranzahl</label>
+          <select id="muffe_cableA_count">
+            <option value="4">4 Fasern</option>
+            <option value="8">8 Fasern</option>
+            <option value="12" selected>12 Fasern</option>
+            <option value="24">24 Fasern</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Kabel B -->
+      <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary);">Kabel B (Gehend)</h3>
+        <div class="form-group">
+          <label>Farbstandard</label>
+          <select id="muffe_cableB_type">
+            <option value="neu">Neu (DIN VDE: Rot, Grün, Blau, Gelb...)</option>
+            <option value="alt">Alt (Historisch: Braun, Orange, Blau, Grün...)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Faseranzahl</label>
+          <select id="muffe_cableB_count">
+            <option value="4">4 Fasern</option>
+            <option value="8">8 Fasern</option>
+            <option value="12" selected>12 Fasern</option>
+            <option value="24">24 Fasern</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="showStep('step-start')">⬅ Zurück</button>
+      <button class="btn btn-primary" onclick="buildMuffeSpliceTable()">Weiter zur Faserbelegung ➔</button>
+    </div>
   </div>
 
-  <!-- Fotodokumentation -->
-  <div class="section-title">
-    <span>4. Fotodokumentation</span>
+  <!-- SCHRITT 2B: Spleißbox Kassettenanzahl -->
+  <div id="step-box-config" class="step-card">
+    <h2>2. Spleißbox Kassetten</h2>
+    <div class="form-group" style="max-width: 300px;">
+      <label>Wie viele Kassetten hat die Spleißbox?</label>
+      <select id="box_cassette_count" onchange="generateCassetteForms()">
+        <option value="1">1 Kassette</option>
+        <option value="2" selected>2 Kassetten</option>
+        <option value="3">3 Kassetten</option>
+        <option value="4">4 Kassetten</option>
+        <option value="6">6 Kassetten</option>
+      </select>
+    </div>
+
+    <div id="cassetteFormsContainer" style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+      <!-- Dynamische Konfiguration pro Kassette -->
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="showStep('step-start')">⬅ Zurück</button>
+      <button class="btn btn-primary" onclick="buildBoxSpliceTable()">Weiter zur Faserbelegung ➔</button>
+    </div>
   </div>
 
-  <div class="no-print" style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this)">
-    <button class="btn btn-primary" onclick="document.getElementById('cameraInput').click()">📷 Foto mit Kamera aufnehmen</button>
+  <!-- SCHRITT 3: Spleißplan Detailanpassung (Fasern manuell ändern, Dämpfung etc.) -->
+  <div id="step-splice-adjust" class="step-card">
+    <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
+    <p style="font-size: 13px; color: #64748b;">Hier kannst du jede einzelne Faser und Farbe anpassen (z. B. Rot auf Grün umstellen).</p>
 
-    <input type="file" id="galleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this)">
-    <button class="btn btn-secondary" onclick="document.getElementById('galleryInput').click()">📁 Galerie / Datei wählen</button>
+    <div class="table-container">
+      <table id="wizardTable">
+        <thead>
+          <tr>
+            <th style="width: 35px;">Nr.</th>
+            <th style="width: 65px;">Kassette</th>
+            <th style="width: 140px;">Kabel A Farbe</th>
+            <th style="width: 55px;">Faser A</th>
+            <th style="width: 30px;">⟷</th>
+            <th style="width: 140px;">Kabel B / Pigtail Farbe</th>
+            <th style="width: 55px;">Faser B</th>
+            <th style="width: 80px;">Dämpfung</th>
+            <th>Bemerkung</th>
+          </tr>
+        </thead>
+        <tbody id="wizardTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="goBackFromAdjust()">⬅ Zurück</button>
+      <button class="btn btn-success" onclick="saveCurrentUnitAndAskNext()">Einheit speichern & Weiter ➔</button>
+    </div>
   </div>
 
-  <div class="photo-grid" id="photoContainer"></div>
+  <!-- SCHRITT 4: Nächste Einheit oder Abschluss -->
+  <div id="step-next-unit-prompt" class="step-card">
+    <h2>4. Einheit erfolgreich erfasst!</h2>
+    
+    <div id="configuredUnitsList" style="margin-bottom: 20px;">
+      <!-- Zusammenfassung der erfassten Einheiten -->
+    </div>
 
-  <!-- Bemerkungen -->
-  <div class="section-title" style="margin-top: 20px;">5. Bemerkungen / Trassenbesonderheiten</div>
-  <div class="form-group">
-    <textarea id="inNotes" rows="2" placeholder="z. B. Muffe mit Dichtband versiegelt, Biegeradien geprüft..."></textarea>
+    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+      <h3 style="margin-top: 0; color: var(--primary-dark);">Möchtest du noch eine Einheit hinzufügen?</h3>
+      <p style="font-size: 13px; color: #64748b;">(Falls du z. B. am gleichen Standort noch eine Muffe oder eine weitere Box spleißen musst)</p>
+      
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
+        <button class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe hinzufügen</button>
+        <button class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox hinzufügen</button>
+        <button class="btn btn-success" onclick="goToFinalOverview()">➔ Keine weiteren Einheiten (Zum Abschluss & Fotos)</button>
+      </div>
+    </div>
   </div>
 
-  <!-- Aktionen -->
-  <div class="action-panel no-print" id="actionPanel">
-    <button class="btn btn-primary" onclick="generateAndDownloadPDF()">📄 PDF Generieren & Herunterladen</button>
-    <button class="btn btn-success" onclick="sendPDFByEmail()">✉️ PDF erstellen & per E-Mail senden</button>
-    <button class="btn btn-outline" onclick="addRow()">➕ Einzelne Zeile</button>
+  <!-- SCHRITT 5: Finale Übersicht, Fotos & PDF Export -->
+  <div id="step-final" class="step-card">
+    <h2>5. Fotodokumentation & PDF Export</h2>
+
+    <!-- Foto Upload -->
+    <div style="margin-bottom: 16px;">
+      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px;">Fotodokumentation hinzufügen:</label>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this)">
+        <button class="btn btn-primary" onclick="document.getElementById('cameraInput').click()">📷 Foto aufnehmen</button>
+
+        <input type="file" id="galleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this)">
+        <button class="btn btn-secondary" onclick="document.getElementById('galleryInput').click()">📁 Aus Galerie</button>
+      </div>
+      <div class="photo-grid" id="photoContainer"></div>
+    </div>
+
+    <div class="form-group" style="margin-top: 16px;">
+      <label>Abschließende Trassen- / Montagehinweise</label>
+      <textarea id="finalNotes" rows="2" placeholder="z. B. Alle Kassetten eingelegt, Dichtungen geprüft, Beschriftung angebracht..."></textarea>
+    </div>
+
+    <div class="nav-buttons" style="background: #f8fafc; padding: 14px; border-radius: 8px;">
+      <button class="btn btn-secondary" onclick="showStep('step-next-unit-prompt')">⬅ Zurück zu den Einheiten</button>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="generateVectorPDF(false)">📄 PDF Erstellen & Herunterladen</button>
+        <button class="btn btn-success" onclick="sendPDFViaEmail()">✉️ PDF per E-Mail versenden</button>
+      </div>
+    </div>
   </div>
 
 </div>
 
 <script>
-  // Farbcodes: Neu (DIN VDE 0888) vs. Alt (Historisch)
-  const COLOR_PALETTES = {
+  // Farbcodes
+  const PALETTES = {
     neu: [
-      { name: "Rot", class: "col-rot" },
-      { name: "Grün", class: "col-gruen" },
-      { name: "Blau", class: "col-blau" },
-      { name: "Gelb", class: "col-gelb" },
-      { name: "Weiß", class: "col-weiss" },
-      { name: "Grau", class: "col-grau" },
-      { name: "Braun", class: "col-braun" },
-      { name: "Violett", class: "col-violett" },
-      { name: "Türkis", class: "col-tuerkis" },
-      { name: "Schwarz", class: "col-schwarz" },
-      { name: "Orange", class: "col-orange" },
-      { name: "Rosa", class: "col-rosa" }
+      { name: "Rot", class: "col-rot", hex: "#ef4444" },
+      { name: "Grün", class: "col-gruen", hex: "#22c55e" },
+      { name: "Blau", class: "col-blau", hex: "#3b82f6" },
+      { name: "Gelb", class: "col-gelb", hex: "#eab308" },
+      { name: "Weiß", class: "col-weiss", hex: "#ffffff" },
+      { name: "Grau", class: "col-grau", hex: "#94a3b8" },
+      { name: "Braun", class: "col-braun", hex: "#854d0e" },
+      { name: "Violett", class: "col-violett", hex: "#a855f7" },
+      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6" },
+      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b" },
+      { name: "Orange", class: "col-orange", hex: "#f97316" },
+      { name: "Rosa", class: "col-rosa", hex: "#ec4899" }
     ],
     alt: [
-      { name: "Braun", class: "col-braun" },
-      { name: "Orange", class: "col-orange" },
-      { name: "Blau", class: "col-blau" },
-      { name: "Grün", class: "col-gruen" },
-      { name: "Rot", class: "col-rot" },
-      { name: "Grau", class: "col-grau" },
-      { name: "Gelb", class: "col-gelb" },
-      { name: "Weiß", class: "col-weiss" },
-      { name: "Rosa", class: "col-rosa" },
-      { name: "Schwarz", class: "col-schwarz" },
-      { name: "Türkis", class: "col-tuerkis" },
-      { name: "Violett", class: "col-violett" }
+      { name: "Braun", class: "col-braun", hex: "#854d0e" },
+      { name: "Orange", class: "col-orange", hex: "#f97316" },
+      { name: "Blau", class: "col-blau", hex: "#3b82f6" },
+      { name: "Grün", class: "col-gruen", hex: "#22c55e" },
+      { name: "Rot", class: "col-rot", hex: "#ef4444" },
+      { name: "Grau", class: "col-grau", hex: "#94a3b8" },
+      { name: "Gelb", class: "col-gelb", hex: "#eab308" },
+      { name: "Weiß", class: "col-weiss", hex: "#ffffff" },
+      { name: "Rosa", class: "col-rosa", hex: "#ec4899" },
+      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b" },
+      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6" },
+      { name: "Violett", class: "col-violett", hex: "#a855f7" }
     ]
   };
 
   const RECIPIENTS = "technik@geothermie-unterhaching.de,f.elstein@geothermie-unterhaching.de";
-  let globalRowCounter = 0;
-  let cassetteCounter = 1;
+
+  // Gesamtdatenstruktur
+  let completedUnits = [];
+  let currentUnitType = '';
+  let attachedPhotos = [];
 
   document.addEventListener('DOMContentLoaded', () => {
-    const today = new Date();
-    document.getElementById('lblDate').textContent = today.toLocaleDateString('de-DE');
-    document.getElementById('lblId').textContent = "GUH-" + today.getFullYear() + "-" + String(Math.floor(Math.random() * 9000) + 1000);
-    
-    // Initial: 1x Spleißbox & 12 Fasern
-    addUnit('Spleißbox', 1);
-    addBatchRows(12);
+    document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
+    generateCassetteForms();
   });
 
-  // Einheitenverwaltung
-  function addUnit(type, defaultKassetten = 1) {
-    const container = document.getElementById('unitContainer');
-    const unitDiv = document.createElement('div');
-    unitDiv.className = 'unit-badge';
-
-    const isBox = type === 'Spleißbox';
-    unitDiv.innerHTML = `
-      <span style="font-weight: bold; color: var(--primary); min-width: 90px;">Einheit:</span>
-      <select onchange="handleUnitTypeChange(this)">
-        <option value="Spleißbox" ${isBox ? 'selected' : ''}>Spleißbox</option>
-        <option value="Muffe" ${!isBox ? 'selected' : ''}>Muffe (Durchspleißung)</option>
-      </select>
-
-      <input type="text" placeholder="Bezeichnung" value="${type} ${container.children.length + 1}" style="width: 140px;">
-
-      <div class="kassette-wrapper" style="display: ${isBox ? 'flex' : 'none'}; align-items: center; gap: 6px;">
-        <span style="font-size: 12px; font-weight: bold; color: #475569;">Kassetten:</span>
-        <select>
-          <option value="1" ${defaultKassetten === 1 ? 'selected' : ''}>1 Kassette</option>
-          <option value="2" ${defaultKassetten === 2 ? 'selected' : ''}>2 Kassetten</option>
-          <option value="3" ${defaultKassetten === 3 ? 'selected' : ''}>3 Kassetten</option>
-          <option value="4" ${defaultKassetten === 4 ? 'selected' : ''}>4 Kassetten</option>
-        </select>
-      </div>
-
-      <button class="delete-btn no-print" onclick="this.closest('.unit-badge').remove()" style="margin-left: auto;">✕</button>
-    `;
-    container.appendChild(unitDiv);
+  function showStep(stepId) {
+    document.querySelectorAll('.step-card').forEach(el => el.classList.remove('active'));
+    document.getElementById(stepId).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function handleUnitTypeChange(select) {
-    const wrapper = select.closest('.unit-badge').querySelector('.kassette-wrapper');
-    wrapper.style.display = select.value === 'Spleißbox' ? 'flex' : 'none';
+  // WF Muffe
+  function startMuffeWorkflow() {
+    currentUnitType = 'Muffe';
+    showStep('step-muffe-config');
   }
 
-  // Kassetten-Zwischenüberschrift in die Tabelle
-  function addCassetteDivider(title) {
-    const tbody = document.getElementById('tableBody');
-    const tr = document.createElement('tr');
-    const defaultTitle = title || `Kassette ${cassetteCounter++} / Bündel`;
-    
-    tr.innerHTML = `
-      <td colspan="11" class="cassette-separator">
-        📁 <input type="text" value="${defaultTitle}" style="background: transparent; border: none; font-weight: bold; color: inherit; width: 80%;">
-      </td>
-      <td class="no-print cassette-separator">
-        <button class="delete-btn" onclick="this.closest('tr').remove()">✕</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
+  // WF Spleißbox
+  function startBoxWorkflow() {
+    currentUnitType = 'Spleißbox';
+    generateCassetteForms();
+    showStep('step-box-config');
   }
 
-  // Batch-Hinzufügen (z. B. 4, 8, 12 Fasern)
-  function addBatchRows(count) {
+  // Formulare pro Kassette generieren
+  function generateCassetteForms() {
+    const count = parseInt(document.getElementById('box_cassette_count').value);
+    const container = document.getElementById('cassetteFormsContainer');
+    container.innerHTML = '';
+
     for (let i = 1; i <= count; i++) {
-      addRow();
+      const div = document.createElement('div');
+      div.style.cssText = "background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);";
+      div.innerHTML = `
+        <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 13px;">📁 Kassette ${i}</h4>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Kabel A (Kommend) Standard</label>
+            <select id="box_c${i}_cableType">
+              <option value="neu">Neu (DIN VDE: Rot, Grün...)</option>
+              <option value="alt">Alt (Braun, Orange...)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Pigtails Standard (Kassette ${i})</label>
+            <select id="box_c${i}_pigtailType">
+              <option value="neu">Neu (DIN VDE 12 Farben)</option>
+              <option value="alt">Alt (4/12 Farben)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fasern in dieser Kassette</label>
+            <select id="box_c${i}_fiberCount">
+              <option value="4">4 Fasern</option>
+              <option value="8">8 Fasern</option>
+              <option value="12" selected>12 Fasern</option>
+            </select>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
     }
   }
 
-  function clearTable() {
-    if (confirm("Möchtest du alle Tabellenzeilen leeren?")) {
-      document.getElementById('tableBody').innerHTML = '';
-      globalRowCounter = 0;
-      cassetteCounter = 1;
+  // Muffen Tabelle vorbereiten
+  function buildMuffeSpliceTable() {
+    const typeA = document.getElementById('muffe_cableA_type').value;
+    const countA = parseInt(document.getElementById('muffe_cableA_count').value);
+    const typeB = document.getElementById('muffe_cableB_type').value;
+    const countB = parseInt(document.getElementById('muffe_cableB_count').value);
+
+    const maxCount = Math.max(countA, countB);
+    const tbody = document.getElementById('wizardTableBody');
+    tbody.innerHTML = '';
+    document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
+
+    for (let i = 1; i <= maxCount; i++) {
+      const colA = PALETTES[typeA][(i - 1) % 12];
+      const colB = PALETTES[typeB][(i - 1) % 12];
+      const tr = createSpliceRowHTML(i, "Muffe", typeA, colA, i, typeB, colB, i);
+      tbody.appendChild(tr);
     }
+
+    showStep('step-splice-adjust');
   }
 
-  // Einzelne Zeile hinzufügen
-  function addRow() {
-    globalRowCounter++;
-    const idx = globalRowCounter;
-    const tbody = document.getElementById('tableBody');
-    const colorIndex = (idx - 1) % 12;
-    const defaultColor = COLOR_PALETTES.neu[colorIndex];
+  // Spleißbox Tabelle vorbereiten
+  function buildBoxSpliceTable() {
+    const cassetteCount = parseInt(document.getElementById('box_cassette_count').value);
+    const tbody = document.getElementById('wizardTableBody');
+    tbody.innerHTML = '';
+    document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Spleißbox (${cassetteCount} Kassetten)`;
 
+    let globalIndex = 1;
+    for (let c = 1; c <= cassetteCount; c++) {
+      const typeCable = document.getElementById(`box_c${c}_cableType`).value;
+      const typePig = document.getElementById(`box_c${c}_pigtailType`).value;
+      const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
+
+      // Kassetten-Trennlinie
+      const sep = document.createElement('tr');
+      sep.innerHTML = `<td colspan="9" style="background: #e2e8f0; font-weight: bold; text-align: left; padding: 6px 10px;">📁 Kassette ${c} (${fiberCount} Fasern)</td>`;
+      tbody.appendChild(sep);
+
+      for (let f = 1; f <= fiberCount; f++) {
+        const colA = PALETTES[typeCable][(f - 1) % 12];
+        const colB = PALETTES[typePig][(f - 1) % 12];
+        const tr = createSpliceRowHTML(globalIndex, `K${c}`, typeCable, colA, f, typePig, colB, f);
+        tbody.appendChild(tr);
+        globalIndex++;
+      }
+    }
+
+    showStep('step-splice-adjust');
+  }
+
+  // Erzeugt eine Tabellenzeile mit Dropdowns
+  function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB) {
     const tr = document.createElement('tr');
-    tr.id = `row-${idx}`;
     tr.innerHTML = `
-      <td style="font-weight: bold; background: #f8fafc;">${idx}</td>
-      <td><input class="input-cell" type="text" value="K1" style="font-weight: 600;"></td>
-
+      <td style="font-weight: bold;">${nr}</td>
+      <td><input class="input-cell" type="text" value="${kassette}"></td>
+      
       <!-- Kabel A -->
-      <td>
-        <select onchange="updateRowColorType(this, 'A', ${idx})" style="font-size: 11px; font-weight: bold;">
-          <option value="neu" selected>Neu</option>
-          <option value="alt">Alt</option>
+      <td class="${defaultColA.class}" id="cell-colA-${nr}">
+        <select class="color-select" onchange="updateRowColor(this, 'cell-colA-${nr}')">
+          ${PALETTES.neu.map(c => `<option value="${c.class}" ${c.name === defaultColA.name ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
       </td>
-      <td class="color-cell ${defaultColor.class}" id="cell-colA-${idx}">
-        <select id="sel-colA-${idx}" onchange="updateCellBg(this, 'cell-colA-${idx}', 'cell-fasA-${idx}')">
-          ${getColorOptionsHTML('neu', colorIndex)}
-        </select>
-      </td>
-      <td class="color-cell ${defaultColor.class}" id="cell-fasA-${idx}">
-        <input type="number" value="${idx}">
+      <td class="${defaultColA.class}" id="cell-fasA-${nr}">
+        <input class="input-cell" type="number" value="${faserA}">
       </td>
 
-      <td style="color: #64748b; font-weight: bold; background: #f8fafc;">➜</td>
+      <td style="color: #64748b; font-weight: bold;">➜</td>
 
-      <!-- Kabel B -->
-      <td>
-        <select onchange="updateRowColorType(this, 'B', ${idx})" style="font-size: 11px; font-weight: bold;">
-          <option value="neu" selected>Neu</option>
-          <option value="alt">Alt</option>
+      <!-- Kabel B / Pigtail -->
+      <td class="${defaultColB.class}" id="cell-colB-${nr}">
+        <select class="color-select" onchange="updateRowColor(this, 'cell-colB-${nr}')">
+          ${PALETTES.neu.map(c => `<option value="${c.class}" ${c.name === defaultColB.name ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
       </td>
-      <td class="color-cell ${defaultColor.class}" id="cell-colB-${idx}">
-        <select id="sel-colB-${idx}" onchange="updateCellBg(this, 'cell-colB-${idx}', 'cell-fasB-${idx}')">
-          ${getColorOptionsHTML('neu', colorIndex)}
-        </select>
-      </td>
-      <td class="color-cell ${defaultColor.class}" id="cell-fasB-${idx}">
-        <input type="number" value="${idx}">
+      <td class="${defaultColB.class}" id="cell-fasB-${nr}">
+        <input class="input-cell" type="number" value="${faserB}">
       </td>
 
       <td><input class="input-cell" type="text" value="0.02 dB"></td>
       <td><input class="input-cell" type="text" placeholder="OK"></td>
-      <td class="no-print"><button class="delete-btn" onclick="this.closest('tr').remove()">✕</button></td>
     `;
-    tbody.appendChild(tr);
+    return tr;
   }
 
-  function getColorOptionsHTML(type, selectedIndex) {
-    return COLOR_PALETTES[type].map((c, i) => `<option value="${c.class}" ${i === selectedIndex ? 'selected' : ''}>${c.name}</option>`).join('');
-  }
-
-  function updateRowColorType(typeSelect, side, idx) {
-    const paletteType = typeSelect.value;
-    const colorSelect = document.getElementById(`sel-col${side}-${idx}`);
-    const colorCell = document.getElementById(`cell-col${side}-${idx}`);
-    const faserCell = document.getElementById(`cell-fas${side}-${idx}`);
-
-    const selectedIndex = (idx - 1) % 12;
-    colorSelect.innerHTML = getColorOptionsHTML(paletteType, selectedIndex);
-
-    const activeClass = COLOR_PALETTES[paletteType][selectedIndex].class;
-    applyColorClass(colorCell, faserCell, activeClass);
-  }
-
-  function updateCellBg(selectEl, colorCellId, faserCellId) {
-    const colorCell = document.getElementById(colorCellId);
+  function updateRowColor(selectEl, cellId) {
+    const cell = document.getElementById(cellId);
+    const faserCellId = cellId.replace('col', 'fas');
     const faserCell = document.getElementById(faserCellId);
-    applyColorClass(colorCell, faserCell, selectEl.value);
-  }
 
-  function applyColorClass(cell1, cell2, newClass) {
-    const allClasses = Object.values(COLOR_PALETTES).flat().map(c => c.class);
-    allClasses.forEach(cls => {
-      cell1.classList.remove(cls);
-      if (cell2) cell2.classList.remove(cls);
+    Object.values(PALETTES).flat().forEach(c => {
+      cell.classList.remove(c.class);
+      if (faserCell) faserCell.classList.remove(c.class);
     });
-    cell1.classList.add(newClass);
-    if (cell2) cell2.classList.add(newClass);
+
+    cell.classList.add(selectEl.value);
+    if (faserCell) faserCell.classList.add(selectEl.value);
   }
 
-  // Foto-Verarbeitung & Komprimierung
+  function goBackFromAdjust() {
+    if (currentUnitType === 'Muffe') showStep('step-muffe-config');
+    else showStep('step-box-config');
+  }
+
+  // Einheit in Session speichern
+  function saveCurrentUnitAndAskNext() {
+    const unitName = document.getElementById('inUnitName').value || `${currentUnitType} ${completedUnits.length + 1}`;
+    const rows = [];
+
+    document.querySelectorAll('#wizardTableBody tr').forEach(tr => {
+      // Wenn es keine Trennzeile ist
+      if (tr.cells.length > 2) {
+        rows.push({
+          nr: tr.cells[0].textContent.trim(),
+          cassette: tr.cells[1].querySelector('input').value,
+          colA: tr.cells[2].querySelector('select').selectedOptions[0].text,
+          colAClass: tr.cells[2].querySelector('select').value,
+          fasA: tr.cells[3].querySelector('input').value,
+          colB: tr.cells[5].querySelector('select').selectedOptions[0].text,
+          colBClass: tr.cells[5].querySelector('select').value,
+          fasB: tr.cells[6].querySelector('input').value,
+          attenuation: tr.cells[7].querySelector('input').value,
+          notes: tr.cells[8].querySelector('input').value
+        });
+      }
+    });
+
+    completedUnits.push({
+      type: currentUnitType,
+      name: unitName,
+      rows: rows
+    });
+
+    updateConfiguredUnitsSummary();
+    showStep('step-next-unit-prompt');
+  }
+
+  function updateConfiguredUnitsSummary() {
+    const list = document.getElementById('configuredUnitsList');
+    list.innerHTML = '<h3>Bisher erfasste Einheiten:</h3>';
+    completedUnits.forEach((u, i) => {
+      const div = document.createElement('div');
+      div.className = 'unit-card';
+      div.innerHTML = `
+        <div class="unit-card-header">
+          <span>${i + 1}. ${u.name} (${u.type})</span>
+          <span style="font-size: 12px; color: #64748b;">${u.rows.length} Spleiße</span>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function addNewUnitWorkflow(type) {
+    currentUnitType = type;
+    document.getElementById('inUnitName').value = `${type} ${completedUnits.length + 1}`;
+    if (type === 'Muffe') showStep('step-muffe-config');
+    else showStep('step-box-config');
+  }
+
+  function goToFinalOverview() {
+    showStep('step-final');
+  }
+
+  // Fotos verarbeiten
   function handlePhotoUpload(input) {
     if (!input.files || input.files.length === 0) return;
 
@@ -671,7 +807,8 @@
           ctx.drawImage(img, 0, 0, w, h);
 
           const compressedData = canvas.toDataURL('image/jpeg', 0.75);
-          createPhotoCard(compressedData);
+          attachedPhotos.push({ src: compressedData, name: file.name, desc: "Kassette / Muffenansicht" });
+          renderPhotoGallery();
         };
         img.src = e.target.result;
       };
@@ -680,103 +817,224 @@
     input.value = '';
   }
 
-  function createPhotoCard(src) {
+  function renderPhotoGallery() {
     const container = document.getElementById('photoContainer');
-    const card = document.createElement('div');
-    card.className = 'photo-card';
-    card.innerHTML = `
-      <img src="${src}" alt="Foto">
-      <button class="delete-photo-btn no-print" onclick="this.closest('.photo-card').remove()">✕</button>
-      <div class="photo-card-body">
-        <input type="text" value="Kassette / Muffe Ansicht" placeholder="Beschreibung">
-      </div>
-    `;
-    container.appendChild(card);
+    container.innerHTML = '';
+    attachedPhotos.forEach((photo, idx) => {
+      const div = document.createElement('div');
+      div.className = 'photo-card';
+      div.innerHTML = `
+        <img src="${photo.src}">
+        <button class="delete-btn" onclick="removePhoto(${idx})">✕</button>
+        <div class="photo-card-body">
+          <input type="text" value="${photo.desc}" onchange="attachedPhotos[${idx}].desc = this.value">
+        </div>
+      `;
+      container.appendChild(div);
+    });
   }
 
-  // PDF-Blob-Generierung
-  async function generatePDFBlob() {
+  function removePhoto(idx) {
+    attachedPhotos.splice(idx, 1);
+    renderPhotoGallery();
+  }
+
+  // FARB-MAPPING FÜR PDF FARBEN
+  function getColorHex(colorName) {
+    const all = [...PALETTES.neu, ...PALETTES.alt];
+    const match = all.find(c => c.name.toLowerCase() === colorName.toLowerCase());
+    return match ? match.hex : '#ffffff';
+  }
+
+  // 100% ZUVERLÄSSIGE VEKTOR-PDF ERSTELLUNG MIT AUTO-TABLE
+  function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
-    const element = document.getElementById('pdf-container');
-    const noPrints = document.querySelectorAll('.no-print');
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const project = document.getElementById('inProject').value;
+    const location = document.getElementById('inLocation').value;
+    const technician = document.getElementById('inTechnician').value;
+    const notes = document.getElementById('finalNotes').value;
+    const dateStr = document.getElementById('lblDate').textContent;
 
-    noPrints.forEach(el => el.style.setProperty('display', 'none', 'important'));
+    // Header
+    doc.setFontSize(16);
+    doc.setTextColor(0, 85, 143);
+    doc.text("LWL-Spleiß- & Messprotokoll", 14, 16);
 
-    try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Geothermie Unterhaching GmbH & Co. KG", 14, 22);
+    doc.text(`Datum: ${dateStr}`, 196, 16, { align: 'right' });
+
+    // Meta Box
+    doc.setDrawColor(203, 213, 225);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(14, 26, 182, 18, 2, 2, 'FD');
+
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Projekt / Trasse: ${project}`, 18, 32);
+    doc.text(`Standort: ${location}`, 18, 38);
+    doc.text(`Monteur: ${technician}`, 120, 32);
+
+    let startY = 48;
+
+    // Tabellen für jede konfigurierte Einheit
+    completedUnits.forEach((unit, uIdx) => {
+      doc.setFontSize(12);
+      doc.setTextColor(0, 56, 96);
+      doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, startY);
+
+      const tableRows = unit.rows.map(r => [
+        r.nr,
+        r.cassette,
+        r.colA,
+        r.fasA,
+        "->",
+        r.colB,
+        r.fasB,
+        r.attenuation,
+        r.notes
+      ]);
+
+      doc.autoTable({
+        startY: startY + 3,
+        head: [['Nr.', 'Kassette', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B Farbe', 'Fas. B', 'Dämpfung', 'Bemerkung']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 85, 143], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+        styles: { fontSize: 8, halign: 'center', cellPadding: 2 },
+        columnStyles: {
+          0: { cellWidth: 10 },
+          1: { cellWidth: 16 },
+          2: { cellWidth: 28 },
+          3: { cellWidth: 14 },
+          4: { cellWidth: 8 },
+          5: { cellWidth: 28 },
+          6: { cellWidth: 14 },
+          7: { cellWidth: 22 },
+          8: { cellWidth: 'auto' }
+        },
+        didParseCell: function(data) {
+          // Farbliche Hinterlegung der Spalten 2 & 3 (Kabel A) und 5 & 6 (Kabel B)
+          if (data.section === 'body') {
+            const rawRow = unit.rows[data.row.index];
+            if (data.column.index === 2 || data.column.index === 3) {
+              const hex = getColorHex(rawRow.colA);
+              data.cell.styles.fillColor = hex;
+              data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+              data.cell.styles.fontStyle = 'bold';
+            }
+            if (data.column.index === 5 || data.column.index === 6) {
+              const hex = getColorHex(rawRow.colB);
+              data.cell.styles.fillColor = hex;
+              data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+              data.cell.styles.fontStyle = 'bold';
+            }
+          }
+        }
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-        heightLeft -= pdfHeight;
+      startY = doc.lastAutoTable.finalY + 12;
+      if (startY > 250 && uIdx < completedUnits.length - 1) {
+        doc.addPage();
+        startY = 20;
       }
+    });
 
-      const locationStr = document.getElementById('inLocation').value.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const filename = `Spleissprotokoll_${locationStr}.pdf`;
+    // Bemerkungen
+    if (notes) {
+      if (startY > 240) { doc.addPage(); startY = 20; }
+      doc.setFontSize(10);
+      doc.setTextColor(0, 56, 96);
+      doc.text("Hinweise / Bemerkungen:", 14, startY);
+      doc.setFontSize(9);
+      doc.setTextColor(15, 23, 42);
+      doc.text(notes, 14, startY + 5);
+      startY += 18;
+    }
 
-      return { blob: pdf.output('blob'), pdfDoc: pdf, filename: filename };
-    } finally {
-      noPrints.forEach(el => el.style.display = '');
+    // Fotoseiten anhängen
+    if (attachedPhotos.length > 0) {
+      doc.addPage();
+      doc.setFontSize(14);
+      doc.setTextColor(0, 85, 143);
+      doc.text("Fotodokumentation", 14, 18);
+
+      let pX = 14, pY = 26;
+      attachedPhotos.forEach((p, idx) => {
+        if (pY > 220) {
+          doc.addPage();
+          pY = 20;
+        }
+        doc.addImage(p.src, 'JPEG', pX, pY, 85, 60);
+        doc.setFontSize(8);
+        doc.setTextColor(15, 23, 42);
+        doc.text(p.desc || `Foto ${idx + 1}`, pX, pY + 64);
+
+        if (pX === 14) {
+          pX = 105;
+        } else {
+          pX = 14;
+          pY += 72;
+        }
+      });
+    }
+
+    return doc;
+  }
+
+  function generateVectorPDF(isBlob = false) {
+    if (completedUnits.length === 0) {
+      alert("Bitte zuerst mindestens eine Einheit erfassen!");
+      return;
+    }
+    const doc = buildVectorPDF();
+    const loc = document.getElementById('inLocation').value.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `Spleissprotokoll_${loc}.pdf`;
+
+    if (isBlob) {
+      return { blob: doc.output('blob'), filename: filename };
+    } else {
+      doc.save(filename);
     }
   }
 
-  async function generateAndDownloadPDF() {
-    try {
-      const { pdfDoc, filename } = await generatePDFBlob();
-      pdfDoc.save(filename);
-    } catch (e) {
-      console.error("PDF Fehler:", e);
-      alert("Fehler beim Erstellen des PDFs.");
+  // E-Mail Versand mit Dateifreigabe (Web Share API)
+  async function sendPDFViaEmail() {
+    if (completedUnits.length === 0) {
+      alert("Bitte zuerst mindestens eine Einheit erfassen!");
+      return;
     }
-  }
 
-  async function sendPDFByEmail() {
     const project = document.getElementById('inProject').value;
     const location = document.getElementById('inLocation').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    const emailSubject = `Spleißprotokoll: ${project} - ${location}`;
-    const emailBody = `Hallo Technik-Team,\n\nanbei das aktuelle Spleißprotokoll.\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nProjekt: ${project}\nStandort: ${location}\nDatum: ${dateStr}`;
+    const subject = `Spleißprotokoll: ${project} - ${location}`;
+    const body = `Hallo Technik-Team,\n\nanbei das Protokoll für ${project} (${location}).\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nDatum: ${dateStr}\nEinheiten: ${completedUnits.length}`;
 
-    try {
-      const { blob, filename } = await generatePDFBlob();
-      const pdfFile = new File([blob], filename, { type: 'application/pdf' });
+    const { blob, filename } = generateVectorPDF(true);
+    const pdfFile = new File([blob], filename, { type: 'application/pdf' });
 
-      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      try {
         await navigator.share({
-          title: emailSubject,
-          text: emailBody,
+          title: subject,
+          text: body,
           files: [pdfFile]
         });
-      } else {
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = filename;
-        downloadLink.click();
-
-        const mailtoUrl = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody + "\n\n(PDF befindet sich im Download-Ordner.)")}`;
-        window.location.href = mailtoUrl;
+      } catch (e) {
+        console.log("Teilen abgebrochen:", e);
       }
-    } catch (err) {
-      console.error("Fehler beim Versenden:", err);
-      generateAndDownloadPDF();
+    } else {
+      // Fallback: Download & Mailto
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+
+      window.location.href = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + "\n\n(Die PDF wurde im Download-Ordner gespeichert.)")}`;
     }
   }
 </script>
