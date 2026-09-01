@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWL Montage-Assistent & Spleißprotokoll</title>
   
-  <!-- jsPDF & AutoTable für saubere Vektor-PDFs -->
+  <!-- jsPDF & AutoTable für saubere Vektor-PDFs mit Trennblöcken -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
@@ -437,9 +437,7 @@
       </select>
     </div>
 
-    <div id="cassetteFormsContainer" style="margin-top: 14px;">
-      <!-- Dynamisch pro Kassette: 1 Kabel oder mehrere Kabel -->
-    </div>
+    <div id="cassetteFormsContainer" style="margin-top: 14px;"></div>
 
     <div class="nav-buttons">
       <button class="btn btn-secondary" onclick="showStep('step-start')">⬅ Zurück</button>
@@ -716,6 +714,12 @@
     tbody.innerHTML = '';
     document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
 
+    // Kopfzeile Trennung
+    const sep = document.createElement('tr');
+    sep.className = 'divider-row';
+    sep.innerHTML = `<td colspan="9" style="background: #e2e8f0; font-weight: bold; text-align: left; padding: 6px 10px;">📁 Muffe / Durchgangskassette (${maxCount} Fasern)</td>`;
+    tbody.appendChild(sep);
+
     for (let i = 1; i <= maxCount; i++) {
       const colA = PALETTES[typeA][(i - 1) % 12];
       const colB = PALETTES[typeB][(i - 1) % 12];
@@ -726,7 +730,7 @@
     showStep('step-splice-adjust');
   }
 
-  // Spleißbox Tabelle erzeugen (Single & Multi-Kabel Support)
+  // Spleißbox Tabelle erzeugen (mit Kassetten-Trennblöcken)
   function buildBoxSpliceTable() {
     const cassetteCount = parseInt(document.getElementById('box_cassette_count').value);
     const tbody = document.getElementById('wizardTableBody');
@@ -744,6 +748,7 @@
         const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
 
         const sep = document.createElement('tr');
+        sep.className = 'divider-row';
         sep.innerHTML = `<td colspan="9" style="background: #e2e8f0; font-weight: bold; text-align: left; padding: 6px 10px;">📁 Kassette ${c} (1 Kabel, ${fiberCount} Fasern auf Pigtails)</td>`;
         tbody.appendChild(sep);
 
@@ -755,9 +760,9 @@
           globalIndex++;
         }
       } else {
-        // Multi-Kabel Modus
         const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
         const sep = document.createElement('tr');
+        sep.className = 'divider-row';
         sep.innerHTML = `<td colspan="9" style="background: #e2e8f0; font-weight: bold; text-align: left; padding: 6px 10px;">📁 Kassette ${c} (${subCards.length} Teilkabel auf Pigtails)</td>`;
         tbody.appendChild(sep);
 
@@ -836,14 +841,20 @@
     else showStep('step-box-config');
   }
 
-  // Speichern der Einheit
+  // Speichern der Einheit inkl. Trennzeilen für saubere PDF-Struktur
   function saveCurrentUnitAndAskNext() {
     const unitName = document.getElementById('inUnitName').value || `${currentUnitType} ${completedUnits.length + 1}`;
     const rows = [];
 
     document.querySelectorAll('#wizardTableBody tr').forEach(tr => {
-      if (tr.cells.length > 2) {
+      if (tr.classList.contains('divider-row') || tr.cells.length === 1) {
         rows.push({
+          isDivider: true,
+          title: tr.cells[0].textContent.trim()
+        });
+      } else if (tr.cells.length > 2) {
+        rows.push({
+          isDivider: false,
           nr: tr.cells[0].textContent.trim(),
           cassette: tr.cells[1].querySelector('input').value,
           colA: tr.cells[2].querySelector('select').selectedOptions[0].text,
@@ -870,12 +881,13 @@
     const list = document.getElementById('configuredUnitsList');
     list.innerHTML = '<h3>Bisher erfasste Einheiten:</h3>';
     completedUnits.forEach((u, i) => {
+      const fiberCount = u.rows.filter(r => !r.isDivider).length;
       const div = document.createElement('div');
       div.className = 'unit-card';
       div.innerHTML = `
         <div class="unit-card-header">
           <span>${i + 1}. ${u.name} (${u.type})</span>
-          <span style="font-size: 12px; color: #64748b;">${u.rows.length} Spleiße</span>
+          <span style="font-size: 12px; color: #64748b;">${fiberCount} Spleiße</span>
         </div>
       `;
       list.appendChild(div);
@@ -953,7 +965,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // PDF-Generierung mit AutoTable
+  // PDF-Generierung mit sauber getrennten Kassetten-Abschnitten
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -991,22 +1003,41 @@
       doc.setTextColor(0, 56, 96);
       doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, startY);
 
-      const tableRows = unit.rows.map(r => [
-        r.nr,
-        r.cassette,
-        r.colA,
-        r.fasA,
-        "->",
-        r.colB,
-        r.fasB,
-        r.attenuation,
-        r.notes
-      ]);
+      // Tabellenzeilen für PDF mit Kassetten-Trennblöcken vorbereiten
+      const tableBody = [];
+      unit.rows.forEach(r => {
+        if (r.isDivider) {
+          tableBody.push([
+            {
+              content: r.title,
+              colSpan: 9,
+              styles: {
+                fillColor: [226, 232, 240],
+                textColor: [15, 23, 42],
+                fontStyle: 'bold',
+                halign: 'left'
+              }
+            }
+          ]);
+        } else {
+          tableBody.push([
+            r.nr,
+            r.cassette,
+            r.colA,
+            r.fasA,
+            "->",
+            r.colB,
+            r.fasB,
+            r.attenuation,
+            r.notes
+          ]);
+        }
+      });
 
       doc.autoTable({
         startY: startY + 3,
         head: [['Nr.', 'Kassette', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Dämpfung', 'Bemerkung / Kabel']],
-        body: tableRows,
+        body: tableBody,
         theme: 'grid',
         headStyles: { fillColor: [0, 85, 143], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
         styles: { fontSize: 8, halign: 'center', cellPadding: 2 },
@@ -1024,17 +1055,21 @@
         didParseCell: function(data) {
           if (data.section === 'body') {
             const rawRow = unit.rows[data.row.index];
-            if (data.column.index === 2 || data.column.index === 3) {
-              const hex = getColorHex(rawRow.colA);
-              data.cell.styles.fillColor = hex;
-              data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-              data.cell.styles.fontStyle = 'bold';
-            }
-            if (data.column.index === 5 || data.column.index === 6) {
-              const hex = getColorHex(rawRow.colB);
-              data.cell.styles.fillColor = hex;
-              data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-              data.cell.styles.fontStyle = 'bold';
+            if (rawRow && !rawRow.isDivider) {
+              // Kabel A Farben
+              if (data.column.index === 2 || data.column.index === 3) {
+                const hex = getColorHex(rawRow.colA);
+                data.cell.styles.fillColor = hex;
+                data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+                data.cell.styles.fontStyle = 'bold';
+              }
+              // Kabel B / Pigtail Farben
+              if (data.column.index === 5 || data.column.index === 6) {
+                const hex = getColorHex(rawRow.colB);
+                data.cell.styles.fillColor = hex;
+                data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+                data.cell.styles.fontStyle = 'bold';
+              }
             }
           }
         }
