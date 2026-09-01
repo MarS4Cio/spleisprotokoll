@@ -335,7 +335,7 @@
     </div>
   </div>
 
-  <!-- SCHRITT 1: Stammdaten & Einheit -->
+  <!-- SCHRITT 1 -->
   <div id="step-start" class="step-card active">
     <h2>1. Stammdaten & Einheit wählen</h2>
     <div class="grid-2">
@@ -370,7 +370,7 @@
     </div>
   </div>
 
-  <!-- SCHRITT 2A: Muffen-Konfiguration -->
+  <!-- SCHRITT 2A -->
   <div id="step-muffe-config" class="step-card">
     <h2>2. Muffe konfigurieren (Kabel 1 & Kabel 2)</h2>
     <div class="grid-2">
@@ -421,7 +421,7 @@
     </div>
   </div>
 
-  <!-- SCHRITT 2B: Spleißbox Kassetten & Kabelanzahl pro Kassette -->
+  <!-- SCHRITT 2B -->
   <div id="step-box-config" class="step-card">
     <h2>2. Spleißbox: Kassetten & Kabelbelegung</h2>
     <div class="form-group" style="max-width: 280px;">
@@ -443,7 +443,7 @@
     </div>
   </div>
 
-  <!-- SCHRITT 3: Spleißplan Detailanpassung -->
+  <!-- SCHRITT 3 -->
   <div id="step-splice-adjust" class="step-card">
     <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
     <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben bei Bedarf an.</p>
@@ -473,7 +473,7 @@
     </div>
   </div>
 
-  <!-- SCHRITT 4: Nächste Einheit oder Abschluss -->
+  <!-- SCHRITT 4 -->
   <div id="step-next-unit-prompt" class="step-card">
     <h2>4. Einheit erfolgreich erfasst!</h2>
     
@@ -489,7 +489,7 @@
     </div>
   </div>
 
-  <!-- SCHRITT 5: Finale Übersicht, Fotos & PDF Export -->
+  <!-- SCHRITT 5 -->
   <div id="step-final" class="step-card">
     <h2>5. Fotodokumentation & PDF Export</h2>
 
@@ -832,14 +832,16 @@
     document.querySelectorAll('#wizardTableBody tr').forEach(tr => {
       if (tr.classList.contains('cassette-header-row')) {
         const kId = tr.getAttribute('data-kassette-id') || 'K1';
-        const kTitle = tr.getAttribute('data-kassette-title') || tr.textContent.trim();
+        let kTitle = tr.getAttribute('data-kassette-title') || 'Kassette';
+        // Bereinigen
+        kTitle = kTitle.replace(/[^a-zA-Z0-9 ]/g, '').trim();
         if (!cassetteMap.has(kId)) {
           cassetteMap.set(kId, { title: kTitle, rows: [] });
         }
       } else if (tr.classList.contains('splice-data-row')) {
         const kId = tr.cells[1].querySelector('input').value.trim() || 'K1';
         if (!cassetteMap.has(kId)) {
-          cassetteMap.set(kId, { title: `Kassette ${kId.replace('K', '')}`, rows: [] });
+          cassetteMap.set(kId, { title: `Kassette ${kId.replace(/[^0-9]/g, '')}`, rows: [] });
         }
         cassetteMap.get(kId).rows.push({
           nr: tr.cells[0].textContent.trim(),
@@ -953,6 +955,7 @@
     return match ? match.hex : '#ffffff';
   }
 
+  // PDF-Generierung ohne Glyphenfehler
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -965,7 +968,7 @@
     // Header
     doc.setFontSize(15);
     doc.setTextColor(0, 85, 143);
-    doc.text("LWL-Spleiß- & Messprotokoll", 14, 15);
+    doc.text("LWL-Spleiss- & Messprotokoll", 14, 15);
 
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139);
@@ -996,15 +999,15 @@
       unit.cassettes.forEach((cassette) => {
         if (currentY > 230) { doc.addPage(); currentY = 20; }
 
-        // Schlichter Kassetten-Titel ohne Sonderzeichen
-        const cleanTitle = cassette.title.replace(/[\uD800-\uDFFF].|[\u2600-\u27FF]/g, '').trim();
+        // 100% sauberer ASCII Titel (z. B. "KASSETTE 1" oder "MUFFE")
+        const safeTitle = (cassette.title || "Kassette").replace(/[^a-zA-Z0-9 ]/g, '').trim().toUpperCase();
 
         doc.setFillColor(0, 56, 96);
-        doc.roundedRect(14, currentY, 182, 6.5, 1, 1, 'F');
+        doc.roundedRect(14, currentY, 182, 6, 1, 1, 'F');
         doc.setFontSize(9);
         doc.setTextColor(255, 255, 255);
-        doc.text(cleanTitle, 17, currentY + 4.5);
-        currentY += 7.5;
+        doc.text(safeTitle, 17, currentY + 4.2);
+        currentY += 7;
 
         const tableData = cassette.rows.map(r => [
           r.nr,
@@ -1020,7 +1023,7 @@
 
         doc.autoTable({
           startY: currentY,
-          head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Dämpfung', 'Bemerkung / Kabel']],
+          head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
           body: tableData,
           theme: 'grid',
           headStyles: { fillColor: [0, 85, 143], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
