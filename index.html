@@ -251,6 +251,12 @@
       color: var(--guh-petrol);
     }
 
+    .unit-card-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -314,10 +320,16 @@
       gap: 6px;
     }
 
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+
     .btn-primary { background: var(--guh-petrol); color: #fff; }
     .btn-secondary { background: #64748b; color: #fff; }
     .btn-success { background: var(--success); color: #fff; }
     .btn-outline { background: #fff; border: 1px solid var(--border-color); color: var(--text); }
+    .btn-danger-outline { background: #fff; border: 1px solid var(--danger); color: var(--danger); }
   </style>
 </head>
 <body>
@@ -358,7 +370,7 @@
     <div class="choice-grid">
       <button class="choice-btn" onclick="startMuffeWorkflow()">
         <span>🧰</span>
-        Muffe (Kabel zu Kabel)
+        Muffe (Standard & Y-Muffe)
       </button>
       <button class="choice-btn" onclick="startBoxWorkflow()">
         <span>🔲</span>
@@ -367,17 +379,27 @@
     </div>
   </div>
 
-  <!-- SCHRITT 2A -->
+  <!-- SCHRITT 2A (Muffe & Y-Muffe) -->
   <div id="step-muffe-config" class="step-card">
-    <h2>2. Muffe konfigurieren (Kabel 1 & Kabel 2)</h2>
-    <div class="grid-2">
+    <h2>2. Muffen-Typ & Kabel konfigurieren</h2>
+    
+    <div class="form-group" style="max-width: 320px; margin-bottom: 16px;">
+      <label>Muffen-Bauform</label>
+      <select id="muffe_mode" onchange="toggleMuffeMode()">
+        <option value="standard" selected>Standard-Muffe (2 Kabel: A ⟷ B)</option>
+        <option value="ymuffe">Y-Muffe / 3-Wege (Kabel A ⟷ B ⟷ C)</option>
+      </select>
+    </div>
+
+    <!-- Standard 2-Kabel Muffe -->
+    <div id="muffe_2cable_grid" class="grid-2">
       <div style="background: var(--guh-light); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel A (Kommend)</h3>
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel A</h3>
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableA_type">
-            <option value="neu">Neu (DIN VDE: Rot, Grün, Blau, Gelb...)</option>
-            <option value="alt">Alt (Braun, Orange, Blau, Grün...)</option>
+            <option value="neu">Neu (DIN VDE: Rot, Grün...)</option>
+            <option value="alt">Alt (Braun, Orange...)</option>
           </select>
         </div>
         <div class="form-group">
@@ -392,12 +414,12 @@
       </div>
 
       <div style="background: var(--guh-light); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel B (Gehend)</h3>
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel B</h3>
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableB_type">
-            <option value="neu">Neu (DIN VDE: Rot, Grün, Blau, Gelb...)</option>
-            <option value="alt">Alt (Braun, Orange, Blau, Grün...)</option>
+            <option value="neu">Neu (DIN VDE: Rot, Grün...)</option>
+            <option value="alt">Alt (Braun, Orange...)</option>
           </select>
         </div>
         <div class="form-group">
@@ -407,6 +429,66 @@
             <option value="8">8 Fasern</option>
             <option value="12" selected>12 Fasern</option>
             <option value="24">24 Fasern</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Y-Muffe 3-Kabel Schema -->
+    <div id="muffe_3cable_grid" class="grid-3" style="display: none;">
+      <div style="background: var(--guh-light); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h4 style="margin: 0 0 6px 0; color: var(--guh-petrol); font-size: 13px;">Kabel 1 (A)</h4>
+        <div class="form-group">
+          <label>Standard</label>
+          <select id="ymuffe_c1_type">
+            <option value="neu">Neu (DIN)</option>
+            <option value="alt">Alt (Braun...)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fasern</label>
+          <select id="ymuffe_c1_count">
+            <option value="4" selected>4 Fasern (2x2)</option>
+            <option value="8">8 Fasern (4x4)</option>
+            <option value="12">12 Fasern (6x6)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background: var(--guh-light); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h4 style="margin: 0 0 6px 0; color: var(--guh-petrol); font-size: 13px;">Kabel 2 (B)</h4>
+        <div class="form-group">
+          <label>Standard</label>
+          <select id="ymuffe_c2_type">
+            <option value="neu">Neu (DIN)</option>
+            <option value="alt">Alt (Braun...)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fasern</label>
+          <select id="ymuffe_c2_count">
+            <option value="4" selected>4 Fasern (2x2)</option>
+            <option value="8">8 Fasern (4x4)</option>
+            <option value="12">12 Fasern (6x6)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background: var(--guh-light); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h4 style="margin: 0 0 6px 0; color: var(--guh-petrol); font-size: 13px;">Kabel 3 (C)</h4>
+        <div class="form-group">
+          <label>Standard</label>
+          <select id="ymuffe_c3_type">
+            <option value="neu">Neu (DIN)</option>
+            <option value="alt">Alt (Braun...)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fasern</label>
+          <select id="ymuffe_c3_count">
+            <option value="4" selected>4 Fasern (2x2)</option>
+            <option value="8">8 Fasern (4x4)</option>
+            <option value="12">12 Fasern (6x6)</option>
           </select>
         </div>
       </div>
@@ -443,7 +525,7 @@
   <!-- SCHRITT 3 -->
   <div id="step-splice-adjust" class="step-card">
     <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
-    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben bei Bedarf an.</p>
+    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben und Faser-Verbindungen bei Bedarf an.</p>
 
     <div class="table-container">
       <table id="wizardTable">
@@ -472,16 +554,17 @@
 
   <!-- SCHRITT 4 -->
   <div id="step-next-unit-prompt" class="step-card">
-    <h2>4. Einheit erfolgreich erfasst!</h2>
+    <h2>4. Übersicht der erfassten Einheiten</h2>
     
     <div id="configuredUnitsList" style="margin-bottom: 20px;"></div>
 
     <div style="background: var(--guh-light); padding: 16px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
-      <h3 style="margin-top: 0; color: var(--guh-petrol);">Noch eine Muffe oder Spleißbox hinzufügen?</h3>
+      <h3 style="margin-top: 0; color: var(--guh-petrol);">Möchtest du weitere Einheiten hinzufügen oder Stammdaten ändern?</h3>
       <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
-        <button class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe</button>
+        <button class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe / Y-Muffe</button>
         <button class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox</button>
-        <button class="btn btn-success" onclick="goToFinalOverview()">➔ Fertigstellen (Fotos & PDF)</button>
+        <button class="btn btn-secondary" onclick="showStep('step-start')">✏️ Stammdaten bearbeiten</button>
+        <button class="btn btn-success" onclick="goToFinalOverview()">➔ Weiter zum Abschluss (Fotos & PDF)</button>
       </div>
     </div>
   </div>
@@ -519,11 +602,11 @@
 </div>
 
 <script>
-  // Relativer Pfad zum Logo im Repository
   const LOCAL_LOGO_PATH = "./GUH_Logo.png";
 
   let loadedLogoDataUrl = null;
-  let logoAspectRatio = 3.44; // Standard-Ratio
+  let logoAspectRatio = 3.44;
+  let editingUnitIndex = -1;
 
   function preloadLocalLogo() {
     const img = new Image();
@@ -594,14 +677,22 @@
   }
 
   function startMuffeWorkflow() {
+    editingUnitIndex = -1;
     currentUnitType = 'Muffe';
     showStep('step-muffe-config');
   }
 
   function startBoxWorkflow() {
+    editingUnitIndex = -1;
     currentUnitType = 'Spleißbox';
     renderCassetteForms();
     showStep('step-box-config');
+  }
+
+  function toggleMuffeMode() {
+    const mode = document.getElementById('muffe_mode').value;
+    document.getElementById('muffe_2cable_grid').style.display = mode === 'standard' ? 'grid' : 'none';
+    document.getElementById('muffe_3cable_grid').style.display = mode === 'ymuffe' ? 'grid' : 'none';
   }
 
   function renderCassetteForms() {
@@ -714,32 +805,76 @@
     container.appendChild(card);
   }
 
+  // Erzeugt die Muffen-Tabelle (Standard 2 Kabel oder Y-Muffe 3 Kabel)
   function buildMuffeSpliceTable() {
-    const typeA = document.getElementById('muffe_cableA_type').value;
-    const countA = parseInt(document.getElementById('muffe_cableA_count').value);
-    const typeB = document.getElementById('muffe_cableB_type').value;
-    const countB = parseInt(document.getElementById('muffe_cableB_count').value);
-
-    const maxCount = Math.max(countA, countB);
+    const mode = document.getElementById('muffe_mode').value;
     const tbody = document.getElementById('wizardTableBody');
     tbody.innerHTML = '';
-    document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
 
-    const headerRow = document.createElement('tr');
-    headerRow.className = 'cassette-header-row';
-    headerRow.setAttribute('data-kassette-id', 'K1');
-    headerRow.setAttribute('data-kassette-title', 'Muffe');
-    headerRow.innerHTML = `<td colspan="9">Muffe</td>`;
-    tbody.appendChild(headerRow);
+    if (mode === 'standard') {
+      const typeA = document.getElementById('muffe_cableA_type').value;
+      const countA = parseInt(document.getElementById('muffe_cableA_count').value);
+      const typeB = document.getElementById('muffe_cableB_type').value;
+      const countB = parseInt(document.getElementById('muffe_cableB_count').value);
+      const maxCount = Math.max(countA, countB);
 
-    for (let i = 1; i <= maxCount; i++) {
-      const colA = PALETTES[typeA][(i - 1) % 12];
-      const colB = PALETTES[typeB][(i - 1) % 12];
-      const tr = createSpliceRowHTML(i, "K1", typeA, colA, i, typeB, colB, i, "Kabel 1 -> Kabel 2");
-      tbody.appendChild(tr);
+      document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
+
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'cassette-header-row';
+      headerRow.setAttribute('data-kassette-id', 'K1');
+      headerRow.setAttribute('data-kassette-title', 'Muffe');
+      headerRow.innerHTML = `<td colspan="9">Muffe (Kabel A ➜ Kabel B)</td>`;
+      tbody.appendChild(headerRow);
+
+      for (let i = 1; i <= maxCount; i++) {
+        const colA = PALETTES[typeA][(i - 1) % 12];
+        const colB = PALETTES[typeB][(i - 1) % 12];
+        const tr = createSpliceRowHTML(i, "K1", typeA, colA, i, typeB, colB, i, "Kabel A -> Kabel B");
+        tbody.appendChild(tr);
+      }
+    } else {
+      // Y-MUFFE 3-WEGE SCHALTUNG
+      const t1 = document.getElementById('ymuffe_c1_type').value;
+      const t2 = document.getElementById('ymuffe_c2_type').value;
+      const t3 = document.getElementById('ymuffe_c3_type').value;
+
+      document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung: Y-Muffe (Kabel 1 ➜ Kabel 2 ➜ Kabel 3)`;
+
+      // KASSETTE 1: Kabel 1 (Fas 1-2) auf Kabel 2 (Fas 1-2)
+      addYBlock(tbody, "K1", "Kassette 1: Kabel 1 (Fas. 1-2) auf Kabel 2 (Fas. 1-2)", 1, 
+               t1, 1, 2, t2, 1, 2, "Kabel 1 -> Kabel 2");
+
+      // KASSETTE 2: Kabel 2 (Fas 3-4) auf Kabel 3 (Fas 1-2)
+      addYBlock(tbody, "K2", "Kassette 2: Kabel 2 (Fas. 3-4) auf Kabel 3 (Fas. 1-2)", 3, 
+               t2, 3, 4, t3, 1, 2, "Kabel 2 -> Kabel 3");
+
+      // KASSETTE 3: Kabel 3 (Fas 3-4) auf Kabel 1 (Fas 3-4)
+      addYBlock(tbody, "K3", "Kassette 3: Kabel 3 (Fas. 3-4) auf Kabel 1 (Fas. 3-4)", 5, 
+               t3, 3, 4, t1, 3, 4, "Kabel 3 -> Kabel 1");
     }
 
     showStep('step-splice-adjust');
+  }
+
+  function addYBlock(tbody, kId, title, startNr, typeA, aStart, aEnd, typeB, bStart, bEnd, note) {
+    const headerRow = document.createElement('tr');
+    headerRow.className = 'cassette-header-row';
+    headerRow.setAttribute('data-kassette-id', kId);
+    headerRow.setAttribute('data-kassette-title', title);
+    headerRow.innerHTML = `<td colspan="9">${title}</td>`;
+    tbody.appendChild(headerRow);
+
+    let nr = startNr;
+    let bFas = bStart;
+    for (let aFas = aStart; aFas <= aEnd; aFas++) {
+      const colA = PALETTES[typeA][(aFas - 1) % 12];
+      const colB = PALETTES[typeB][(bFas - 1) % 12];
+      const tr = createSpliceRowHTML(nr, kId, typeA, colA, aFas, typeB, colB, bFas, note);
+      tbody.appendChild(tr);
+      nr++;
+      bFas++;
+    }
   }
 
   function buildBoxSpliceTable() {
@@ -844,8 +979,12 @@
   }
 
   function goBackFromAdjust() {
-    if (currentUnitType === 'Muffe') showStep('step-muffe-config');
-    else showStep('step-box-config');
+    if (editingUnitIndex >= 0) {
+      showStep('step-next-unit-prompt');
+    } else {
+      if (currentUnitType === 'Muffe') showStep('step-muffe-config');
+      else showStep('step-box-config');
+    }
   }
 
   function saveCurrentUnitAndAskNext() {
@@ -856,7 +995,7 @@
       if (tr.classList.contains('cassette-header-row')) {
         const kId = tr.getAttribute('data-kassette-id') || 'K1';
         let kTitle = tr.getAttribute('data-kassette-title') || 'Kassette';
-        kTitle = kTitle.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+        kTitle = kTitle.replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim();
         if (!cassetteMap.has(kId)) {
           cassetteMap.set(kId, { title: kTitle, rows: [] });
         }
@@ -878,19 +1017,67 @@
       }
     });
 
-    completedUnits.push({
+    const unitData = {
       type: currentUnitType,
       name: unitName,
       cassettes: Array.from(cassetteMap.values())
-    });
+    };
+
+    if (editingUnitIndex >= 0) {
+      completedUnits[editingUnitIndex] = unitData;
+      editingUnitIndex = -1;
+    } else {
+      completedUnits.push(unitData);
+    }
 
     updateConfiguredUnitsSummary();
     showStep('step-next-unit-prompt');
   }
 
+  function editUnit(index) {
+    editingUnitIndex = index;
+    const unit = completedUnits[index];
+    currentUnitType = unit.type;
+    document.getElementById('inUnitName').value = unit.name;
+    document.getElementById('adjustTableTitle').textContent = `3. Bearbeite: ${unit.name} (${unit.type})`;
+
+    const tbody = document.getElementById('wizardTableBody');
+    tbody.innerHTML = '';
+
+    unit.cassettes.forEach((cassette, cIdx) => {
+      const headerRow = document.createElement('tr');
+      headerRow.className = 'cassette-header-row';
+      headerRow.setAttribute('data-kassette-id', `K${cIdx + 1}`);
+      headerRow.setAttribute('data-kassette-title', cassette.title);
+      headerRow.innerHTML = `<td colspan="9">${cassette.title}</td>`;
+      tbody.appendChild(headerRow);
+
+      cassette.rows.forEach(r => {
+        const colObjA = PALETTES.neu.find(c => c.name === r.colA) || PALETTES.alt.find(c => c.name === r.colA) || PALETTES.neu[0];
+        const colObjB = PALETTES.neu.find(c => c.name === r.colB) || PALETTES.alt.find(c => c.name === r.colB) || PALETTES.neu[0];
+        const tr = createSpliceRowHTML(r.nr, r.cassette, 'neu', colObjA, r.fasA, 'neu', colObjB, r.fasB, r.notes);
+        tr.querySelector('input[value="0.02 dB"]').value = r.attenuation;
+        tbody.appendChild(tr);
+      });
+    });
+
+    showStep('step-splice-adjust');
+  }
+
+  function deleteUnit(index) {
+    if (confirm(`Möchtest du "${completedUnits[index].name}" wirklich löschen?`)) {
+      completedUnits.splice(index, 1);
+      updateConfiguredUnitsSummary();
+    }
+  }
+
   function updateConfiguredUnitsSummary() {
     const list = document.getElementById('configuredUnitsList');
     list.innerHTML = '<h3>Bisher erfasste Einheiten:</h3>';
+    if (completedUnits.length === 0) {
+      list.innerHTML += '<p style="font-size: 13px; color: #64748b;">Noch keine Einheiten vorhanden.</p>';
+      return;
+    }
     completedUnits.forEach((u, i) => {
       let totalFibers = 0;
       u.cassettes.forEach(c => totalFibers += c.rows.length);
@@ -899,8 +1086,11 @@
       div.className = 'unit-card';
       div.innerHTML = `
         <div class="unit-card-header">
-          <span>${i + 1}. ${u.name} (${u.type})</span>
-          <span style="font-size: 12px; color: #64748b;">${u.cassettes.length} Kassetten / ${totalFibers} Spleiße</span>
+          <span>${i + 1}. ${u.name} (${u.type}) - <small style="color: #64748b;">${u.cassettes.length} Kassetten / ${totalFibers} Spleiße</small></span>
+          <div class="unit-card-actions">
+            <button class="btn btn-sm btn-outline" onclick="editUnit(${i})">✏️ Bearbeiten</button>
+            <button class="btn btn-sm btn-danger-outline" onclick="deleteUnit(${i})">🗑️ Löschen</button>
+          </div>
         </div>
       `;
       list.appendChild(div);
@@ -908,6 +1098,7 @@
   }
 
   function addNewUnitWorkflow(type) {
+    editingUnitIndex = -1;
     currentUnitType = type;
     document.getElementById('inUnitName').value = `${type} ${completedUnits.length + 1}`;
     if (type === 'Muffe') showStep('step-muffe-config');
@@ -977,7 +1168,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Generierung des offiziellen GUH-PDFs mit dem echten Logo
+  // Generierung des offiziellen GUH-PDFs mit unverzerrtem Logo
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -987,7 +1178,6 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Logo mit exakt berechneten Proportionen
     if (loadedLogoDataUrl) {
       const targetHeight = 13;
       const targetWidth = targetHeight * logoAspectRatio;
@@ -999,18 +1189,15 @@
       doc.text("GEOTHERMIE UNTERHACHING", 14, 18);
     }
 
-    // Dokumententitel (oben rechts)
     doc.setFontSize(12);
     doc.setTextColor(23, 84, 103);
     doc.setFont(undefined, 'bold');
     doc.text("SPLEISS- & MESSPROTOKOLL LWL", 196, 17.5, { align: 'right' });
 
-    // Akzentlinie (GUH Orange)
     doc.setDrawColor(232, 92, 36);
     doc.setLineWidth(0.8);
     doc.line(14, 25, 196, 25);
 
-    // Stammdaten-Tabelle
     doc.autoTable({
       startY: 28,
       theme: 'plain',
@@ -1042,7 +1229,7 @@
       unit.cassettes.forEach((cassette) => {
         if (currentY > 230) { doc.addPage(); currentY = 20; }
 
-        const safeTitle = (cassette.title || "Kassette").replace(/[^a-zA-Z0-9 ]/g, '').trim().toUpperCase();
+        const safeTitle = (cassette.title || "Kassette").replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
 
         doc.setFillColor(23, 84, 103);
         doc.roundedRect(14, currentY, 182, 5.5, 0.5, 0.5, 'F');
@@ -1109,7 +1296,6 @@
       currentY += 3;
     });
 
-    // Bemerkungen
     if (notes) {
       if (currentY > 240) { doc.addPage(); currentY = 20; }
       doc.setFontSize(9);
@@ -1123,7 +1309,6 @@
       currentY += 12;
     }
 
-    // Fotoseiten
     if (attachedPhotos.length > 0) {
       doc.addPage();
       doc.setFontSize(11);
@@ -1155,7 +1340,6 @@
       });
     }
 
-    // Fußzeile
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
