@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LWL Montage-Assistent & Spleißprotokoll</title>
+  <title>LWL Montage-Assistent & Spleißprotokoll - Geothermie Unterhaching</title>
   
   <!-- jsPDF & AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,11 +11,12 @@
 
   <style>
     :root {
-      --primary: #00558f;
-      --primary-dark: #003860;
-      --primary-light: #e8f1f7;
+      --guh-petrol: #175467;
+      --guh-petrol-dark: #0f3946;
+      --guh-orange: #e85c24;
+      --guh-light: #f0f6f8;
       --border-color: #cbd5e1;
-      --bg-color: #f1f5f9;
+      --bg-color: #f8fafc;
       --card-bg: #ffffff;
       --text: #0f172a;
       --danger: #ef4444;
@@ -36,24 +37,26 @@
       max-width: 950px;
       margin: 0 auto;
       background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      border-top: 4px solid var(--guh-petrol);
     }
 
     .app-header {
-      border-bottom: 2px solid var(--primary-light);
+      border-bottom: 2px solid var(--guh-orange);
       padding-bottom: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end;
     }
 
     .app-header h1 {
       margin: 0;
-      font-size: 20px;
-      color: var(--primary);
+      font-size: 22px;
+      color: var(--guh-petrol);
+      letter-spacing: -0.5px;
     }
 
     .app-header .company {
@@ -77,8 +80,8 @@
     }
 
     h2 {
-      font-size: 17px;
-      color: var(--primary-dark);
+      font-size: 16px;
+      color: var(--guh-petrol);
       margin-top: 0;
       margin-bottom: 14px;
       padding-bottom: 6px;
@@ -95,14 +98,14 @@
       font-size: 11px;
       font-weight: 700;
       margin-bottom: 4px;
-      color: #475569;
+      color: var(--guh-petrol);
       text-transform: uppercase;
     }
 
     .form-group input, .form-group select, .form-group textarea {
       padding: 8px 10px;
       border: 1px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 13px;
       background: #fff;
     }
@@ -129,32 +132,32 @@
     .choice-btn {
       background: #fff;
       border: 2px solid var(--border-color);
-      border-radius: 10px;
-      padding: 24px 16px;
+      border-radius: 8px;
+      padding: 22px 16px;
       text-align: center;
       cursor: pointer;
       font-weight: 700;
       font-size: 15px;
-      color: var(--primary);
+      color: var(--guh-petrol);
       transition: all 0.2s;
     }
 
     .choice-btn:hover {
-      border-color: var(--primary);
-      background: var(--primary-light);
+      border-color: var(--guh-petrol);
+      background: var(--guh-light);
       transform: translateY(-2px);
     }
 
     .choice-btn span {
       display: block;
-      font-size: 32px;
+      font-size: 30px;
       margin-bottom: 8px;
     }
 
     .cassette-box {
-      background: #f8fafc;
+      background: var(--guh-light);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 14px;
       margin-bottom: 14px;
     }
@@ -162,7 +165,7 @@
     .sub-cable-card {
       background: #ffffff;
       border: 1px dashed var(--border-color);
-      border-radius: 6px;
+      border-radius: 4px;
       padding: 10px;
       margin-top: 8px;
     }
@@ -171,7 +174,7 @@
       overflow-x: auto;
       margin: 16px 0;
       border: 1px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 4px;
     }
 
     table {
@@ -188,18 +191,19 @@
     }
 
     th {
-      background-color: var(--primary);
+      background-color: var(--guh-petrol);
       color: #ffffff;
       font-weight: 600;
+      font-size: 12px;
     }
 
     .cassette-header-row td {
-      background-color: #003860 !important;
+      background-color: var(--guh-petrol-dark) !important;
       color: #ffffff !important;
       font-weight: bold;
       text-align: left !important;
-      padding: 8px 12px !important;
-      font-size: 13px;
+      padding: 7px 10px !important;
+      font-size: 12px;
     }
 
     /* Farbcodes */
@@ -237,11 +241,11 @@
     }
 
     .unit-card {
-      background: #f8fafc;
+      background: var(--guh-light);
       border: 1px solid var(--border-color);
-      border-left: 4px solid var(--primary);
+      border-left: 4px solid var(--guh-petrol);
       padding: 12px;
-      border-radius: 6px;
+      border-radius: 4px;
       margin-bottom: 10px;
     }
 
@@ -250,6 +254,7 @@
       justify-content: space-between;
       align-items: center;
       font-weight: bold;
+      color: var(--guh-petrol);
     }
 
     .photo-grid {
@@ -261,7 +266,7 @@
 
     .photo-card {
       border: 1px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 4px;
       overflow: hidden;
       position: relative;
       background: #fff;
@@ -305,7 +310,7 @@
 
     .btn {
       padding: 9px 16px;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 13px;
       font-weight: 700;
       border: none;
@@ -315,7 +320,7 @@
       gap: 6px;
     }
 
-    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary { background: var(--guh-petrol); color: #fff; }
     .btn-secondary { background: #64748b; color: #fff; }
     .btn-success { background: var(--success); color: #fff; }
     .btn-outline { background: #fff; border: 1px solid var(--border-color); color: var(--text); }
@@ -327,7 +332,7 @@
   
   <div class="app-header">
     <div>
-      <h1>LWL Montage- & Spleißprotokoll</h1>
+      <h1>Spleiß- & Messprotokoll LWL</h1>
       <div class="company">Geothermie Unterhaching GmbH & Co. KG</div>
     </div>
     <div style="font-size: 12px; color: #64748b; text-align: right;">
@@ -344,8 +349,8 @@
         <input type="text" id="inProject" value="Fernwärmetrasse Nord">
       </div>
       <div class="form-group">
-        <label>Standort / Schacht</label>
-        <input type="text" id="inLocation" value="Schacht 12 / Übergabe">
+        <label>Einsatzort / Objektanschrift</label>
+        <input type="text" id="inLocation" value="Schacht 12 / Übergabestation">
       </div>
       <div class="form-group">
         <label>Monteur / Spleißer</label>
@@ -357,7 +362,7 @@
       </div>
     </div>
 
-    <p style="font-weight: bold; margin-top: 16px;">Was montierst / spleißt du jetzt?</p>
+    <p style="font-weight: bold; margin-top: 16px; color: var(--guh-petrol);">Was montierst / spleißt du jetzt?</p>
     <div class="choice-grid">
       <button class="choice-btn" onclick="startMuffeWorkflow()">
         <span>🧰</span>
@@ -374,8 +379,8 @@
   <div id="step-muffe-config" class="step-card">
     <h2>2. Muffe konfigurieren (Kabel 1 & Kabel 2)</h2>
     <div class="grid-2">
-      <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary);">Kabel A (Kommend)</h3>
+      <div style="background: var(--guh-light); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel A (Kommend)</h3>
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableA_type">
@@ -394,8 +399,8 @@
         </div>
       </div>
 
-      <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary);">Kabel B (Gehend)</h3>
+      <div style="background: var(--guh-light); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel B (Gehend)</h3>
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableB_type">
@@ -479,8 +484,8 @@
     
     <div id="configuredUnitsList" style="margin-bottom: 20px;"></div>
 
-    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
-      <h3 style="margin-top: 0; color: var(--primary-dark);">Noch eine Muffe oder Spleißbox hinzufügen?</h3>
+    <div style="background: var(--guh-light); padding: 16px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
+      <h3 style="margin-top: 0; color: var(--guh-petrol);">Noch eine Muffe oder Spleißbox hinzufügen?</h3>
       <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
         <button class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe</button>
         <button class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox</button>
@@ -494,7 +499,7 @@
     <h2>5. Fotodokumentation & PDF Export</h2>
 
     <div style="margin-bottom: 16px;">
-      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px;">Fotos hinzufügen:</label>
+      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--guh-petrol);">Fotodokumentation hinzufügen:</label>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
         <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this)">
         <button class="btn btn-primary" onclick="document.getElementById('cameraInput').click()">📷 Foto mit Kamera</button>
@@ -510,7 +515,7 @@
       <textarea id="finalNotes" rows="2" placeholder="z. B. Kassetten beschriftet, Dichtigkeit geprüft..."></textarea>
     </div>
 
-    <div class="nav-buttons" style="background: #f8fafc; padding: 14px; border-radius: 8px;">
+    <div class="nav-buttons" style="background: var(--guh-light); padding: 14px; border-radius: 6px;">
       <button class="btn btn-secondary" onclick="showStep('step-next-unit-prompt')">⬅ Zurück zu den Einheiten</button>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <button class="btn btn-primary" onclick="generateVectorPDF(false)">📄 PDF Generieren & Herunterladen</button>
@@ -522,6 +527,9 @@
 </div>
 
 <script>
+  // Offizielles GUH-Logo als Base64
+  const GUH_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAA8CAMAAACEhB/EAAAAYFBMVEUAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0GA3BvVAAAAH3RSTlMAAQIFBAYICQwNERMWFxgZGh0eHyAhIiMkJSgsLzE0OHs99eQAAAUESURBVHja7Ztbb+IwEIaHACHXll6qdrf7//921m53pRLlUqQ9o2km8350A5E445eZZ+wwWZaWWmqppZZaaqmlllpqqf8zqqpqaP4tQ36fK4YwD0/a8n81xG9N/gWGsC/w/b0972X479D8A2u5Pz8XvA5/i7Ecx0E7Ttdm32dO7ZJb6n+h/0/GcjHjPjJ+K/78+X1a0z769f39/X2xWOxfZ7O3j3H8M3sD82522hQ7g964jU+2rI2bA3v3+Kz2z2tZzGZvd7/1s9o1L2Yfs8f8n4+72jXPh+Yj9jKk8xO9bX+0z5r3s9P9l/uFfnxcr7j7yP3+x/Wn2p5n83E4H5/r0w/N832uPzY/857eG7h/8qL5uU9rM+6b9835g/363t6e3x83377/9Vb4v0f81uRf4f/f4rcm/wq/+xX2+9r/h/iV9u7N+h32/W+/wf+X+E23/wX43a+wf99D+6H2+T3gN97+F/hNt/8F/N94236o/XW3/w74zbf/Bfjf4fbv2g+0/5W3/wb4zbf/Bfjf4fbv2g+0/5W3/wb4zbf/Bfjf4fa37c8H978CfvPt38e/2X63f4b/65/h+079F+993H1f2j+H2v9y7+Pu/7f1f9y7N+vj3r3Ze993H3ffV+u/3f83733cfV+t79y7N3vv++7j7vvq939634/1f+u9j7vvq/X9r/D/b/Fbk3+F3/0K+33t/0P8Snv3Zv0O+/633+D/S/ym2/8C/O5X2L/vof1Q+/we8Btv/wv8ptv/Av5vvG0/1P66238H/Obb/wL873D7d+0H2v/K238D/Obb/wL873D7d+0H2v/K238D/Obb/wL873D72/bng/tfAb/59u/j32y/2z/D//XP8H2n/ov3Pu6+L+2fQ+1/ufdx9//b+j/u3Zv1ce/e7L3vu4+776v13+7/m/c+7r6v1nfu3Zu99333cfd99fs/ve/H+r/13sfd99X6/lf4/7f4rcm/wu9+hf2+9v8hfqW9e7N+h33/22/w/yV+0+1/AX73K+zf99B+qH1+D/iNt/8F/Kbb/wL+b7xtP9T+utt/B/zm2/8C/O9w+3ftB9r/ytt/A/zm2/8C/O9w+3ftB9r/ytt/A/zm2/8C/O9w+9v254P7XwG/+fbv499sv9s/w//1z/B9p/6L9z7uvi/tn0Ptf7n3cff/2/o/7t2b9XHv3uy977uPu++r9d/u/5v3Pu6+r9Z37t2bvfdd173vW/d93/3+U/tqfe/7vu9+/6n92e//sP633/d99313+76vfb/2/dL3y973fd/3ve+Xvd/36/vvu8Z/y76H33uFv1/rf6X/ffv38e+2X/d+m/5D+6X2v1r/9b6ve9/Xvv+1/kP73733cfd9tf7b/ffdf8m+B/jv+H+F/xuxf993/7v3v6P9W651Xfeu/a/133f/pfbf9717s77ve9+/f9/9/kP/+/f9tvd933e37/va92vfL32/7H3f933f+37Z+32/vv++a/y37Hv4vVf4+7X+V/rft38f/277de+36T+0X2r/q/Vf7/u6933t+1/rP7T/3Xsfdd9X67/df9/9l+x7gP+O/1f4vxH79333v3v/O9q/5VrXde/a/1r/ffdfav9937s36/u+9/37993vP/S/f99ve9/3fXf7vq99v/b90vfL3vd93/e+X/Z+36/vv+8a/y37Hv7vf4X/f47/AWg93W5v7b3tAAAAAElFTkSuQmCC";
+
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444" },
@@ -592,7 +600,7 @@
       box.id = `cassette_box_${c}`;
       box.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <h4 style="margin: 0; color: var(--primary); font-size: 14px;">Kassette ${c}</h4>
+          <h4 style="margin: 0; color: var(--guh-petrol); font-size: 14px;">Kassette ${c}</h4>
           <div style="display: flex; align-items: center; gap: 8px;">
             <label style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Kabel-Modus:</label>
             <select id="box_c${c}_cableMode" onchange="toggleCableMode(${c})">
@@ -833,7 +841,6 @@
       if (tr.classList.contains('cassette-header-row')) {
         const kId = tr.getAttribute('data-kassette-id') || 'K1';
         let kTitle = tr.getAttribute('data-kassette-title') || 'Kassette';
-        // Bereinigen
         kTitle = kTitle.replace(/[^a-zA-Z0-9 ]/g, '').trim();
         if (!cassetteMap.has(kId)) {
           cassetteMap.set(kId, { title: kTitle, rows: [] });
@@ -955,7 +962,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // PDF-Generierung ohne Glyphenfehler
+  // Offizielles GUH PDF Dokument
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -965,49 +972,68 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Header
-    doc.setFontSize(15);
-    doc.setTextColor(0, 85, 143);
-    doc.text("LWL-Spleiss- & Messprotokoll", 14, 15);
+    // Header mit Logo
+    try {
+      doc.addImage(GUH_LOGO_BASE64, 'PNG', 14, 10, 50, 15);
+    } catch(e) {
+      doc.setFontSize(14);
+      doc.setTextColor(23, 84, 103);
+      doc.setFont(undefined, 'bold');
+      doc.text("GEOTHERMIE UNTERHACHING", 14, 18);
+    }
 
-    doc.setFontSize(10);
-    doc.setTextColor(100, 116, 139);
-    doc.text("Geothermie Unterhaching GmbH & Co. KG", 14, 21);
-    doc.text(`Datum: ${dateStr}`, 196, 15, { align: 'right' });
+    // Dokumententitel
+    doc.setFontSize(13);
+    doc.setTextColor(23, 84, 103);
+    doc.setFont(undefined, 'bold');
+    doc.text("SPLEISS- & MESSPROTOKOLL LWL", 196, 18, { align: 'right' });
 
-    // Stammdaten Box
-    doc.setDrawColor(203, 213, 225);
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(14, 25, 182, 16, 2, 2, 'FD');
+    // Akzentlinie
+    doc.setDrawColor(232, 92, 36);
+    doc.setLineWidth(0.8);
+    doc.line(14, 27, 196, 27);
 
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    doc.text(`Projekt / Trasse: ${project}`, 18, 31);
-    doc.text(`Standort: ${location}`, 18, 37);
-    doc.text(`Monteur: ${technician}`, 120, 31);
+    // Stammdaten-Tabelle
+    doc.autoTable({
+      startY: 30,
+      theme: 'plain',
+      styles: { fontSize: 8.5, cellPadding: 1.5, textColor: [15, 23, 42] },
+      columnStyles: {
+        0: { fontStyle: 'bold', textColor: [23, 84, 103], cellWidth: 35 },
+        1: { cellWidth: 60 },
+        2: { fontStyle: 'bold', textColor: [23, 84, 103], cellWidth: 25 },
+        3: { cellWidth: 'auto' }
+      },
+      body: [
+        ['Auftraggeber:', 'Geothermie Unterhaching GmbH & Co. KG', 'Datum:', dateStr],
+        ['Projekt / Trasse:', project, 'Monteur:', technician],
+        ['Einsatzort / Objekt:', location, 'Firma:', 'Technik GUH']
+      ]
+    });
 
-    let currentY = 46;
+    let currentY = doc.lastAutoTable.finalY + 4;
 
     completedUnits.forEach((unit, uIdx) => {
       if (currentY > 240) { doc.addPage(); currentY = 20; }
 
-      doc.setFontSize(12);
-      doc.setTextColor(0, 56, 96);
+      doc.setFontSize(10.5);
+      doc.setTextColor(23, 84, 103);
+      doc.setFont(undefined, 'bold');
       doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, currentY);
-      currentY += 5;
+      currentY += 4;
 
       unit.cassettes.forEach((cassette) => {
         if (currentY > 230) { doc.addPage(); currentY = 20; }
 
-        // 100% sauberer ASCII Titel (z. B. "KASSETTE 1" oder "MUFFE")
         const safeTitle = (cassette.title || "Kassette").replace(/[^a-zA-Z0-9 ]/g, '').trim().toUpperCase();
 
-        doc.setFillColor(0, 56, 96);
-        doc.roundedRect(14, currentY, 182, 6, 1, 1, 'F');
-        doc.setFontSize(9);
+        doc.setFillColor(23, 84, 103);
+        doc.roundedRect(14, currentY, 182, 5.5, 0.5, 0.5, 'F');
+        doc.setFontSize(8);
         doc.setTextColor(255, 255, 255);
-        doc.text(safeTitle, 17, currentY + 4.2);
-        currentY += 7;
+        doc.setFont(undefined, 'bold');
+        doc.text(safeTitle, 17, currentY + 3.8);
+        currentY += 6.5;
 
         const tableData = cassette.rows.map(r => [
           r.nr,
@@ -1026,17 +1052,17 @@
           head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
           body: tableData,
           theme: 'grid',
-          headStyles: { fillColor: [0, 85, 143], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
-          styles: { fontSize: 8, halign: 'center', cellPadding: 2 },
+          headStyles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 7.5 },
+          styles: { fontSize: 7.5, halign: 'center', cellPadding: 1.8, lineColor: [203, 213, 225], lineWidth: 0.1 },
           columnStyles: {
-            0: { cellWidth: 10 },
-            1: { cellWidth: 14 },
-            2: { cellWidth: 28 },
-            3: { cellWidth: 14 },
-            4: { cellWidth: 8 },
-            5: { cellWidth: 28 },
-            6: { cellWidth: 14 },
-            7: { cellWidth: 22 },
+            0: { cellWidth: 9 },
+            1: { cellWidth: 12 },
+            2: { cellWidth: 26 },
+            3: { cellWidth: 12 },
+            4: { cellWidth: 7 },
+            5: { cellWidth: 26 },
+            6: { cellWidth: 12 },
+            7: { cellWidth: 20 },
             8: { cellWidth: 'auto' }
           },
           didParseCell: function(data) {
@@ -1060,30 +1086,37 @@
           }
         });
 
-        currentY = doc.lastAutoTable.finalY + 6;
+        currentY = doc.lastAutoTable.finalY + 5;
       });
 
-      currentY += 4;
+      currentY += 3;
     });
 
     // Bemerkungen
     if (notes) {
       if (currentY > 240) { doc.addPage(); currentY = 20; }
-      doc.setFontSize(10);
-      doc.setTextColor(0, 56, 96);
-      doc.text("Hinweise / Bemerkungen:", 14, currentY);
       doc.setFontSize(9);
+      doc.setTextColor(23, 84, 103);
+      doc.setFont(undefined, 'bold');
+      doc.text("Hinweise / Bemerkungen:", 14, currentY);
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(8);
       doc.setTextColor(15, 23, 42);
-      doc.text(notes, 14, currentY + 5);
-      currentY += 16;
+      doc.text(notes, 14, currentY + 4.5);
+      currentY += 12;
     }
 
-    // Fotos
+    // Fotoseiten
     if (attachedPhotos.length > 0) {
       doc.addPage();
-      doc.setFontSize(13);
-      doc.setTextColor(0, 85, 143);
-      doc.text("Fotodokumentation", 14, 18);
+      doc.setFontSize(11);
+      doc.setTextColor(23, 84, 103);
+      doc.setFont(undefined, 'bold');
+      doc.text("FOTODOKUMENTATION", 14, 18);
+      
+      doc.setDrawColor(232, 92, 36);
+      doc.setLineWidth(0.5);
+      doc.line(14, 21, 196, 21);
 
       let pX = 14, pY = 26;
       attachedPhotos.forEach((p, idx) => {
@@ -1092,7 +1125,7 @@
           pY = 20;
         }
         doc.addImage(p.src, 'JPEG', pX, pY, 85, 60);
-        doc.setFontSize(8);
+        doc.setFontSize(7.5);
         doc.setTextColor(15, 23, 42);
         doc.text(p.desc || `Foto ${idx + 1}`, pX, pY + 64);
 
@@ -1100,9 +1133,23 @@
           pX = 105;
         } else {
           pX = 14;
-          pY += 72;
+          pY += 70;
         }
       });
+    }
+
+    // Fußzeile auf allen Seiten
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.3);
+      doc.line(14, 285, 196, 285);
+
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Geothermie Unterhaching GmbH & Co. KG - Technisches Protokoll LWL", 14, 289);
+      doc.text(`Seite ${i} von ${totalPages}`, 196, 289, { align: 'right' });
     }
 
     return doc;
