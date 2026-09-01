@@ -53,8 +53,9 @@
     }
 
     .header-logo-img {
-      height: 48px;
+      height: 42px;
       width: auto;
+      object-fit: contain;
       display: block;
     }
 
@@ -518,48 +519,46 @@
 </div>
 
 <script>
-  // SVG-Grafik des originalen GUH Logos (hochauflösend gerendert via Canvas)
-  const GUH_LOGO_SVG = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" width="500" height="120">
-    <g fill="#175467">
-      <path d="M54 62.5c-1.5 1.5-3.3 2.7-5.5 3.5s-4.6 1.2-7.2 1.2c-4 0-7.5-.9-10.4-2.8s-5.2-4.5-6.8-7.8c-1.6-3.3-2.5-7.3-2.5-11.8 0-4.5.8-8.4 2.5-11.8s4-6 6.9-7.9c2.9-1.9 6.4-2.9 10.4-2.9 3.5 0 6.6.7 9.2 2.2s4.7 3.5 6.1 6.1l-8.6 4.9c-.9-1.6-2-2.8-3.4-3.6s-3.1-1.3-5-1.3c-2.4 0-4.5.6-6.2 1.9s-3 3-3.9 5.2c-.9 2.2-1.3 4.6-1.3 7.3s.4 5.1 1.3 7.3c.9 2.2 2.2 3.9 3.9 5.2s3.8 1.9 6.2 1.9c2.1 0 3.9-.4 5.3-1.3s2.4-2 3.1-3.6H41.5V54h21.5v17H54v-8.5z"/>
-      <path d="M72.2 23h27.8v8.6H82.9v8.3h15.2v8.3H82.9v9.7h17.6v8.6H72.2V23z"/>
-      <path d="M129.5 22.2c4 0 7.5.9 10.5 2.8s5.3 4.5 6.9 7.8 2.5 7.2 2.5 11.8-.8 8.5-2.5 11.9-4 6-7 7.9c-3 1.9-6.5 2.9-10.5 2.9s-7.5-1-10.5-2.9c-3-1.9-5.3-4.6-7-7.9s-2.5-7.3-2.5-11.9.8-8.5 2.5-11.8c1.7-3.3 4-5.9 7-7.8s6.5-2.8 10.6-2.8zm0 8.4c-2.4 0-4.5.6-6.2 1.9s-3 3-3.9 5.2c-.9 2.2-1.4 4.7-1.4 7.4s.5 5.2 1.4 7.4c.9 2.2 2.2 3.9 3.9 5.2s3.8 1.9 6.2 1.9 4.5-.6 6.2-1.9 3-3 3.9-5.2c.9-2.2 1.4-4.7 1.4-7.4s-.5-5.2-1.4-7.4c-.9-2.2-2.2-3.9-3.9-5.2s-3.8-1.9-6.2-1.9z"/>
-      <path d="M165.2 31.6h-11.2V23h33.1v8.6H176v34.9h-10.8V31.6z"/>
-      <path d="M192.6 23h10.8v18.7h16.2V23h10.8v43.5h-10.8V50.3h-16.2v16.2h-10.8V23z"/>
-      <path d="M239.5 23h27.8v8.6h-17.1v8.3h15.2v8.3h-15.2v9.7h17.6v8.6h-28.3V23z"/>
-      <path d="M276.9 23h16.6c3.7 0 6.8.6 9.3 1.8s4.4 2.9 5.6 5.1 1.8 4.7 1.8 7.5c0 3.4-.9 6.2-2.6 8.5s-4.3 3.9-7.6 4.7l11.5 15.9h-13l-9.9-14.3h-1v14.3h-10.7V23zm10.7 8.5v12.2h5.5c2 0 3.6-.5 4.8-1.4s1.8-2.4 1.8-4.5c0-2.2-.6-3.8-1.8-4.8s-2.8-1.5-4.8-1.5h-5.5z"/>
-      <path d="M318.5 23h12.5l9.2 22.8 9.3-22.8h12.5v43.5h-10.4V36.9l-8.5 20.7h-5.8l-8.5-20.7v29.6h-10.3V23z"/>
-      <path d="M371.2 23h10.8v43.5h-10.8V23z"/>
-      <path d="M390.8 23h27.8v8.6h-17.1v8.3h15.2v8.3h-15.2v9.7h17.6v8.6h-28.3V23z"/>
-    </g>
-    <!-- UNTERHACHING Schriftzug -->
-    <g fill="#175467" font-family="-apple-system, sans-serif" font-size="21.5" font-weight="600" letter-spacing="15.5">
-      <text x="25" y="104">UNTERHACHING</text>
-    </g>
-    <!-- GUH Dreifarbige Welle -->
-    <g>
-      <path d="M405 57c22-2 42-12 50-25 8-13 8-20 8-20s-1 10-9 22c-9 13-28 23-49 23z" fill="#E85C24"/>
-      <path d="M405 70c22-2 42-12 50-25 8-13 8-20 8-20s-1 10-9 22c-9 13-28 23-49 23z" fill="#E85C24" opacity="0.9"/>
-      <path d="M405 83c22-2 42-12 50-25 8-13 8-20 8-20s-1 10-9 22c-9 13-28 23-49 23z" fill="#4B585E"/>
-    </g>
-  </svg>`;
+  let GUH_LOGO_IMG_ELEMENT = null;
 
-  let GUH_LOGO_PNG_DATA = "";
-
-  // Logo in PNG konvertieren
+  // Erzeugt das Bild-Logo mit perfektem Seitenverhältnis (Originalproportion)
   function initLogoData() {
-    const svgBlob = new Blob([GUH_LOGO_SVG], { type: 'image/svg+xml;charset=utf-8' });
+    const svgCode = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 100" width="460" height="100">
+      <g fill="#175467">
+        <path d="M49.5 53.5c-1.3 1.3-2.9 2.3-4.8 3-1.9.7-4 .1-6.3.1-3.5 0-6.6-.8-9.1-2.4-2.5-1.6-4.5-3.9-5.9-6.8-1.4-2.9-2.2-6.4-2.2-10.3 0-3.9.7-7.4 2.2-10.3 1.5-2.9 3.5-5.2 6-6.9 2.5-1.7 5.6-2.5 9.1-2.5 3.1 0 5.8.6 8.1 1.9 2.3 1.3 4.1 3.1 5.3 5.3l-7.5 4.3c-.8-1.4-1.7-2.4-3-3.1s-2.7-1.1-4.4-1.1c-2.1 0-3.9.5-5.4 1.7-1.5 1.2-2.6 2.6-3.4 4.5-.8 1.9-1.1 4-1.1 6.4s.3 4.5 1.1 6.4c.8 1.9 1.9 3.4 3.4 4.5 1.5 1.2 3.3 1.7 5.4 1.7 1.8 0 3.4-.3 4.6-1.1s2.1-1.7 2.7-3.1h-8.8V46h18.8v14.8h-7.3v-7.3z"/>
+        <path d="M65.4 19.1h24.3v7.5h-15v7.3h13.3v7.3H74.7v8.5h15.4v7.5H65.4V19.1z"/>
+        <path d="M115.5 18.4c3.5 0 6.6.8 9.2 2.4 2.6 1.6 4.6 3.9 6 6.8 1.4 2.9 2.2 6.3 2.2 10.3s-.7 7.4-2.2 10.4-3.5 5.2-6.1 6.9c-2.6 1.7-5.7 2.5-9.2 2.5s-6.6-.9-9.2-2.5c-2.6-1.7-4.6-4-6.1-6.9-1.5-2.9-2.2-6.4-2.2-10.4s.7-7.4 2.2-10.3c1.5-2.9 3.5-5.2 6.1-6.8 2.6-1.6 5.7-2.4 9.3-2.4zm0 7.3c-2.1 0-3.9.5-5.4 1.7s-2.6 2.6-3.4 4.5c-.8 1.9-1.2 4.1-1.2 6.5s.4 4.5 1.2 6.5c.8 1.9 1.9 3.4 3.4 4.5 1.5 1.1 3.3 1.7 5.4 1.7s3.9-.6 5.4-1.7c1.5-1.1 2.6-2.6 3.4-4.5.8-1.9 1.2-4.1 1.2-6.5s-.4-4.6-1.2-6.5c-.8-1.9-1.9-3.4-3.4-4.5s-3.3-1.7-5.4-1.7z"/>
+        <path d="M146.7 26.6h-9.8v-7.5h28.9v7.5h-9.4v30.5h-9.4V26.6z"/>
+        <path d="M170.6 19.1h9.4v16.3h14.1V19.1h9.4v38h-9.4V43.5H180v13.6h-9.4V19.1z"/>
+        <path d="M211.6 19.1h24.3v7.5h-15v7.3h13.3v7.3h-13.3v8.5h15.4v7.5h-24.7V19.1z"/>
+        <path d="M244.3 19.1h14.5c3.2 0 5.9.5 8.1 1.6 2.2 1.1 3.8 2.5 4.9 4.5s1.6 4.1 1.6 6.5c0 3-.8 5.4-2.3 7.4s-3.8 3.4-6.6 4.1l10 13.9h-11.4l-8.6-12.5h-.9v12.5h-9.3V19.1zm9.3 7.4v10.7h4.8c1.7 0 3.1-.4 4.2-1.2s1.6-2.1 1.6-3.9c0-1.9-.5-3.3-1.6-4.2s-2.4-1.3-4.2-1.3h-4.8z"/>
+        <path d="M280.7 19.1h10.9l8 19.9 8.1-19.9h10.9v38h-9.1V31.2l-7.4 18.1h-5.1l-7.4-18.1v25.9h-8.9V19.1z"/>
+        <path d="M326.7 19.1h9.4v38h-9.4V19.1z"/>
+        <path d="M343.8 19.1h24.3v7.5h-15v7.3h13.3v7.3h-13.3v8.5h15.4v7.5h-24.7V19.1z"/>
+      </g>
+      <g fill="#175467" font-family="-apple-system, sans-serif" font-size="18.5" font-weight="600" letter-spacing="13.5">
+        <text x="24" y="90">UNTERHACHING</text>
+      </g>
+      <g>
+        <path d="M375 48c20-2 37-10 44-22 7-11 7-17 7-17s-1 9-8 19c-8 11-25 20-43 20z" fill="#E85C24"/>
+        <path d="M375 60c20-2 37-10 44-22 7-11 7-17 7-17s-1 9-8 19c-8 11-25 20-43 20z" fill="#E85C24" opacity="0.9"/>
+        <path d="M375 72c20-2 37-10 44-22 7-11 7-17 7-17s-1 9-8 19c-8 11-25 20-43 20z" fill="#4B585E"/>
+      </g>
+    </svg>`;
+
+    const svgBlob = new Blob([svgCode], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      canvas.width = 500;
-      canvas.height = 120;
+      canvas.width = 920;
+      canvas.height = 200;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      GUH_LOGO_PNG_DATA = canvas.toDataURL('image/png');
-      document.getElementById('webHeaderLogo').src = GUH_LOGO_PNG_DATA;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      GUH_LOGO_IMG_ELEMENT = canvas.toDataURL('image/png');
+      document.getElementById('webHeaderLogo').src = GUH_LOGO_IMG_ELEMENT;
       URL.revokeObjectURL(url);
     };
     img.src = url;
@@ -803,7 +802,7 @@
 
           for (let f = 1; f <= fiberCount; f++) {
             const colA = PALETTES[cableType][(f - 1) % 12];
-            const colB = PALETTES[pigtailCounter <= 12 ? 'neu' : 'neu'][(pigtailCounter - 1) % 12];
+            const colB = PALETTES['neu'][(pigtailCounter - 1) % 12];
             const tr = createSpliceRowHTML(globalIndex, `K${c}`, cableType, colA, f, 'neu', colB, pigtailCounter, `${cableName}`);
             tbody.appendChild(tr);
             globalIndex++;
@@ -998,7 +997,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Offizielles GUH PDF Dokument mit Logo-Grafik
+  // Offizielles GUH PDF Dokument mit unverzerrtem Logo
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -1008,9 +1007,11 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Firmenlogo einbinden
-    if (GUH_LOGO_PNG_DATA) {
-      doc.addImage(GUH_LOGO_PNG_DATA, 'PNG', 14, 10, 52, 12.5);
+    // Firmenlogo proportional einfügen (460x100 Ratio = 4.6 : 1)
+    if (GUH_LOGO_IMG_ELEMENT) {
+      const logoHeight = 11.5;
+      const logoWidth = logoHeight * 4.6; // Exaktes Seitenverhältnis (52.9 mm)
+      doc.addImage(GUH_LOGO_IMG_ELEMENT, 'PNG', 14, 9, logoWidth, logoHeight);
     } else {
       doc.setFontSize(14);
       doc.setTextColor(23, 84, 103);
@@ -1022,16 +1023,16 @@
     doc.setFontSize(12);
     doc.setTextColor(23, 84, 103);
     doc.setFont(undefined, 'bold');
-    doc.text("SPLEISS- & MESSPROTOKOLL LWL", 196, 18, { align: 'right' });
+    doc.text("SPLEISS- & MESSPROTOKOLL LWL", 196, 17.5, { align: 'right' });
 
     // Akzentlinie (GUH Orange)
     doc.setDrawColor(232, 92, 36);
     doc.setLineWidth(0.8);
-    doc.line(14, 25, 196, 25);
+    doc.line(14, 24, 196, 24);
 
     // Stammdaten-Tabelle
     doc.autoTable({
-      startY: 28,
+      startY: 27,
       theme: 'plain',
       styles: { fontSize: 8.5, cellPadding: 1.5, textColor: [15, 23, 42] },
       columnStyles: {
