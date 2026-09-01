@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWL Montage-Assistent & Spleißprotokoll</title>
   
-  <!-- jsPDF & AutoTable für saubere Vektor-PDFs mit Kassetten-Trennheadern -->
+  <!-- jsPDF & AutoTable für saubere Vektor-PDFs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
@@ -121,7 +121,6 @@
       gap: 10px;
     }
 
-    /* Auswahltasten Start */
     .choice-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -154,7 +153,6 @@
       margin-bottom: 8px;
     }
 
-    /* Kassetten Boxen */
     .cassette-box {
       background: #f8fafc;
       border: 1px solid var(--border-color);
@@ -171,7 +169,6 @@
       margin-top: 8px;
     }
 
-    /* Tabellenstyling */
     .table-container {
       overflow-x: auto;
       margin: 16px 0;
@@ -206,10 +203,9 @@
       text-align: left !important;
       padding: 8px 12px !important;
       font-size: 13px;
-      letter-spacing: 0.5px;
     }
 
-    /* DIN & Alt Farb-Klassen */
+    /* Farbcodes */
     .col-rot       { background-color: #ef4444 !important; color: #ffffff !important; }
     .col-gruen     { background-color: #22c55e !important; color: #ffffff !important; }
     .col-blau      { background-color: #3b82f6 !important; color: #ffffff !important; }
@@ -243,7 +239,6 @@
       color: inherit;
     }
 
-    /* Zusammenfassungs-Karten */
     .unit-card {
       background: #f8fafc;
       border: 1px solid var(--border-color);
@@ -260,7 +255,6 @@
       font-weight: bold;
     }
 
-    /* Fotobereich */
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -282,10 +276,7 @@
       object-fit: cover;
     }
 
-    .photo-card-body {
-      padding: 4px;
-    }
-
+    .photo-card-body { padding: 4px; }
     .photo-card-body input {
       width: 100%;
       font-size: 11px;
@@ -306,7 +297,6 @@
       cursor: pointer;
     }
 
-    /* Navigation */
     .nav-buttons {
       display: flex;
       justify-content: space-between;
@@ -456,10 +446,10 @@
     </div>
   </div>
 
-  <!-- SCHRITT 3: Spleißplan Detailanpassung (Fasern & Farben frei ändern) -->
+  <!-- SCHRITT 3: Spleißplan Detailanpassung -->
   <div id="step-splice-adjust" class="step-card">
     <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
-    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben bei Bedarf an (z. B. Rot auf Grün umstellen).</p>
+    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben bei Bedarf an.</p>
 
     <div class="table-container">
       <table id="wizardTable">
@@ -468,10 +458,10 @@
             <th style="width: 35px;">Nr.</th>
             <th style="width: 65px;">Kassette</th>
             <th style="width: 135px;">Kabel A Farbe</th>
-            <th style="width: 55px;">Faser A</th>
+            <th style="width: 55px;">Fas. A</th>
             <th style="width: 30px;">⟷</th>
             <th style="width: 135px;">Kabel B / Pigtail</th>
-            <th style="width: 55px;">Faser B</th>
+            <th style="width: 55px;">Fas. B</th>
             <th style="width: 80px;">Dämpfung</th>
             <th>Bemerkung / Kabel</th>
           </tr>
@@ -494,8 +484,6 @@
 
     <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
       <h3 style="margin-top: 0; color: var(--primary-dark);">Noch eine Muffe oder Spleißbox hinzufügen?</h3>
-      <p style="font-size: 13px; color: #64748b;">(Füge beliebig viele Einheiten zum selben Protokoll hinzu)</p>
-      
       <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
         <button class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe</button>
         <button class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox</button>
@@ -537,7 +525,6 @@
 </div>
 
 <script>
-  // Farbcodes
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444" },
@@ -597,7 +584,6 @@
     showStep('step-box-config');
   }
 
-  // Kassetten-Formulare mit Option für 1 Kabel vs. Mehrere Kabel
   function renderCassetteForms() {
     const count = parseInt(document.getElementById('box_cassette_count').value);
     const container = document.getElementById('cassetteFormsContainer');
@@ -614,13 +600,12 @@
             <label style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Kabel-Modus:</label>
             <select id="box_c${c}_cableMode" onchange="toggleCableMode(${c})">
               <option value="single">1 Kabel / Bündel</option>
-              <option value="multi">Mehrere Kabel / Bündel</option>
+              <option value="multi" selected>Mehrere Kabel / Bündel</option>
             </select>
           </div>
         </div>
 
-        <!-- Single Cable Mode -->
-        <div id="box_c${c}_single_wrapper" class="grid-3">
+        <div id="box_c${c}_single_wrapper" class="grid-3" style="display: none;">
           <div class="form-group">
             <label>Kabel A Standard</label>
             <select id="box_c${c}_cableType">
@@ -636,25 +621,26 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Fasern in dieser Kassette</label>
+            <label>Fasern</label>
             <select id="box_c${c}_fiberCount">
               <option value="4">4 Fasern</option>
-              <option value="8">8 Fasern</option>
-              <option value="12" selected>12 Fasern</option>
+              <option value="8" selected>8 Fasern</option>
+              <option value="12">12 Fasern</option>
             </select>
           </div>
         </div>
 
-        <!-- Multi Cable Mode -->
-        <div id="box_c${c}_multi_wrapper" style="display: none;">
+        <div id="box_c${c}_multi_wrapper" style="display: block;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <span style="font-size: 12px; font-weight: bold; color: #475569;">Kabel / Bündel in dieser Kassette:</span>
-            <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addSubCable(${c})">➕ Weiteres Kabel hinzufügen</button>
+            <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addSubCable(${c})">➕ Weiteres Kabel</button>
           </div>
           <div id="box_c${c}_subcables_container"></div>
         </div>
       `;
       container.appendChild(box);
+      addSubCable(c, "Kabel 1", "neu", 4);
+      addSubCable(c, "Kabel 2", c === 1 ? "neu" : "alt", 4);
     }
   }
 
@@ -666,11 +652,6 @@
     if (mode === 'multi') {
       singleWrap.style.display = 'none';
       multiWrap.style.display = 'block';
-      const container = document.getElementById(`box_c${c}_subcables_container`);
-      if (container.children.length === 0) {
-        addSubCable(c, "Kabel 1", "neu", 4);
-        addSubCable(c, "Kabel 2", "alt", 4);
-      }
     } else {
       singleWrap.style.display = 'grid';
       multiWrap.style.display = 'none';
@@ -696,7 +677,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Fasern dieses Kabels</label>
+          <label>Fasern</label>
           <div style="display: flex; gap: 6px; align-items: center;">
             <select class="sub-count" style="width: 100%;">
               <option value="2" ${countDef === 2 ? 'selected' : ''}>2 Fasern</option>
@@ -713,7 +694,6 @@
     container.appendChild(card);
   }
 
-  // Muffen Tabelle erzeugen
   function buildMuffeSpliceTable() {
     const typeA = document.getElementById('muffe_cableA_type').value;
     const countA = parseInt(document.getElementById('muffe_cableA_count').value);
@@ -725,24 +705,23 @@
     tbody.innerHTML = '';
     document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
 
-    // Überschrift Kassette / Muffe
     const headerRow = document.createElement('tr');
     headerRow.className = 'cassette-header-row';
-    headerRow.setAttribute('data-cassette-title', 'MUFFE: Durchgangskassette');
+    headerRow.setAttribute('data-kassette-id', 'K1');
+    headerRow.setAttribute('data-kassette-title', `Muffe / Durchgang (${maxCount} Fasern)`);
     headerRow.innerHTML = `<td colspan="9">📁 MUFFE / DURCHGANGSKASSETTE (${maxCount} Fasern)</td>`;
     tbody.appendChild(headerRow);
 
     for (let i = 1; i <= maxCount; i++) {
       const colA = PALETTES[typeA][(i - 1) % 12];
       const colB = PALETTES[typeB][(i - 1) % 12];
-      const tr = createSpliceRowHTML(i, "Muffe", typeA, colA, i, typeB, colB, i, "Kabel 1 ➜ Kabel 2");
+      const tr = createSpliceRowHTML(i, "K1", typeA, colA, i, typeB, colB, i, "Kabel 1 ➜ Kabel 2");
       tbody.appendChild(tr);
     }
 
     showStep('step-splice-adjust');
   }
 
-  // Spleißbox Tabelle erzeugen
   function buildBoxSpliceTable() {
     const cassetteCount = parseInt(document.getElementById('box_cassette_count').value);
     const tbody = document.getElementById('wizardTableBody');
@@ -759,10 +738,10 @@
         const typePig = document.getElementById(`box_c${c}_pigtailType`).value;
         const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
 
-        // Kassetten Trenn-Überschrift
         const headerRow = document.createElement('tr');
         headerRow.className = 'cassette-header-row';
-        headerRow.setAttribute('data-cassette-title', `KASSETTE ${c} (${fiberCount} Fasern auf Pigtails)`);
+        headerRow.setAttribute('data-kassette-id', `K${c}`);
+        headerRow.setAttribute('data-kassette-title', `Kassette ${c} (${fiberCount} Fasern auf Pigtails)`);
         headerRow.innerHTML = `<td colspan="9">📁 KASSETTE ${c} (${fiberCount} Fasern auf Pigtails)</td>`;
         tbody.appendChild(headerRow);
 
@@ -775,13 +754,13 @@
         }
       } else {
         const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
-        
         let totalFibers = 0;
         subCards.forEach(card => totalFibers += parseInt(card.querySelector('.sub-count').value));
 
         const headerRow = document.createElement('tr');
         headerRow.className = 'cassette-header-row';
-        headerRow.setAttribute('data-cassette-title', `KASSETTE ${c} (${subCards.length} Kabel / ${totalFibers} Fasern)`);
+        headerRow.setAttribute('data-kassette-id', `K${c}`);
+        headerRow.setAttribute('data-kassette-title', `Kassette ${c} (${subCards.length} Kabel / ${totalFibers} Fasern)`);
         headerRow.innerHTML = `<td colspan="9">📁 KASSETTE ${c} (${subCards.length} Kabel / ${totalFibers} Fasern auf Pigtails)</td>`;
         tbody.appendChild(headerRow);
 
@@ -806,15 +785,14 @@
     showStep('step-splice-adjust');
   }
 
-  // Erzeugt Tabellenzeile mit Dropdowns
   function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB, remarkText = "") {
     const tr = document.createElement('tr');
     tr.className = 'splice-data-row';
+    tr.setAttribute('data-kassette-ref', kassette);
     tr.innerHTML = `
       <td style="font-weight: bold;">${nr}</td>
       <td><input class="input-cell" type="text" value="${kassette}"></td>
       
-      <!-- Kabel A -->
       <td class="${defaultColA.class}" id="cell-colA-${nr}">
         <select class="color-select" onchange="updateRowColor(this, 'cell-colA-${nr}')">
           ${PALETTES.neu.map(c => `<option value="${c.class}" ${c.name === defaultColA.name ? 'selected' : ''}>${c.name}</option>`).join('')}
@@ -826,7 +804,6 @@
 
       <td style="color: #64748b; font-weight: bold;">➜</td>
 
-      <!-- Kabel B / Pigtail -->
       <td class="${defaultColB.class}" id="cell-colB-${nr}">
         <select class="color-select" onchange="updateRowColor(this, 'cell-colB-${nr}')">
           ${PALETTES.neu.map(c => `<option value="${c.class}" ${c.name === defaultColB.name ? 'selected' : ''}>${c.name}</option>`).join('')}
@@ -861,28 +838,26 @@
     else showStep('step-box-config');
   }
 
-  // Speichern der Einheit in kassettenbasierter Struktur
+  // Speichert die Einheit sauber nach Kassetten gruppiert
   function saveCurrentUnitAndAskNext() {
     const unitName = document.getElementById('inUnitName').value || `${currentUnitType} ${completedUnits.length + 1}`;
-    const cassettes = [];
-    let currentCassette = null;
+    const cassetteMap = new Map();
 
     document.querySelectorAll('#wizardTableBody tr').forEach(tr => {
       if (tr.classList.contains('cassette-header-row')) {
-        const title = tr.getAttribute('data-cassette-title') || tr.cells[0].textContent.trim();
-        currentCassette = {
-          title: title,
-          rows: []
-        };
-        cassettes.push(currentCassette);
-      } else if (tr.classList.contains('splice-data-row')) {
-        if (!currentCassette) {
-          currentCassette = { title: "Kassette 1", rows: [] };
-          cassettes.push(currentCassette);
+        const kId = tr.getAttribute('data-kassette-id') || 'K1';
+        const kTitle = tr.getAttribute('data-kassette-title') || tr.textContent.trim();
+        if (!cassetteMap.has(kId)) {
+          cassetteMap.set(kId, { title: kTitle, rows: [] });
         }
-        currentCassette.rows.push({
+      } else if (tr.classList.contains('splice-data-row')) {
+        const kId = tr.cells[1].querySelector('input').value.trim() || 'K1';
+        if (!cassetteMap.has(kId)) {
+          cassetteMap.set(kId, { title: `Kassette ${kId}`, rows: [] });
+        }
+        cassetteMap.get(kId).rows.push({
           nr: tr.cells[0].textContent.trim(),
-          cassette: tr.cells[1].querySelector('input').value,
+          cassette: kId,
           colA: tr.cells[2].querySelector('select').selectedOptions[0].text,
           fasA: tr.cells[3].querySelector('input').value,
           colB: tr.cells[5].querySelector('select').selectedOptions[0].text,
@@ -896,7 +871,7 @@
     completedUnits.push({
       type: currentUnitType,
       name: unitName,
-      cassettes: cassettes
+      cassettes: Array.from(cassetteMap.values())
     });
 
     updateConfiguredUnitsSummary();
@@ -933,7 +908,6 @@
     showStep('step-final');
   }
 
-  // Foto-Verarbeitung
   function handlePhotoUpload(input) {
     if (!input.files || input.files.length === 0) return;
 
@@ -993,7 +967,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // PDF-Generierung mit KLAREN KASSETTEN-ÜBERSCHRIFTEN
+  // PDF-Generierung mit GARANTIERT getrennten Kassetten-Tabellen und Überschriften
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -1027,25 +1001,25 @@
     let currentY = 46;
 
     completedUnits.forEach((unit, uIdx) => {
-      // Haupt-Überschrift für die Einheit
       if (currentY > 240) { doc.addPage(); currentY = 20; }
 
+      // Einheiten-Titel
       doc.setFontSize(12);
       doc.setTextColor(0, 56, 96);
       doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, currentY);
-      currentY += 4;
+      currentY += 5;
 
-      // Jede Kassette bekommt eine eigene Überschrift + eigene Tabelle
+      // Iteration über jede einzelne Kassette
       unit.cassettes.forEach((cassette) => {
         if (currentY > 230) { doc.addPage(); currentY = 20; }
 
-        // Kassetten Überschriftsbanner (visuell hervorgehoben)
-        doc.setFillColor(0, 56, 96); // Dunkelblaues Kassettenbanner
-        doc.roundedRect(14, currentY, 182, 6, 1, 1, 'F');
+        // KASSETTEN-ÜBERSCHRIFT (Dunkelblaues Banner)
+        doc.setFillColor(0, 56, 96);
+        doc.roundedRect(14, currentY, 182, 6.5, 1, 1, 'F');
         doc.setFontSize(9);
         doc.setTextColor(255, 255, 255);
-        doc.text(`📁 ${cassette.title.toUpperCase()}`, 18, currentY + 4.2);
-        currentY += 7;
+        doc.text(`📁 ${cassette.title.toUpperCase()}`, 17, currentY + 4.5);
+        currentY += 7.5;
 
         const tableData = cassette.rows.map(r => [
           r.nr,
@@ -1081,14 +1055,12 @@
             if (data.section === 'body') {
               const rawRow = cassette.rows[data.row.index];
               if (rawRow) {
-                // Kabel A Spalten einfärben
                 if (data.column.index === 2 || data.column.index === 3) {
                   const hex = getColorHex(rawRow.colA);
                   data.cell.styles.fillColor = hex;
                   data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
                   data.cell.styles.fontStyle = 'bold';
                 }
-                // Kabel B Spalten einfärben
                 if (data.column.index === 5 || data.column.index === 6) {
                   const hex = getColorHex(rawRow.colB);
                   data.cell.styles.fillColor = hex;
@@ -1118,7 +1090,7 @@
       currentY += 16;
     }
 
-    // Fotodokumentation
+    // Fotos
     if (attachedPhotos.length > 0) {
       doc.addPage();
       doc.setFontSize(13);
@@ -1164,7 +1136,6 @@
     }
   }
 
-  // E-Mail Funktion mit Dateifreigabe
   async function sendPDFViaEmail() {
     if (completedUnits.length === 0) {
       alert("Bitte zuerst mindestens eine Einheit erfassen!");
