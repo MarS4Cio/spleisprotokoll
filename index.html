@@ -1,11 +1,10 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWL Montage-Assistent & Spleißprotokoll</title>
   
-  <!-- jsPDF & AutoTable für saubere Vektor-PDFs mit Trennblöcken -->
+  <!-- jsPDF & AutoTable Bibliotheken -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
@@ -196,6 +195,17 @@
       background-color: var(--primary);
       color: #ffffff;
       font-weight: 600;
+    }
+
+    /* Kassetten Trennzeilen im HTML */
+    .cassette-header-row td {
+      background-color: #0f3d64 !important;
+      color: #ffffff !important;
+      font-weight: bold;
+      text-align: left !important;
+      padding: 8px 12px !important;
+      font-size: 13px;
+      letter-spacing: 0.5px;
     }
 
     /* DIN & Alt Farb-Klassen */
@@ -448,7 +458,7 @@
   <!-- SCHRITT 3: Spleißplan Detailanpassung (Fasern & Farben frei ändern) -->
   <div id="step-splice-adjust" class="step-card">
     <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
-    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben bei Bedarf an (z. B. Rot auf Grün umstellen).</p>
+    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben und Zuordnungen bei Bedarf an.</p>
 
     <div class="table-container">
       <table id="wizardTable">
@@ -526,7 +536,7 @@
 </div>
 
 <script>
-  // Farbcodes
+  // Farbdefinitionen
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444" },
@@ -716,8 +726,8 @@
 
     // Kopfzeile Trennung
     const sep = document.createElement('tr');
-    sep.className = 'divider-row';
-    sep.innerHTML = `<td colspan="9" style="background: #e2e8f0; font-weight: bold; text-align: left; padding: 6px 10px;">📁 Muffe / Durchgangskassette (${maxCount} Fasern)</td>`;
+    sep.className = 'cassette-header-row';
+    sep.innerHTML = `<td colspan="9">📁 Muffe / Durchgangskassette (${maxCount} Fasern)</td>`;
     tbody.appendChild(sep);
 
     for (let i = 1; i <= maxCount; i++) {
@@ -730,7 +740,7 @@
     showStep('step-splice-adjust');
   }
 
-  // Spleißbox Tabelle erzeugen (mit Kassetten-Trennblöcken)
+  // Spleißbox Tabelle erzeugen (mit klar getrennten Kassetten-Überschriften)
   function buildBoxSpliceTable() {
     const cassetteCount = parseInt(document.getElementById('box_cassette_count').value);
     const tbody = document.getElementById('wizardTableBody');
@@ -747,9 +757,10 @@
         const typePig = document.getElementById(`box_c${c}_pigtailType`).value;
         const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
 
+        // Kassetten-Trennüberschrift
         const sep = document.createElement('tr');
-        sep.className = 'divider-row';
-        sep.innerHTML = `<td colspan="9" style="background: #e2e8f0; font-weight: bold; text-align: left; padding: 6px 10px;">📁 Kassette ${c} (1 Kabel, ${fiberCount} Fasern auf Pigtails)</td>`;
+        sep.className = 'cassette-header-row';
+        sep.innerHTML = `<td colspan="9">📁 Kassette ${c} (1 Kabel • ${fiberCount} Fasern auf Pigtails)</td>`;
         tbody.appendChild(sep);
 
         for (let f = 1; f <= fiberCount; f++) {
@@ -761,9 +772,11 @@
         }
       } else {
         const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
+        
+        // Kassetten-Trennüberschrift für Multi-Kabel
         const sep = document.createElement('tr');
-        sep.className = 'divider-row';
-        sep.innerHTML = `<td colspan="9" style="background: #e2e8f0; font-weight: bold; text-align: left; padding: 6px 10px;">📁 Kassette ${c} (${subCards.length} Teilkabel auf Pigtails)</td>`;
+        sep.className = 'cassette-header-row';
+        sep.innerHTML = `<td colspan="9">📁 Kassette ${c} (${subCards.length} Teilkabel • Pigtails)</td>`;
         tbody.appendChild(sep);
 
         let pigtailCounter = 1;
@@ -790,6 +803,7 @@
   // Erzeugt Tabellenzeile mit Dropdowns
   function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB, remarkText = "") {
     const tr = document.createElement('tr');
+    tr.className = 'splice-data-row';
     tr.innerHTML = `
       <td style="font-weight: bold;">${nr}</td>
       <td><input class="input-cell" type="text" value="${kassette}"></td>
@@ -847,7 +861,7 @@
     const rows = [];
 
     document.querySelectorAll('#wizardTableBody tr').forEach(tr => {
-      if (tr.classList.contains('divider-row') || tr.cells.length === 1) {
+      if (tr.classList.contains('cassette-header-row') || tr.cells.length === 1) {
         rows.push({
           isDivider: true,
           title: tr.cells[0].textContent.trim()
@@ -965,7 +979,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // PDF-Generierung mit sauber getrennten Kassetten-Abschnitten
+  // PDF-Generierung mit prominenten Kassetten-Trennüberschriften
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -1012,10 +1026,12 @@
               content: r.title,
               colSpan: 9,
               styles: {
-                fillColor: [226, 232, 240],
-                textColor: [15, 23, 42],
+                fillColor: [15, 61, 100],
+                textColor: [255, 255, 255],
                 fontStyle: 'bold',
-                halign: 'left'
+                halign: 'left',
+                fontSize: 9,
+                cellPadding: 3
               }
             }
           ]);
