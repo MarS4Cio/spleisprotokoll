@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWL Spleißprotokoll - Geothermie Unterhaching</title>
   
-  <!-- Bibliotheken für PDF-Generierung -->
+  <!-- PDF Bibliotheken -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -32,7 +32,7 @@
     }
 
     .app-container {
-      max-width: 1050px;
+      max-width: 1100px;
       margin: 0 auto;
       background: #ffffff;
       padding: 24px;
@@ -68,7 +68,6 @@
       text-align: right;
     }
 
-    /* Abschnitte */
     .section-title {
       font-size: 15px;
       font-weight: 700;
@@ -79,6 +78,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .grid-3 {
@@ -126,6 +127,7 @@
       padding: 8px 12px;
       border-radius: 6px;
       border: 1px solid var(--border-color);
+      flex-wrap: wrap;
     }
 
     .unit-badge select, .unit-badge input {
@@ -135,7 +137,7 @@
       font-size: 13px;
     }
 
-    /* Farb-Klassen */
+    /* DIN & Alt Farb-Klassen */
     .col-rot       { background-color: #ef4444 !important; color: #ffffff !important; }
     .col-gruen     { background-color: #22c55e !important; color: #ffffff !important; }
     .col-blau      { background-color: #3b82f6 !important; color: #ffffff !important; }
@@ -176,6 +178,15 @@
       color: #ffffff;
       font-weight: 600;
       padding: 8px;
+    }
+
+    /* Kassetten-Zwischenzeile */
+    .cassette-separator {
+      background-color: #e2e8f0 !important;
+      color: #1e293b;
+      font-weight: bold;
+      text-align: left !important;
+      padding: 6px 12px !important;
     }
 
     .color-cell {
@@ -285,7 +296,7 @@
       justify-content: center;
     }
 
-    /* Aktionsleiste */
+    /* Toolbar */
     .action-panel {
       display: flex;
       flex-wrap: wrap;
@@ -296,7 +307,7 @@
     }
 
     .btn {
-      padding: 9px 16px;
+      padding: 9px 15px;
       border-radius: 6px;
       font-size: 13px;
       font-weight: 700;
@@ -312,13 +323,13 @@
     .btn-success { background-color: var(--success); color: #fff; }
     .btn-secondary { background-color: #64748b; color: #fff; }
     .btn-outline { background-color: #fff; border: 1px solid var(--border-color); color: var(--text); }
+    .btn-danger { background-color: var(--danger); color: #fff; }
 
-    /* Print / PDF Mode */
     @media print {
       body { background: #fff; padding: 0; }
       .app-container { box-shadow: none; padding: 0; max-width: 100%; }
       .no-print, .action-panel, .delete-btn, .delete-photo-btn { display: none !important; }
-      th, td, .color-cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      th, td, .color-cell, .cassette-separator { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -338,7 +349,7 @@
     </div>
   </div>
 
-  <!-- Auftrags- & Projektdaten -->
+  <!-- Projektdaten -->
   <div class="section-title">1. Projektdaten</div>
   <div class="grid-3">
     <div class="form-group">
@@ -355,25 +366,26 @@
     </div>
   </div>
 
-  <!-- Verbaute Gehäuse / Einheiten (Muffen & Spleißboxen mit Kassetten) -->
+  <!-- Einheiten-Manager (Muffen & Spleißboxen vor Ort) -->
   <div class="section-title">
     <span>2. Verbaute Einheiten (Muffen / Spleißboxen)</span>
     <div class="no-print" style="display: flex; gap: 6px;">
-      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addUnit('Muffe')">➕ Muffe</button>
-      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addUnit('Spleißbox')">➕ Spleißbox</button>
+      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addUnit('Muffe')">➕ Muffe</button>
+      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addUnit('Spleißbox')">➕ Spleißbox</button>
     </div>
   </div>
 
-  <div class="unit-container" id="unitContainer">
-    <!-- Initial: 1x Spleißbox und 1x Muffe -->
-  </div>
+  <div class="unit-container" id="unitContainer"></div>
 
-  <!-- Spleißplan Tabelle -->
+  <!-- Spleißplan & Faserbelegung (Voll modular) -->
   <div class="section-title">
     <span>3. Faserbelegungsplan & Dämpfung</span>
-    <div class="no-print" style="display: flex; gap: 6px;">
-      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="presetTable(12)">12 Fasern Preset</button>
-      <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="presetTable(24)">24 Fasern Preset</button>
+    <div class="no-print" style="display: flex; gap: 6px; flex-wrap: wrap;">
+      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addBatchRows(4)">+4 Fasern</button>
+      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addBatchRows(8)">+8 Fasern (Box)</button>
+      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addBatchRows(12)">+12 Fasern (DIN)</button>
+      <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="addCassetteDivider()">📁 + Kassette / Trenner</button>
+      <button class="btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="clearTable()">Tabelle leeren</button>
     </div>
   </div>
 
@@ -382,21 +394,20 @@
       <thead>
         <tr>
           <th style="width: 35px;">Nr.</th>
+          <th style="width: 50px;">Kassette</th>
           <th style="width: 95px;">Kabel A Typ</th>
           <th style="width: 120px;">Kabel A Farbe</th>
-          <th style="width: 60px;">Faser A</th>
+          <th style="width: 55px;">Faser A</th>
           <th style="width: 30px;">⟷</th>
           <th style="width: 95px;">Kabel B Typ</th>
           <th style="width: 120px;">Kabel B Farbe</th>
-          <th style="width: 60px;">Faser B</th>
+          <th style="width: 55px;">Faser B</th>
           <th style="width: 80px;">Dämpfung</th>
           <th>Bemerkung</th>
           <th class="no-print" style="width: 35px;">Aktion</th>
         </tr>
       </thead>
-      <tbody id="tableBody">
-        <!-- Dynamischer Zeilenaufbau -->
-      </tbody>
+      <tbody id="tableBody"></tbody>
     </table>
   </div>
 
@@ -425,13 +436,13 @@
   <div class="action-panel no-print" id="actionPanel">
     <button class="btn btn-primary" onclick="generateAndDownloadPDF()">📄 PDF Generieren & Herunterladen</button>
     <button class="btn btn-success" onclick="sendPDFByEmail()">✉️ PDF erstellen & per E-Mail senden</button>
-    <button class="btn btn-outline" onclick="addRow()">➕ Zeile hinzufügen</button>
+    <button class="btn btn-outline" onclick="addRow()">➕ Einzelne Zeile</button>
   </div>
 
 </div>
 
 <script>
-  // Farb-Definitionen: Neu (DIN VDE 0888) vs. Alt (Historisch 4er / erweitert)
+  // Farbcodes: Neu (DIN VDE 0888) vs. Alt (Historisch)
   const COLOR_PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot" },
@@ -464,22 +475,20 @@
   };
 
   const RECIPIENTS = "technik@geothermie-unterhaching.de,f.elstein@geothermie-unterhaching.de";
+  let globalRowCounter = 0;
+  let cassetteCounter = 1;
 
-  // Initialisierung
   document.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
     document.getElementById('lblDate').textContent = today.toLocaleDateString('de-DE');
     document.getElementById('lblId').textContent = "GUH-" + today.getFullYear() + "-" + String(Math.floor(Math.random() * 9000) + 1000);
     
-    // Initial Einheiten anlegen
-    addUnit('Spleißbox', 2);
-    addUnit('Muffe', 1);
-
-    // Initial 12 Zeilen
-    presetTable(12);
+    // Initial: 1x Spleißbox & 12 Fasern
+    addUnit('Spleißbox', 1);
+    addBatchRows(12);
   });
 
-  // Einheiten hinzufügen (Muffe / Spleißbox)
+  // Einheitenverwaltung
   function addUnit(type, defaultKassetten = 1) {
     const container = document.getElementById('unitContainer');
     const unitDiv = document.createElement('div');
@@ -487,13 +496,13 @@
 
     const isBox = type === 'Spleißbox';
     unitDiv.innerHTML = `
-      <span style="font-weight: bold; color: var(--primary); min-width: 90px;">Typ:</span>
+      <span style="font-weight: bold; color: var(--primary); min-width: 90px;">Einheit:</span>
       <select onchange="handleUnitTypeChange(this)">
         <option value="Spleißbox" ${isBox ? 'selected' : ''}>Spleißbox</option>
-        <option value="Muffe" ${!isBox ? 'selected' : ''}>Muffe</option>
+        <option value="Muffe" ${!isBox ? 'selected' : ''}>Muffe (Durchspleißung)</option>
       </select>
 
-      <input type="text" placeholder="Bezeichnung / Nr." value="${type} 01" style="width: 140px;">
+      <input type="text" placeholder="Bezeichnung" value="${type} ${container.children.length + 1}" style="width: 140px;">
 
       <div class="kassette-wrapper" style="display: ${isBox ? 'flex' : 'none'}; align-items: center; gap: 6px;">
         <span style="font-size: 12px; font-weight: bold; color: #475569;">Kassetten:</span>
@@ -502,7 +511,6 @@
           <option value="2" ${defaultKassetten === 2 ? 'selected' : ''}>2 Kassetten</option>
           <option value="3" ${defaultKassetten === 3 ? 'selected' : ''}>3 Kassetten</option>
           <option value="4" ${defaultKassetten === 4 ? 'selected' : ''}>4 Kassetten</option>
-          <option value="6">6 Kassetten</option>
         </select>
       </div>
 
@@ -516,19 +524,43 @@
     wrapper.style.display = select.value === 'Spleißbox' ? 'flex' : 'none';
   }
 
-  // Preset Tabelle
-  function presetTable(count) {
+  // Kassetten-Zwischenüberschrift in die Tabelle
+  function addCassetteDivider(title) {
     const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
+    const tr = document.createElement('tr');
+    const defaultTitle = title || `Kassette ${cassetteCounter++} / Bündel`;
+    
+    tr.innerHTML = `
+      <td colspan="11" class="cassette-separator">
+        📁 <input type="text" value="${defaultTitle}" style="background: transparent; border: none; font-weight: bold; color: inherit; width: 80%;">
+      </td>
+      <td class="no-print cassette-separator">
+        <button class="delete-btn" onclick="this.closest('tr').remove()">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  // Batch-Hinzufügen (z. B. 4, 8, 12 Fasern)
+  function addBatchRows(count) {
     for (let i = 1; i <= count; i++) {
-      addRow(i);
+      addRow();
     }
   }
 
-  // Zeile dynamisch hinzufügen
-  function addRow(optIndex) {
+  function clearTable() {
+    if (confirm("Möchtest du alle Tabellenzeilen leeren?")) {
+      document.getElementById('tableBody').innerHTML = '';
+      globalRowCounter = 0;
+      cassetteCounter = 1;
+    }
+  }
+
+  // Einzelne Zeile hinzufügen
+  function addRow() {
+    globalRowCounter++;
+    const idx = globalRowCounter;
     const tbody = document.getElementById('tableBody');
-    const idx = optIndex || (tbody.children.length + 1);
     const colorIndex = (idx - 1) % 12;
     const defaultColor = COLOR_PALETTES.neu[colorIndex];
 
@@ -536,12 +568,13 @@
     tr.id = `row-${idx}`;
     tr.innerHTML = `
       <td style="font-weight: bold; background: #f8fafc;">${idx}</td>
+      <td><input class="input-cell" type="text" value="K1" style="font-weight: 600;"></td>
 
-      <!-- Kabel A Typ & Farbe -->
+      <!-- Kabel A -->
       <td>
         <select onchange="updateRowColorType(this, 'A', ${idx})" style="font-size: 11px; font-weight: bold;">
-          <option value="neu" selected>Neu (Rot...)</option>
-          <option value="alt">Alt (Braun...)</option>
+          <option value="neu" selected>Neu</option>
+          <option value="alt">Alt</option>
         </select>
       </td>
       <td class="color-cell ${defaultColor.class}" id="cell-colA-${idx}">
@@ -555,11 +588,11 @@
 
       <td style="color: #64748b; font-weight: bold; background: #f8fafc;">➜</td>
 
-      <!-- Kabel B Typ & Farbe -->
+      <!-- Kabel B -->
       <td>
         <select onchange="updateRowColorType(this, 'B', ${idx})" style="font-size: 11px; font-weight: bold;">
-          <option value="neu" selected>Neu (Rot...)</option>
-          <option value="alt">Alt (Braun...)</option>
+          <option value="neu" selected>Neu</option>
+          <option value="alt">Alt</option>
         </select>
       </td>
       <td class="color-cell ${defaultColor.class}" id="cell-colB-${idx}">
@@ -571,20 +604,17 @@
         <input type="number" value="${idx}">
       </td>
 
-      <!-- Dämpfung & Bemerkung -->
       <td><input class="input-cell" type="text" value="0.02 dB"></td>
-      <td><input class="input-cell" type="text" placeholder="z. B. OK / Spleiß 1"></td>
+      <td><input class="input-cell" type="text" placeholder="OK"></td>
       <td class="no-print"><button class="delete-btn" onclick="this.closest('tr').remove()">✕</button></td>
     `;
     tbody.appendChild(tr);
   }
 
   function getColorOptionsHTML(type, selectedIndex) {
-    const list = COLOR_PALETTES[type];
-    return list.map((c, i) => `<option value="${c.class}" ${i === selectedIndex ? 'selected' : ''}>${c.name}</option>`).join('');
+    return COLOR_PALETTES[type].map((c, i) => `<option value="${c.class}" ${i === selectedIndex ? 'selected' : ''}>${c.name}</option>`).join('');
   }
 
-  // Wenn Kabeltyp (Neu/Alt) geändert wird
   function updateRowColorType(typeSelect, side, idx) {
     const paletteType = typeSelect.value;
     const colorSelect = document.getElementById(`sel-col${side}-${idx}`);
@@ -598,7 +628,6 @@
     applyColorClass(colorCell, faserCell, activeClass);
   }
 
-  // Hintergrundfarbe bei manueller Farbwahl anpassen
   function updateCellBg(selectEl, colorCellId, faserCellId) {
     const colorCell = document.getElementById(colorCellId);
     const faserCell = document.getElementById(faserCellId);
@@ -615,7 +644,7 @@
     if (cell2) cell2.classList.add(newClass);
   }
 
-  // Fotodokumentation & Bildkompression
+  // Foto-Verarbeitung & Komprimierung
   function handlePhotoUpload(input) {
     if (!input.files || input.files.length === 0) return;
 
@@ -659,20 +688,18 @@
       <img src="${src}" alt="Foto">
       <button class="delete-photo-btn no-print" onclick="this.closest('.photo-card').remove()">✕</button>
       <div class="photo-card-body">
-        <input type="text" value="Muffe / Spleißkassette geöffnet" placeholder="Beschreibung">
+        <input type="text" value="Kassette / Muffe Ansicht" placeholder="Beschreibung">
       </div>
     `;
     container.appendChild(card);
   }
 
-  // PDF Rendering Kern-Funktion (Absicherung mit try/finally)
+  // PDF-Blob-Generierung
   async function generatePDFBlob() {
     const { jsPDF } = window.jspdf;
     const element = document.getElementById('pdf-container');
-    const actionPanel = document.getElementById('actionPanel');
     const noPrints = document.querySelectorAll('.no-print');
 
-    // UI-Elemente ausblenden
     noPrints.forEach(el => el.style.setProperty('display', 'none', 'important'));
 
     try {
@@ -706,30 +733,27 @@
 
       return { blob: pdf.output('blob'), pdfDoc: pdf, filename: filename };
     } finally {
-      // Garantiert die Leiste immer wieder einblenden
       noPrints.forEach(el => el.style.display = '');
     }
   }
 
-  // PDF Herunterladen
   async function generateAndDownloadPDF() {
     try {
       const { pdfDoc, filename } = await generatePDFBlob();
       pdfDoc.save(filename);
     } catch (e) {
-      console.error("Fehler bei PDF Erstellung:", e);
-      alert("Fehler bei der PDF-Erstellung. Bitte prüfe die Eingaben.");
+      console.error("PDF Fehler:", e);
+      alert("Fehler beim Erstellen des PDFs.");
     }
   }
 
-  // PDF per E-Mail versenden
   async function sendPDFByEmail() {
     const project = document.getElementById('inProject').value;
     const location = document.getElementById('inLocation').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
     const emailSubject = `Spleißprotokoll: ${project} - ${location}`;
-    const emailBody = `Hallo Technik-Team,\n\nanbei das abgeschlossene Spleißprotokoll.\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nProjekt: ${project}\nStandort: ${location}\nDatum: ${dateStr}`;
+    const emailBody = `Hallo Technik-Team,\n\nanbei das aktuelle Spleißprotokoll.\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nProjekt: ${project}\nStandort: ${location}\nDatum: ${dateStr}`;
 
     try {
       const { blob, filename } = await generatePDFBlob();
@@ -742,18 +766,16 @@
           files: [pdfFile]
         });
       } else {
-        // Fallback: Download & Mailto
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(blob);
         downloadLink.download = filename;
         downloadLink.click();
 
-        const mailtoUrl = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody + "\n\n(Die PDF-Datei wurde im Download-Ordner abgelegt.)")}`;
+        const mailtoUrl = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody + "\n\n(PDF befindet sich im Download-Ordner.)")}`;
         window.location.href = mailtoUrl;
       }
     } catch (err) {
       console.error("Fehler beim Versenden:", err);
-      alert("PDF wurde generiert und als Download bereitgestellt.");
       generateAndDownloadPDF();
     }
   }
