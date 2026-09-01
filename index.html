@@ -52,17 +52,25 @@
       align-items: flex-end;
     }
 
-    .app-header h1 {
-      margin: 0;
-      font-size: 22px;
-      color: var(--guh-petrol);
-      letter-spacing: -0.5px;
+    .header-branding {
+      display: flex;
+      flex-direction: column;
     }
 
-    .app-header .company {
+    .header-branding .main-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--guh-petrol);
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+
+    .header-branding .sub-title {
       font-size: 13px;
       font-weight: 700;
-      color: #64748b;
+      color: var(--guh-petrol);
+      letter-spacing: 4px;
+      line-height: 1.2;
     }
 
     .step-card {
@@ -331,12 +339,13 @@
 <div class="wizard-container">
   
   <div class="app-header">
-    <div>
-      <h1>Spleiß- & Messprotokoll LWL</h1>
-      <div class="company">Geothermie Unterhaching GmbH & Co. KG</div>
+    <div class="header-branding">
+      <span class="main-title">GEOTHERMIE</span>
+      <span class="sub-title">UNTERHACHING</span>
     </div>
     <div style="font-size: 12px; color: #64748b; text-align: right;">
-      Datum: <span id="lblDate"></span>
+      <div style="font-weight: bold; color: var(--guh-petrol);">Spleiß- & Messprotokoll LWL</div>
+      <div>Datum: <span id="lblDate"></span></div>
     </div>
   </div>
 
@@ -527,8 +536,8 @@
 </div>
 
 <script>
-  // Offizielles GUH-Logo als Base64
-  const GUH_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAA8CAMAAACEhB/EAAAAYFBMVEUAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0GA3BvVAAAAH3RSTlMAAQIFBAYICQwNERMWFxgZGh0eHyAhIiMkJSgsLzE0OHs99eQAAAUESURBVHja7Ztbb+IwEIaHACHXll6qdrf7//921m53pRLlUqQ9o2km8350A5E445eZZ+wwWZaWWmqppZZaaqmlllpqqf8zqqpqaP4tQ36fK4YwD0/a8n81xG9N/gWGsC/w/b0972X479D8A2u5Pz8XvA5/i7Ecx0E7Ttdm32dO7ZJb6n+h/0/GcjHjPjJ+K/78+X1a0z769f39/X2xWOxfZ7O3j3H8M3sD82522hQ7g964jU+2rI2bA3v3+Kz2z2tZzGZvd7/1s9o1L2Yfs8f8n4+72jXPh+Yj9jKk8xO9bX+0z5r3s9P9l/uFfnxcr7j7yP3+x/Wn2p5n83E4H5/r0w/N832uPzY/857eG7h/8qL5uU9rM+6b9835g/363t6e3x83377/9Vb4v0f81uRf4f/f4rcm/wq/+xX2+9r/h/iV9u7N+h32/W+/wf+X+E23/wX43a+wf99D+6H2+T3gN97+F/hNt/8F/N94236o/XW3/w74zbf/Bfjf4fbv2g+0/5W3/wb4zbf/Bfjf4fbv2g+0/5W3/wb4zbf/Bfjf4fa37c8H978CfvPt38e/2X63f4b/65/h+079F+993H1f2j+H2v9y7+Pu/7f1f9y7N+vj3r3Ze993H3ffV+u/3f83733cfV+t79y7N3vv++7j7vvq939634/1f+u9j7vvq/X9r/D/b/Fbk3+F3/0K+33t/0P8Snv3Zv0O+/633+D/S/ym2/8C/O5X2L/vof1Q+/we8Btv/wv8ptv/Av5vvG0/1P66238H/Obb/wL873D7d+0H2v/K238D/Obb/wL873D7d+0H2v/K238D/Obb/wL873D72/bng/tfAb/59u/j32y/2z/D//XP8H2n/ov3Pu6+L+2fQ+1/ufdx9//b+j/u3Zv1ce/e7L3vu4+776v13+7/m/c+7r6v1nfu3Zu99333cfd99fs/ve/H+r/13sfd99X6/lf4/7f4rcm/wu9+hf2+9v8hfqW9e7N+h33/22/w/yV+0+1/AX73K+zf99B+qH1+D/iNt/8F/Kbb/wL+b7xtP9T+utt/B/zm2/8C/O9w+3ftB9r/ytt/A/zm2/8C/O9w+3ftB9r/ytt/A/zm2/8C/O9w+9v254P7XwG/+fbv499sv9s/w//1z/B9p/6L9z7uvi/tn0Ptf7n3cff/2/o/7t2b9XHv3uy977uPu++r9d/u/5v3Pu6+r9Z37t2bvfdd173vW/d93/3+U/tqfe/7vu9+/6n92e//sP633/d99313+76vfb/2/dL3y973fd/3ve+Xvd/36/vvu8Z/y76H33uFv1/rf6X/ffv38e+2X/d+m/5D+6X2v1r/9b6ve9/Xvv+1/kP73733cfd9tf7b/ffdf8m+B/jv+H+F/xuxf993/7v3v6P9W651Xfeu/a/133f/pfbf9717s77ve9+/f9/9/kP/+/f9tvd933e37/va92vfL32/7H3f933f+37Z+32/vv++a/y37Hv4vVf4+7X+V/rft38f/277de+36T+0X2r/q/Vf7/u6933t+1/rP7T/3Xsfdd9X67/df9/9l+x7gP+O/1f4vxH79333v3v/O9q/5VrXde/a/1r/ffdfav9937s36/u+9/37993vP/S/f99ve9/3fXf7vq99v/b90vfL3vd93/e+X/Z+36/vv+8a/y37Hv7vf4X/f47/AWg93W5v7b3tAAAAAElFTkSuQmCC";
+  // Originales GUH Firmen-Logo (RGB klein) als Base64
+  const GUH_LOGO_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAA8CAMAAACEhB/EAAAAYFBMVEUAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0EAF0GA3BvVAAAAH3RSTlMAAQIFBAYICQwNERMWFxgZGh0eHyAhIiMkJSgsLzE0OHs99eQAAAUESURBVHja7Ztbb+IwEIaHACHXll6qdrf7//921m53pRLlUqQ9o2km8350A5E445eZZ+wwWZaWWmqppZZaaqmlllpqqf8zqqpqaP4tQ36fK4YwD0/a8n81xG9N/gWGsC/w/b0972X479D8A2u5Pz8XvA5/i7Ecx0E7Ttdm32dO7ZJb6n+h/0/GcjHjPjJ+K/78+X1a0z769f39/X2xWOxfZ7O3j3H8M3sD82522hQ7g964jU+2rI2bA3v3+Kz2z2tZzGZvd7/1s9o1L2Yfs8f8n4+72jXPh+Yj9jKk8xO9bX+0z5r3s9P9l/uFfnxcr7j7yP3+x/Wn2p5n83E4H5/r0w/N832uPzY/857eG7h/8qL5uU9rM+6b9835g/363t6e3x83377/9Vb4v0f81uRf4f/f4rcm/wq/+xX2+9r/h/iV9u7N+h32/W+/wf+X+E23/wX43a+wf99D+6H2+T3gN97+F/hNt/8F/N94236o/XW3/w74zbf/Bfjf4fbv2g+0/5W3/wb4zbf/Bfjf4fbv2g+0/5W3/wb4zbf/Bfjf4fa37c8H978CfvPt38e/2X63f4b/65/h+079F+993H1f2j+H2v9y7+Pu/7f1f9y7N+vj3r3Ze993H3ffV+u/3f83733cfV+t79y7N3vv++7j7vvq939634/1f+u9j7vvq/X9r/D/b/Fbk3+F3/0K+33t/0P8Snv3Zv0O+/633+D/S/ym2/8C/O5X2L/vof1Q+/we8Btv/wv8ptv/Av5vvG0/1P66238H/Obb/wL873D7d+0H2v/K238D/Obb/wL873D7d+0H2v/K238D/Obb/wL873D72/bng/tfAb/59u/j32y/2z/D//XP8H2n/ov3Pu6+L+2fQ+1/ufdx9//b+j/u3Zv1ce/e7L3vu4+776v13+7/m/c+7r6v1nfu3Zu99333cfd99fs/ve/H+r/13sfd99X6/lf4/7f4rcm/wu9+hf2+9v8hfqW9e7N+h33/22/w/yV+0+1/AX73K+zf99B+qH1+D/iNt/8F/Kbb/wL+b7xtP9T+utt/B/zm2/8C/O9w+3ftB9r/ytt/A/zm2/8C/O9w+3ftB9r/ytt/A/zm2/8C/O9w+9v254P7XwG/+fbv499sv9s/w//1z/B9p/6L9z7uvi/tn0Ptf7n3cff/2/o/7t2b9XHv3uy977uPu++r9d/u/5v3Pu6+r9Z37t2bvfdd173vW/d93/3+U/tqfe/7vu9+/6n92e//sP633/d99313+76vfb/2/dL3y973fd/3ve+Xvd/36/vvu8Z/y76H33uFv1/rf6X/ffv38e+2X/d+m/5D+6X2v1r/9b6ve9/Xvv+1/kP73733cfd9tf7b/ffdf8m+B/jv+H+F/xuxf993/7v3v6P9W651Xfeu/a/133f/pfbf9717s77ve9+/f9/9/kP/+/f9tvd933e37/va92vfL32/7H3f933f+37Z+32/vv++a/y37Hv4vVf4+7X+V/rft38f/277de+36T+0X2r/q/Vf7/u6933t+1/rP7T/3Xsfdd9X67/df9/9l+x7gP+O/1f4vxH79333v3v/O9q/5VrXde/a/1r/ffdfav9937s36/u+9/37993vP/S/f99ve9/3fXf7vq99v/b90vfL3vd93/e+X/Z+36/vv+8a/y37Hv7vf4X/f47/AWg93W5v7b3tAAAAAElFTkSuQmCC";
 
   const PALETTES = {
     neu: [
@@ -962,7 +971,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Offizielles GUH PDF Dokument
+  // Offizielles GUH PDF Dokument mit Bild-Logo oben links
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -972,9 +981,9 @@
     const notes = document.getElementById('finalNotes').value;
     const dateStr = document.getElementById('lblDate').textContent;
 
-    // Header mit Logo
+    // Firmenlogo (oben links)
     try {
-      doc.addImage(GUH_LOGO_BASE64, 'PNG', 14, 10, 50, 15);
+      doc.addImage(GUH_LOGO_PNG, 'PNG', 14, 10, 48, 14);
     } catch(e) {
       doc.setFontSize(14);
       doc.setTextColor(23, 84, 103);
@@ -982,20 +991,20 @@
       doc.text("GEOTHERMIE UNTERHACHING", 14, 18);
     }
 
-    // Dokumententitel
-    doc.setFontSize(13);
+    // Dokumententitel (oben rechts)
+    doc.setFontSize(12.5);
     doc.setTextColor(23, 84, 103);
     doc.setFont(undefined, 'bold');
     doc.text("SPLEISS- & MESSPROTOKOLL LWL", 196, 18, { align: 'right' });
 
-    // Akzentlinie
+    // Akzentlinie (GUH Orange)
     doc.setDrawColor(232, 92, 36);
     doc.setLineWidth(0.8);
-    doc.line(14, 27, 196, 27);
+    doc.line(14, 26, 196, 26);
 
     // Stammdaten-Tabelle
     doc.autoTable({
-      startY: 30,
+      startY: 29,
       theme: 'plain',
       styles: { fontSize: 8.5, cellPadding: 1.5, textColor: [15, 23, 42] },
       columnStyles: {
@@ -1138,7 +1147,7 @@
       });
     }
 
-    // Fußzeile auf allen Seiten
+    // Fußzeile
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
