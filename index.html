@@ -671,7 +671,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
     preloadLocalLogo();
-    renderCassetteForms();
   });
 
   function showStep(stepId) {
@@ -699,16 +698,16 @@
     document.getElementById('muffe_3cable_grid').style.display = mode === 'ymuffe' ? 'grid' : 'none';
   }
 
-  // Kassetten-Formulare mit automatischer Pigtail-Berechnung (Fortlauf)
   function renderCassetteForms() {
-    const count = parseInt(document.getElementById('box_cassette_count').value);
+    const countSelect = document.getElementById('box_cassette_count');
+    const count = parseInt(countSelect ? countSelect.value : 2) || 2;
     const container = document.getElementById('cassetteFormsContainer');
+    if (!container) return;
     container.innerHTML = '';
 
     let nextSuggestedPigtail = 1;
 
     for (let c = 1; c <= count; c++) {
-      const defaultCount = (c === 1) ? 8 : 8; // Standard 8er Belegung
       const box = document.createElement('div');
       box.className = 'cassette-box';
       box.id = `cassette_box_${c}`;
@@ -736,7 +735,7 @@
             <label>Fasern in dieser Kassette</label>
             <select id="box_c${c}_fiberCount" onchange="updatePigtailChain()">
               <option value="4">4 Fasern</option>
-              <option value="8" ${defaultCount === 8 ? 'selected' : ''}>8 Fasern</option>
+              <option value="8" selected>8 Fasern</option>
               <option value="12">12 Fasern</option>
             </select>
           </div>
@@ -749,7 +748,7 @@
         <div id="box_c${c}_multi_wrapper" style="display: block;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 12px; font-weight: bold; color: #475569;">Teilkabel in dieser Kassette:</span>
+              <span style="font-size: 12px; font-weight: bold; color: #475569;">Teilkabel:</span>
               <label style="font-size: 11px; font-weight: bold;">Start-Pigtail:</label>
               <input type="number" id="box_c${c}_multi_pigtailStart" value="${nextSuggestedPigtail}" min="1" max="12" style="width: 55px; padding: 2px 4px;" onchange="updatePigtailChain()">
             </div>
@@ -759,30 +758,42 @@
         </div>
       `;
       container.appendChild(box);
+
       addSubCable(c, "Kabel 1", "neu", 4);
       addSubCable(c, "Kabel 2", c === 1 ? "neu" : "alt", 4);
 
-      // Fortschreibung: nach 8 Fasern startet die nächste bei 9
-      nextSuggestedPigtail = ((nextSuggestedPigtail + defaultCount - 1) % 12) + 1;
+      nextSuggestedPigtail = ((nextSuggestedPigtail + 8 - 1) % 12) + 1;
     }
+
+    updatePigtailChain();
   }
 
-  // Berechnet den Fortlauf der Pigtails über die Kassetten automatisch nach
   function updatePigtailChain() {
-    const count = parseInt(document.getElementById('box_cassette_count').value);
-    let currentStart = parseInt(document.getElementById(`box_c1_single_wrapper`).style.display !== 'none' 
-      ? document.getElementById(`box_c1_pigtailStart`).value 
-      : document.getElementById(`box_c1_multi_pigtailStart`).value) || 1;
+    const countSelect = document.getElementById('box_cassette_count');
+    if (!countSelect) return;
+    const count = parseInt(countSelect.value) || 1;
+
+    const firstSingle = document.getElementById('box_c1_single_wrapper');
+    if (!firstSingle) return;
+
+    let currentStart = parseInt(firstSingle.style.display !== 'none' 
+      ? (document.getElementById('box_c1_pigtailStart') ? document.getElementById('box_c1_pigtailStart').value : 1)
+      : (document.getElementById('box_c1_multi_pigtailStart') ? document.getElementById('box_c1_multi_pigtailStart').value : 1)) || 1;
 
     for (let c = 1; c <= count; c++) {
-      const isSingle = document.getElementById(`box_c${c}_single_wrapper`).style.display !== 'none';
+      const singleEl = document.getElementById(`box_c${c}_single_wrapper`);
+      if (!singleEl) continue;
+      const isSingle = singleEl.style.display !== 'none';
       let fibersInBox = 0;
 
       if (isSingle) {
-        document.getElementById(`box_c${c}_pigtailStart`).value = currentStart;
-        fibersInBox = parseInt(document.getElementById(`box_c${c}_fiberCount`).value) || 8;
+        const pStart = document.getElementById(`box_c${c}_pigtailStart`);
+        if (pStart) pStart.value = currentStart;
+        const fCount = document.getElementById(`box_c${c}_fiberCount`);
+        fibersInBox = parseInt(fCount ? fCount.value : 8) || 8;
       } else {
-        document.getElementById(`box_c${c}_multi_pigtailStart`).value = currentStart;
+        const mpStart = document.getElementById(`box_c${c}_multi_pigtailStart`);
+        if (mpStart) mpStart.value = currentStart;
         document.querySelectorAll(`#box_c${c}_subcables_container .sub-count`).forEach(sel => {
           fibersInBox += parseInt(sel.value) || 4;
         });
@@ -809,6 +820,7 @@
 
   function addSubCable(c, nameDef = "", typeDef = "neu", countDef = 4) {
     const container = document.getElementById(`box_c${c}_subcables_container`);
+    if (!container) return;
     const num = container.children.length + 1;
     const card = document.createElement('div');
     card.className = 'sub-cable-card';
@@ -841,7 +853,6 @@
       </div>
     `;
     container.appendChild(card);
-    updatePigtailChain();
   }
 
   function buildMuffeSpliceTable() {
@@ -906,9 +917,9 @@
     }
   }
 
-  // Baut Spleißbox-Tabelle mit exaktem Pigtail-Fortlauf
   function buildBoxSpliceTable() {
-    const cassetteCount = parseInt(document.getElementById('box_cassette_count').value);
+    const countSelect = document.getElementById('box_cassette_count');
+    const cassetteCount = parseInt(countSelect ? countSelect.value : 2) || 2;
     const globalPigtailType = document.getElementById('box_global_pigtail_type').value;
     const tbody = document.getElementById('wizardTableBody');
     tbody.innerHTML = '';
@@ -917,7 +928,8 @@
     let globalIndex = 1;
 
     for (let c = 1; c <= cassetteCount; c++) {
-      const mode = document.getElementById(`box_c${c}_cableMode`).value;
+      const modeEl = document.getElementById(`box_c${c}_cableMode`);
+      const mode = modeEl ? modeEl.value : 'single';
 
       const headerRow = document.createElement('tr');
       headerRow.className = 'cassette-header-row';
@@ -927,9 +939,12 @@
       tbody.appendChild(headerRow);
 
       if (mode === 'single') {
-        const typeCable = document.getElementById(`box_c${c}_cableType`).value;
-        const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
-        let pigtailNum = parseInt(document.getElementById(`box_c${c}_pigtailStart`).value) || 1;
+        const typeEl = document.getElementById(`box_c${c}_cableType`);
+        const typeCable = typeEl ? typeEl.value : 'neu';
+        const fiberEl = document.getElementById(`box_c${c}_fiberCount`);
+        const fiberCount = parseInt(fiberEl ? fiberEl.value : 8) || 8;
+        const pStartEl = document.getElementById(`box_c${c}_pigtailStart`);
+        let pigtailNum = parseInt(pStartEl ? pStartEl.value : 1) || 1;
 
         for (let f = 1; f <= fiberCount; f++) {
           const colA = PALETTES[typeCable][(f - 1) % 12];
@@ -937,16 +952,20 @@
           const tr = createSpliceRowHTML(globalIndex, `K${c}`, typeCable, colA, f, globalPigtailType, colB, pigtailNum, "Kabel -> Pigtail");
           tbody.appendChild(tr);
           globalIndex++;
-          pigtailNum = (pigtailNum % 12) + 1; // Weiterlauf über 12er Rolle
+          pigtailNum = (pigtailNum % 12) + 1;
         }
       } else {
         const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
-        let pigtailNum = parseInt(document.getElementById(`box_c${c}_multi_pigtailStart`).value) || 1;
+        const mpStartEl = document.getElementById(`box_c${c}_multi_pigtailStart`);
+        let pigtailNum = parseInt(mpStartEl ? mpStartEl.value : 1) || 1;
 
         subCards.forEach((card, subIdx) => {
-          const cableName = card.querySelector('.sub-name').value || `Kabel ${subIdx + 1}`;
-          const cableType = card.querySelector('.sub-type').value;
-          const fiberCount = parseInt(card.querySelector('.sub-count').value);
+          const nameEl = card.querySelector('.sub-name');
+          const cableName = nameEl ? nameEl.value : `Kabel ${subIdx + 1}`;
+          const typeEl = card.querySelector('.sub-type');
+          const cableType = typeEl ? typeEl.value : 'neu';
+          const countEl = card.querySelector('.sub-count');
+          const fiberCount = parseInt(countEl ? countEl.value : 4) || 4;
 
           for (let f = 1; f <= fiberCount; f++) {
             const colA = PALETTES[cableType][(f - 1) % 12];
@@ -954,7 +973,7 @@
             const tr = createSpliceRowHTML(globalIndex, `K${c}`, cableType, colA, f, globalPigtailType, colB, pigtailNum, `${cableName}`);
             tbody.appendChild(tr);
             globalIndex++;
-            pigtailNum = (pigtailNum % 12) + 1; // Weiterlauf über 12er Rolle
+            pigtailNum = (pigtailNum % 12) + 1;
           }
         });
       }
@@ -963,7 +982,6 @@
     showStep('step-splice-adjust');
   }
 
-  // Feste Koppelung von Farbe & Faser (mit Vorbelegung und individueller Editierbarkeit)
   function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB, remarkText = "") {
     const tr = document.createElement('tr');
     tr.className = 'splice-data-row';
@@ -1003,7 +1021,6 @@
     return tr;
   }
 
-  // Event: Farbe wird geändert -> Nummer und Styling passen sich fest an
   function onColorSelectChange(selectEl, side, nr) {
     const tr = selectEl.closest('tr');
     const type = tr.getAttribute(`data-type-${side.toLowerCase()}`) || 'neu';
@@ -1018,7 +1035,6 @@
     }
   }
 
-  // Event: Fasernummer wird geändert -> Farbe und Styling passen sich fest an
   function onFiberInputChange(inputEl, side, nr) {
     const tr = inputEl.closest('tr');
     const type = tr.getAttribute(`data-type-${side.toLowerCase()}`) || 'neu';
@@ -1048,11 +1064,10 @@
     fasCell.classList.add(newClass);
   }
 
-  // Zurück-Button Logik (Unterscheidet Neu vs. Bearbeitung)
   function goBackFromAdjust() {
     if (editingUnitIndex >= 0) {
       editingUnitIndex = -1;
-      showStep('step-next-unit-prompt'); // Zurück zur Zusammenfassung ohne Speichern
+      showStep('step-next-unit-prompt');
     } else {
       if (currentUnitType === 'Muffe') showStep('step-muffe-config');
       else showStep('step-box-config');
@@ -1243,7 +1258,6 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Generierung des offiziellen GUH-PDFs
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
