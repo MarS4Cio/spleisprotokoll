@@ -320,11 +320,7 @@
       gap: 6px;
     }
 
-    .btn-sm {
-      padding: 5px 10px;
-      font-size: 11px;
-    }
-
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
     .btn-primary { background: var(--guh-petrol); color: #fff; }
     .btn-secondary { background: #64748b; color: #fff; }
     .btn-success { background: var(--success); color: #fff; }
@@ -391,15 +387,14 @@
       </select>
     </div>
 
-    <!-- Standard 2-Kabel Muffe -->
     <div id="muffe_2cable_grid" class="grid-2">
       <div style="background: var(--guh-light); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
         <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel A</h3>
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableA_type">
-            <option value="neu">Neu (DIN VDE: Rot, Grün...)</option>
-            <option value="alt">Alt (Braun, Orange...)</option>
+            <option value="neu">Neu (DIN: Rot, Grün, Blau...)</option>
+            <option value="alt">Alt (Corning: Blau, Orange, Grün...)</option>
           </select>
         </div>
         <div class="form-group">
@@ -418,8 +413,8 @@
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableB_type">
-            <option value="neu">Neu (DIN VDE: Rot, Grün...)</option>
-            <option value="alt">Alt (Braun, Orange...)</option>
+            <option value="neu">Neu (DIN: Rot, Grün, Blau...)</option>
+            <option value="alt">Alt (Corning: Blau, Orange, Grün...)</option>
           </select>
         </div>
         <div class="form-group">
@@ -434,7 +429,6 @@
       </div>
     </div>
 
-    <!-- Y-Muffe 3-Kabel Schema -->
     <div id="muffe_3cable_grid" class="grid-3" style="display: none;">
       <div style="background: var(--guh-light); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
         <h4 style="margin: 0 0 6px 0; color: var(--guh-petrol); font-size: 13px;">Kabel 1 (A)</h4>
@@ -442,7 +436,7 @@
           <label>Standard</label>
           <select id="ymuffe_c1_type">
             <option value="neu">Neu (DIN)</option>
-            <option value="alt">Alt (Braun...)</option>
+            <option value="alt">Alt (Corning)</option>
           </select>
         </div>
         <div class="form-group">
@@ -461,7 +455,7 @@
           <label>Standard</label>
           <select id="ymuffe_c2_type">
             <option value="neu">Neu (DIN)</option>
-            <option value="alt">Alt (Braun...)</option>
+            <option value="alt">Alt (Corning)</option>
           </select>
         </div>
         <div class="form-group">
@@ -480,7 +474,7 @@
           <label>Standard</label>
           <select id="ymuffe_c3_type">
             <option value="neu">Neu (DIN)</option>
-            <option value="alt">Alt (Braun...)</option>
+            <option value="alt">Alt (Corning)</option>
           </select>
         </div>
         <div class="form-group">
@@ -500,18 +494,27 @@
     </div>
   </div>
 
-  <!-- SCHRITT 2B -->
+  <!-- SCHRITT 2B (Spleißbox) -->
   <div id="step-box-config" class="step-card">
-    <h2>2. Spleißbox: Kassetten & Kabelbelegung</h2>
-    <div class="form-group" style="max-width: 280px;">
-      <label>Anzahl der Kassetten in dieser Box</label>
-      <select id="box_cassette_count" onchange="renderCassetteForms()">
-        <option value="1">1 Kassette</option>
-        <option value="2" selected>2 Kassetten</option>
-        <option value="3">3 Kassetten</option>
-        <option value="4">4 Kassetten</option>
-        <option value="6">6 Kassetten</option>
-      </select>
+    <h2>2. Spleißbox: Kassetten & Pigtail-Fortlauf</h2>
+    <div class="grid-2" style="max-width: 600px; margin-bottom: 14px;">
+      <div class="form-group">
+        <label>Anzahl der Kassetten</label>
+        <select id="box_cassette_count" onchange="renderCassetteForms()">
+          <option value="1">1 Kassette</option>
+          <option value="2" selected>2 Kassetten</option>
+          <option value="3">3 Kassetten</option>
+          <option value="4">4 Kassetten</option>
+          <option value="6">6 Kassetten</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pigtails Standard (12er Bündel)</label>
+        <select id="box_global_pigtail_type" onchange="renderCassetteForms()">
+          <option value="neu" selected>Neu (DIN VDE 12 Farben)</option>
+          <option value="alt">Alt (Corning 12 Farben)</option>
+        </select>
+      </div>
     </div>
 
     <div id="cassetteFormsContainer" style="margin-top: 14px;"></div>
@@ -525,7 +528,7 @@
   <!-- SCHRITT 3 -->
   <div id="step-splice-adjust" class="step-card">
     <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
-    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Passe die Farben und Faser-Verbindungen bei Bedarf an.</p>
+    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Farbe und Fasernummer sind gekoppelt. Passe die Zuordnung bei Bedarf an (z. B. bei defekten Fasern).</p>
 
     <div class="table-container">
       <table id="wizardTable">
@@ -627,34 +630,35 @@
     img.src = LOCAL_LOGO_PATH;
   }
 
+  // Farbcodes: Neu (DIN) vs. Alt (Corning / Telcordia)
   const PALETTES = {
     neu: [
-      { name: "Rot", class: "col-rot", hex: "#ef4444" },
-      { name: "Grün", class: "col-gruen", hex: "#22c55e" },
-      { name: "Blau", class: "col-blau", hex: "#3b82f6" },
-      { name: "Gelb", class: "col-gelb", hex: "#eab308" },
-      { name: "Weiß", class: "col-weiss", hex: "#ffffff" },
-      { name: "Grau", class: "col-grau", hex: "#94a3b8" },
-      { name: "Braun", class: "col-braun", hex: "#854d0e" },
-      { name: "Violett", class: "col-violett", hex: "#a855f7" },
-      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6" },
-      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b" },
-      { name: "Orange", class: "col-orange", hex: "#f97316" },
-      { name: "Rosa", class: "col-rosa", hex: "#ec4899" }
+      { name: "Rot", class: "col-rot", hex: "#ef4444", num: 1 },
+      { name: "Grün", class: "col-gruen", hex: "#22c55e", num: 2 },
+      { name: "Blau", class: "col-blau", hex: "#3b82f6", num: 3 },
+      { name: "Gelb", class: "col-gelb", hex: "#eab308", num: 4 },
+      { name: "Weiß", class: "col-weiss", hex: "#ffffff", num: 5 },
+      { name: "Grau", class: "col-grau", hex: "#94a3b8", num: 6 },
+      { name: "Braun", class: "col-braun", hex: "#854d0e", num: 7 },
+      { name: "Violett", class: "col-violett", hex: "#a855f7", num: 8 },
+      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6", num: 9 },
+      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b", num: 10 },
+      { name: "Orange", class: "col-orange", hex: "#f97316", num: 11 },
+      { name: "Rosa", class: "col-rosa", hex: "#ec4899", num: 12 }
     ],
     alt: [
-      { name: "Braun", class: "col-braun", hex: "#854d0e" },
-      { name: "Orange", class: "col-orange", hex: "#f97316" },
-      { name: "Blau", class: "col-blau", hex: "#3b82f6" },
-      { name: "Grün", class: "col-gruen", hex: "#22c55e" },
-      { name: "Rot", class: "col-rot", hex: "#ef4444" },
-      { name: "Grau", class: "col-grau", hex: "#94a3b8" },
-      { name: "Gelb", class: "col-gelb", hex: "#eab308" },
-      { name: "Weiß", class: "col-weiss", hex: "#ffffff" },
-      { name: "Rosa", class: "col-rosa", hex: "#ec4899" },
-      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b" },
-      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6" },
-      { name: "Violett", class: "col-violett", hex: "#a855f7" }
+      { name: "Blau", class: "col-blau", hex: "#3b82f6", num: 1 },
+      { name: "Orange", class: "col-orange", hex: "#f97316", num: 2 },
+      { name: "Grün", class: "col-gruen", hex: "#22c55e", num: 3 },
+      { name: "Braun", class: "col-braun", hex: "#854d0e", num: 4 },
+      { name: "Grau", class: "col-grau", hex: "#94a3b8", num: 5 },
+      { name: "Weiß", class: "col-weiss", hex: "#ffffff", num: 6 },
+      { name: "Rot", class: "col-rot", hex: "#ef4444", num: 7 },
+      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b", num: 8 },
+      { name: "Gelb", class: "col-gelb", hex: "#eab308", num: 9 },
+      { name: "Violett", class: "col-violett", hex: "#a855f7", num: 10 },
+      { name: "Rosa", class: "col-rosa", hex: "#ec4899", num: 11 },
+      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6", num: 12 }
     ]
   };
 
@@ -695,12 +699,16 @@
     document.getElementById('muffe_3cable_grid').style.display = mode === 'ymuffe' ? 'grid' : 'none';
   }
 
+  // Kassetten-Formulare mit automatischer Pigtail-Berechnung (Fortlauf)
   function renderCassetteForms() {
     const count = parseInt(document.getElementById('box_cassette_count').value);
     const container = document.getElementById('cassetteFormsContainer');
     container.innerHTML = '';
 
+    let nextSuggestedPigtail = 1;
+
     for (let c = 1; c <= count; c++) {
+      const defaultCount = (c === 1) ? 8 : 8; // Standard 8er Belegung
       const box = document.createElement('div');
       box.className = 'cassette-box';
       box.id = `cassette_box_${c}`;
@@ -721,29 +729,30 @@
             <label>Kabel A Standard</label>
             <select id="box_c${c}_cableType">
               <option value="neu">Neu (DIN: Rot, Grün...)</option>
-              <option value="alt">Alt (Braun, Orange...)</option>
+              <option value="alt">Alt (Corning: Blau, Orange...)</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Pigtails Standard</label>
-            <select id="box_c${c}_pigtailType">
-              <option value="neu">Neu (DIN 12 Farben)</option>
-              <option value="alt">Alt (4/12 Farben)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Fasern</label>
-            <select id="box_c${c}_fiberCount">
+            <label>Fasern in dieser Kassette</label>
+            <select id="box_c${c}_fiberCount" onchange="updatePigtailChain()">
               <option value="4">4 Fasern</option>
-              <option value="8" selected>8 Fasern</option>
+              <option value="8" ${defaultCount === 8 ? 'selected' : ''}>8 Fasern</option>
               <option value="12">12 Fasern</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label>Start-Pigtail Faser (1-12)</label>
+            <input type="number" id="box_c${c}_pigtailStart" value="${nextSuggestedPigtail}" min="1" max="12" onchange="updatePigtailChain()">
           </div>
         </div>
 
         <div id="box_c${c}_multi_wrapper" style="display: block;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 12px; font-weight: bold; color: #475569;">Kabel / Bündel in dieser Kassette:</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 12px; font-weight: bold; color: #475569;">Teilkabel in dieser Kassette:</span>
+              <label style="font-size: 11px; font-weight: bold;">Start-Pigtail:</label>
+              <input type="number" id="box_c${c}_multi_pigtailStart" value="${nextSuggestedPigtail}" min="1" max="12" style="width: 55px; padding: 2px 4px;" onchange="updatePigtailChain()">
+            </div>
             <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addSubCable(${c})">➕ Weiteres Kabel</button>
           </div>
           <div id="box_c${c}_subcables_container"></div>
@@ -752,6 +761,34 @@
       container.appendChild(box);
       addSubCable(c, "Kabel 1", "neu", 4);
       addSubCable(c, "Kabel 2", c === 1 ? "neu" : "alt", 4);
+
+      // Fortschreibung: nach 8 Fasern startet die nächste bei 9
+      nextSuggestedPigtail = ((nextSuggestedPigtail + defaultCount - 1) % 12) + 1;
+    }
+  }
+
+  // Berechnet den Fortlauf der Pigtails über die Kassetten automatisch nach
+  function updatePigtailChain() {
+    const count = parseInt(document.getElementById('box_cassette_count').value);
+    let currentStart = parseInt(document.getElementById(`box_c1_single_wrapper`).style.display !== 'none' 
+      ? document.getElementById(`box_c1_pigtailStart`).value 
+      : document.getElementById(`box_c1_multi_pigtailStart`).value) || 1;
+
+    for (let c = 1; c <= count; c++) {
+      const isSingle = document.getElementById(`box_c${c}_single_wrapper`).style.display !== 'none';
+      let fibersInBox = 0;
+
+      if (isSingle) {
+        document.getElementById(`box_c${c}_pigtailStart`).value = currentStart;
+        fibersInBox = parseInt(document.getElementById(`box_c${c}_fiberCount`).value) || 8;
+      } else {
+        document.getElementById(`box_c${c}_multi_pigtailStart`).value = currentStart;
+        document.querySelectorAll(`#box_c${c}_subcables_container .sub-count`).forEach(sel => {
+          fibersInBox += parseInt(sel.value) || 4;
+        });
+      }
+
+      currentStart = ((currentStart + fibersInBox - 1) % 12) + 1;
     }
   }
 
@@ -767,6 +804,7 @@
       singleWrap.style.display = 'grid';
       multiWrap.style.display = 'none';
     }
+    updatePigtailChain();
   }
 
   function addSubCable(c, nameDef = "", typeDef = "neu", countDef = 4) {
@@ -784,28 +822,28 @@
           <label>Farbstandard</label>
           <select class="sub-type">
             <option value="neu" ${typeDef === 'neu' ? 'selected' : ''}>Neu (DIN)</option>
-            <option value="alt" ${typeDef === 'alt' ? 'selected' : ''}>Alt (Braun, Orange...)</option>
+            <option value="alt" ${typeDef === 'alt' ? 'selected' : ''}>Alt (Corning)</option>
           </select>
         </div>
         <div class="form-group">
           <label>Fasern</label>
           <div style="display: flex; gap: 6px; align-items: center;">
-            <select class="sub-count" style="width: 100%;">
+            <select class="sub-count" style="width: 100%;" onchange="updatePigtailChain()">
               <option value="2" ${countDef === 2 ? 'selected' : ''}>2 Fasern</option>
               <option value="4" ${countDef === 4 ? 'selected' : ''}>4 Fasern</option>
               <option value="6" ${countDef === 6 ? 'selected' : ''}>6 Fasern</option>
               <option value="8" ${countDef === 8 ? 'selected' : ''}>8 Fasern</option>
               <option value="12" ${countDef === 12 ? 'selected' : ''}>12 Fasern</option>
             </select>
-            <button class="delete-btn" style="position: static; width: 24px; height: 24px;" onclick="this.closest('.sub-cable-card').remove()">✕</button>
+            <button class="delete-btn" style="position: static; width: 24px; height: 24px;" onclick="this.closest('.sub-cable-card').remove(); updatePigtailChain();">✕</button>
           </div>
         </div>
       </div>
     `;
     container.appendChild(card);
+    updatePigtailChain();
   }
 
-  // Erzeugt die Muffen-Tabelle (Standard 2 Kabel oder Y-Muffe 3 Kabel)
   function buildMuffeSpliceTable() {
     const mode = document.getElementById('muffe_mode').value;
     const tbody = document.getElementById('wizardTableBody');
@@ -830,28 +868,19 @@
       for (let i = 1; i <= maxCount; i++) {
         const colA = PALETTES[typeA][(i - 1) % 12];
         const colB = PALETTES[typeB][(i - 1) % 12];
-        const tr = createSpliceRowHTML(i, "K1", typeA, colA, i, typeB, colB, i, "Kabel A -> Kabel B");
+        const tr = createSpliceRowHTML(i, "K1", typeA, colA, colA.num, typeB, colB, colB.num, "Kabel A -> Kabel B");
         tbody.appendChild(tr);
       }
     } else {
-      // Y-MUFFE 3-WEGE SCHALTUNG
       const t1 = document.getElementById('ymuffe_c1_type').value;
       const t2 = document.getElementById('ymuffe_c2_type').value;
       const t3 = document.getElementById('ymuffe_c3_type').value;
 
       document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung: Y-Muffe (Kabel 1 ➜ Kabel 2 ➜ Kabel 3)`;
 
-      // KASSETTE 1: Kabel 1 (Fas 1-2) auf Kabel 2 (Fas 1-2)
-      addYBlock(tbody, "K1", "Kassette 1: Kabel 1 (Fas. 1-2) auf Kabel 2 (Fas. 1-2)", 1, 
-               t1, 1, 2, t2, 1, 2, "Kabel 1 -> Kabel 2");
-
-      // KASSETTE 2: Kabel 2 (Fas 3-4) auf Kabel 3 (Fas 1-2)
-      addYBlock(tbody, "K2", "Kassette 2: Kabel 2 (Fas. 3-4) auf Kabel 3 (Fas. 1-2)", 3, 
-               t2, 3, 4, t3, 1, 2, "Kabel 2 -> Kabel 3");
-
-      // KASSETTE 3: Kabel 3 (Fas 3-4) auf Kabel 1 (Fas 3-4)
-      addYBlock(tbody, "K3", "Kassette 3: Kabel 3 (Fas. 3-4) auf Kabel 1 (Fas. 3-4)", 5, 
-               t3, 3, 4, t1, 3, 4, "Kabel 3 -> Kabel 1");
+      addYBlock(tbody, "K1", "Kassette 1: Kabel 1 (Fas. 1-2) auf Kabel 2 (Fas. 1-2)", 1, t1, 1, 2, t2, 1, 2, "Kabel 1 -> Kabel 2");
+      addYBlock(tbody, "K2", "Kassette 2: Kabel 2 (Fas. 3-4) auf Kabel 3 (Fas. 1-2)", 3, t2, 3, 4, t3, 1, 2, "Kabel 2 -> Kabel 3");
+      addYBlock(tbody, "K3", "Kassette 3: Kabel 3 (Fas. 3-4) auf Kabel 1 (Fas. 3-4)", 5, t3, 3, 4, t1, 3, 4, "Kabel 3 -> Kabel 1");
     }
 
     showStep('step-splice-adjust');
@@ -877,8 +906,10 @@
     }
   }
 
+  // Baut Spleißbox-Tabelle mit exaktem Pigtail-Fortlauf
   function buildBoxSpliceTable() {
     const cassetteCount = parseInt(document.getElementById('box_cassette_count').value);
+    const globalPigtailType = document.getElementById('box_global_pigtail_type').value;
     const tbody = document.getElementById('wizardTableBody');
     tbody.innerHTML = '';
     document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Spleißbox (${cassetteCount} Kassetten)`;
@@ -897,19 +928,21 @@
 
       if (mode === 'single') {
         const typeCable = document.getElementById(`box_c${c}_cableType`).value;
-        const typePig = document.getElementById(`box_c${c}_pigtailType`).value;
         const fiberCount = parseInt(document.getElementById(`box_c${c}_fiberCount`).value);
+        let pigtailNum = parseInt(document.getElementById(`box_c${c}_pigtailStart`).value) || 1;
 
         for (let f = 1; f <= fiberCount; f++) {
           const colA = PALETTES[typeCable][(f - 1) % 12];
-          const colB = PALETTES[typePig][(f - 1) % 12];
-          const tr = createSpliceRowHTML(globalIndex, `K${c}`, typeCable, colA, f, typePig, colB, f, "Kabel -> Pigtail");
+          const colB = PALETTES[globalPigtailType][(pigtailNum - 1) % 12];
+          const tr = createSpliceRowHTML(globalIndex, `K${c}`, typeCable, colA, f, globalPigtailType, colB, pigtailNum, "Kabel -> Pigtail");
           tbody.appendChild(tr);
           globalIndex++;
+          pigtailNum = (pigtailNum % 12) + 1; // Weiterlauf über 12er Rolle
         }
       } else {
         const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
-        let pigtailCounter = 1;
+        let pigtailNum = parseInt(document.getElementById(`box_c${c}_multi_pigtailStart`).value) || 1;
+
         subCards.forEach((card, subIdx) => {
           const cableName = card.querySelector('.sub-name').value || `Kabel ${subIdx + 1}`;
           const cableType = card.querySelector('.sub-type').value;
@@ -917,11 +950,11 @@
 
           for (let f = 1; f <= fiberCount; f++) {
             const colA = PALETTES[cableType][(f - 1) % 12];
-            const colB = PALETTES['neu'][(pigtailCounter - 1) % 12];
-            const tr = createSpliceRowHTML(globalIndex, `K${c}`, cableType, colA, f, 'neu', colB, pigtailCounter, `${cableName}`);
+            const colB = PALETTES[globalPigtailType][(pigtailNum - 1) % 12];
+            const tr = createSpliceRowHTML(globalIndex, `K${c}`, cableType, colA, f, globalPigtailType, colB, pigtailNum, `${cableName}`);
             tbody.appendChild(tr);
             globalIndex++;
-            pigtailCounter++;
+            pigtailNum = (pigtailNum % 12) + 1; // Weiterlauf über 12er Rolle
           }
         });
       }
@@ -930,32 +963,38 @@
     showStep('step-splice-adjust');
   }
 
+  // Feste Koppelung von Farbe & Faser (mit Vorbelegung und individueller Editierbarkeit)
   function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB, remarkText = "") {
     const tr = document.createElement('tr');
     tr.className = 'splice-data-row';
     tr.setAttribute('data-kassette-ref', kassette);
+    tr.setAttribute('data-type-a', typeA);
+    tr.setAttribute('data-type-b', typeB);
+
     tr.innerHTML = `
       <td style="font-weight: bold;">${nr}</td>
       <td><input class="input-cell" type="text" value="${kassette}"></td>
       
+      <!-- Kabel A -->
       <td class="${defaultColA.class}" id="cell-colA-${nr}">
-        <select class="color-select" onchange="updateRowColor(this, 'cell-colA-${nr}')">
-          ${PALETTES.neu.map(c => `<option value="${c.class}" ${c.name === defaultColA.name ? 'selected' : ''}>${c.name}</option>`).join('')}
+        <select class="color-select" onchange="onColorSelectChange(this, 'A', ${nr})">
+          ${PALETTES[typeA].map(c => `<option value="${c.name}" data-class="${c.class}" data-num="${c.num}" ${c.name === defaultColA.name ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
       </td>
       <td class="${defaultColA.class}" id="cell-fasA-${nr}">
-        <input class="input-cell" type="number" value="${faserA}">
+        <input class="input-cell" type="number" value="${faserA}" min="1" max="12" onchange="onFiberInputChange(this, 'A', ${nr})">
       </td>
 
       <td style="color: #64748b; font-weight: bold;">-></td>
 
+      <!-- Kabel B / Pigtail -->
       <td class="${defaultColB.class}" id="cell-colB-${nr}">
-        <select class="color-select" onchange="updateRowColor(this, 'cell-colB-${nr}')">
-          ${PALETTES.neu.map(c => `<option value="${c.class}" ${c.name === defaultColB.name ? 'selected' : ''}>${c.name}</option>`).join('')}
+        <select class="color-select" onchange="onColorSelectChange(this, 'B', ${nr})">
+          ${PALETTES[typeB].map(c => `<option value="${c.name}" data-class="${c.class}" data-num="${c.num}" ${c.name === defaultColB.name ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
       </td>
       <td class="${defaultColB.class}" id="cell-fasB-${nr}">
-        <input class="input-cell" type="number" value="${faserB}">
+        <input class="input-cell" type="number" value="${faserB}" min="1" max="12" onchange="onFiberInputChange(this, 'B', ${nr})">
       </td>
 
       <td><input class="input-cell" type="text" value="0.02 dB"></td>
@@ -964,23 +1003,56 @@
     return tr;
   }
 
-  function updateRowColor(selectEl, cellId) {
-    const cell = document.getElementById(cellId);
-    const faserCellId = cellId.replace('col', 'fas');
-    const faserCell = document.getElementById(faserCellId);
+  // Event: Farbe wird geändert -> Nummer und Styling passen sich fest an
+  function onColorSelectChange(selectEl, side, nr) {
+    const tr = selectEl.closest('tr');
+    const type = tr.getAttribute(`data-type-${side.toLowerCase()}`) || 'neu';
+    const selectedOption = selectEl.selectedOptions[0];
+    const colorName = selectedOption.value;
+    const colorObj = PALETTES[type].find(c => c.name === colorName);
 
-    Object.values(PALETTES).flat().forEach(c => {
-      cell.classList.remove(c.class);
-      if (faserCell) faserCell.classList.remove(c.class);
-    });
-
-    cell.classList.add(selectEl.value);
-    if (faserCell) faserCell.classList.add(selectEl.value);
+    if (colorObj) {
+      const fiberInput = tr.querySelector(`#cell-fas${side}-${nr} input`);
+      fiberInput.value = colorObj.num;
+      applyCellColor(tr, side, nr, colorObj.class);
+    }
   }
 
+  // Event: Fasernummer wird geändert -> Farbe und Styling passen sich fest an
+  function onFiberInputChange(inputEl, side, nr) {
+    const tr = inputEl.closest('tr');
+    const type = tr.getAttribute(`data-type-${side.toLowerCase()}`) || 'neu';
+    let num = parseInt(inputEl.value) || 1;
+    if (num < 1) num = 1;
+    const colorIndex = (num - 1) % 12;
+    const colorObj = PALETTES[type][colorIndex];
+
+    if (colorObj) {
+      const colorSelect = tr.querySelector(`#cell-col${side}-${nr} select`);
+      colorSelect.value = colorObj.name;
+      applyCellColor(tr, side, nr, colorObj.class);
+    }
+  }
+
+  function applyCellColor(tr, side, nr, newClass) {
+    const colCell = tr.querySelector(`#cell-col${side}-${nr}`);
+    const fasCell = tr.querySelector(`#cell-fas${side}-${nr}`);
+    const allClasses = Object.values(PALETTES).flat().map(c => c.class);
+
+    allClasses.forEach(cls => {
+      colCell.classList.remove(cls);
+      fasCell.classList.remove(cls);
+    });
+
+    colCell.classList.add(newClass);
+    fasCell.classList.add(newClass);
+  }
+
+  // Zurück-Button Logik (Unterscheidet Neu vs. Bearbeitung)
   function goBackFromAdjust() {
     if (editingUnitIndex >= 0) {
-      showStep('step-next-unit-prompt');
+      editingUnitIndex = -1;
+      showStep('step-next-unit-prompt'); // Zurück zur Zusammenfassung ohne Speichern
     } else {
       if (currentUnitType === 'Muffe') showStep('step-muffe-config');
       else showStep('step-box-config');
@@ -1055,7 +1127,10 @@
       cassette.rows.forEach(r => {
         const colObjA = PALETTES.neu.find(c => c.name === r.colA) || PALETTES.alt.find(c => c.name === r.colA) || PALETTES.neu[0];
         const colObjB = PALETTES.neu.find(c => c.name === r.colB) || PALETTES.alt.find(c => c.name === r.colB) || PALETTES.neu[0];
-        const tr = createSpliceRowHTML(r.nr, r.cassette, 'neu', colObjA, r.fasA, 'neu', colObjB, r.fasB, r.notes);
+        const typeA = PALETTES.alt.some(c => c.name === r.colA) ? 'alt' : 'neu';
+        const typeB = PALETTES.alt.some(c => c.name === r.colB) ? 'alt' : 'neu';
+
+        const tr = createSpliceRowHTML(r.nr, r.cassette, typeA, colObjA, r.fasA, typeB, colObjB, r.fasB, r.notes);
         tr.querySelector('input[value="0.02 dB"]').value = r.attenuation;
         tbody.appendChild(tr);
       });
@@ -1168,7 +1243,7 @@
     return match ? match.hex : '#ffffff';
   }
 
-  // Generierung des offiziellen GUH-PDFs mit unverzerrtem Logo
+  // Generierung des offiziellen GUH-PDFs
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
