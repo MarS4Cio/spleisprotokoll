@@ -511,8 +511,8 @@
       <div class="form-group">
         <label>Pigtails Standard (12er Bündel)</label>
         <select id="box_global_pigtail_type" onchange="renderCassetteForms()">
-          <option value="neu" selected>Neu (DIN VDE 12 Farben)</option>
-          <option value="alt">Alt (Corning 12 Farben)</option>
+          <option value="neu" selected>Neu (DIN VDE: Rot, Grün, Blau...)</option>
+          <option value="alt">Alt (Corning: Blau, Orange, Grün...)</option>
         </select>
       </div>
     </div>
@@ -630,7 +630,7 @@
     img.src = LOCAL_LOGO_PATH;
   }
 
-  // Farbcodes: Neu (DIN) vs. Alt (Corning / Telcordia)
+  // Korrektes Mapping: Neu (DIN) vs. Alt (Corning / Telcordia)
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444", num: 1 },
@@ -853,6 +853,7 @@
       </div>
     `;
     container.appendChild(card);
+    updatePigtailChain();
   }
 
   function buildMuffeSpliceTable() {
@@ -982,6 +983,7 @@
     showStep('step-splice-adjust');
   }
 
+  // Präzises Binding von Farbe & Faser ohne Vertauschung der Standards
   function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB, remarkText = "") {
     const tr = document.createElement('tr');
     tr.className = 'splice-data-row';
@@ -1023,16 +1025,16 @@
 
   function onColorSelectChange(selectEl, side, nr) {
     const tr = selectEl.closest('tr');
-    const type = tr.getAttribute(`data-type-${side.toLowerCase()}`) || 'neu';
     const selectedOption = selectEl.selectedOptions[0];
-    const colorName = selectedOption.value;
-    const colorObj = PALETTES[type].find(c => c.name === colorName);
+    const newNum = selectedOption.getAttribute('data-num');
+    const newClass = selectedOption.getAttribute('data-class');
 
-    if (colorObj) {
-      const fiberInput = tr.querySelector(`#cell-fas${side}-${nr} input`);
-      fiberInput.value = colorObj.num;
-      applyCellColor(tr, side, nr, colorObj.class);
-    }
+    // Fasernummer sofort anpassen
+    const fiberInput = tr.querySelector(`#cell-fas${side}-${nr} input`);
+    if (fiberInput) fiberInput.value = newNum;
+
+    // Farbklasse auf Zelle und Fasernummer übertragen
+    applyCellColor(tr, side, nr, newClass);
   }
 
   function onFiberInputChange(inputEl, side, nr) {
@@ -1045,7 +1047,7 @@
 
     if (colorObj) {
       const colorSelect = tr.querySelector(`#cell-col${side}-${nr} select`);
-      colorSelect.value = colorObj.name;
+      if (colorSelect) colorSelect.value = colorObj.name;
       applyCellColor(tr, side, nr, colorObj.class);
     }
   }
@@ -1056,12 +1058,12 @@
     const allClasses = Object.values(PALETTES).flat().map(c => c.class);
 
     allClasses.forEach(cls => {
-      colCell.classList.remove(cls);
-      fasCell.classList.remove(cls);
+      if (colCell) colCell.classList.remove(cls);
+      if (fasCell) fasCell.classList.remove(cls);
     });
 
-    colCell.classList.add(newClass);
-    fasCell.classList.add(newClass);
+    if (colCell) colCell.classList.add(newClass);
+    if (fasCell) fasCell.classList.add(newClass);
   }
 
   function goBackFromAdjust() {
@@ -1140,10 +1142,14 @@
       tbody.appendChild(headerRow);
 
       cassette.rows.forEach(r => {
-        const colObjA = PALETTES.neu.find(c => c.name === r.colA) || PALETTES.alt.find(c => c.name === r.colA) || PALETTES.neu[0];
-        const colObjB = PALETTES.neu.find(c => c.name === r.colB) || PALETTES.alt.find(c => c.name === r.colB) || PALETTES.neu[0];
-        const typeA = PALETTES.alt.some(c => c.name === r.colA) ? 'alt' : 'neu';
-        const typeB = PALETTES.alt.some(c => c.name === r.colB) ? 'alt' : 'neu';
+        // Exaktes Matching des Farbmodells anhand der Farbe und Nummer
+        const isCorningA = (r.colA === "Blau" && parseInt(r.fasA) === 1) || (r.colA === "Orange" && parseInt(r.fasA) === 2);
+        const isCorningB = (r.colB === "Blau" && parseInt(r.fasB) === 1) || (r.colB === "Orange" && parseInt(r.fasB) === 2);
+        const typeA = isCorningA ? 'alt' : 'neu';
+        const typeB = isCorningB ? 'alt' : 'neu';
+
+        const colObjA = PALETTES[typeA].find(c => c.name === r.colA) || PALETTES.neu[0];
+        const colObjB = PALETTES[typeB].find(c => c.name === r.colB) || PALETTES.neu[0];
 
         const tr = createSpliceRowHTML(r.nr, r.cassette, typeA, colObjA, r.fasA, typeB, colObjB, r.fasB, r.notes);
         tr.querySelector('input[value="0.02 dB"]').value = r.attenuation;
