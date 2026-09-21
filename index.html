@@ -200,7 +200,7 @@
       font-size: 12px;
     }
 
-    /* Farbcodes */
+    /* Farbcodes DIN / Corning */
     .col-rot       { background-color: #ef4444 !important; color: #ffffff !important; }
     .col-gruen     { background-color: #22c55e !important; color: #ffffff !important; }
     .col-blau      { background-color: #3b82f6 !important; color: #ffffff !important; }
@@ -257,6 +257,14 @@
       align-items: center;
     }
 
+    .photo-section {
+      background: var(--guh-light);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -274,7 +282,7 @@
 
     .photo-card img {
       width: 100%;
-      height: 130px;
+      height: 120px;
       object-fit: cover;
     }
 
@@ -572,20 +580,38 @@
     </div>
   </div>
 
-  <!-- SCHRITT 5 -->
+  <!-- SCHRITT 5 (STANDORT- & MONTAGE-FOTOS) -->
   <div id="step-final" class="step-card">
     <h2>5. Fotodokumentation & PDF Export</h2>
 
-    <div style="margin-bottom: 16px;">
-      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--guh-petrol);">Fotodokumentation hinzufügen:</label>
+    <!-- STANDORT-FOTOS -->
+    <div class="photo-section">
+      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--guh-petrol);">
+        📍 1. Standort-Fotos (z. B. Schacht, Gebäudeansicht, Trasse):
+      </label>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this)">
-        <button class="btn btn-primary" onclick="document.getElementById('cameraInput').click()">📷 Foto mit Kamera</button>
+        <input type="file" id="locCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this, 'location')">
+        <button class="btn btn-outline" onclick="document.getElementById('locCameraInput').click()">📷 Standort-Foto mit Kamera</button>
 
-        <input type="file" id="galleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this)">
-        <button class="btn btn-secondary" onclick="document.getElementById('galleryInput').click()">📁 Aus Galerie</button>
+        <input type="file" id="locGalleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this, 'location')">
+        <button class="btn btn-outline" onclick="document.getElementById('locGalleryInput').click()">📁 Aus Galerie</button>
       </div>
-      <div class="photo-grid" id="photoContainer"></div>
+      <div class="photo-grid" id="locPhotoContainer"></div>
+    </div>
+
+    <!-- SPLEISS- & MONTAGE-FOTOS -->
+    <div class="photo-section">
+      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--guh-petrol);">
+        🛠️ 2. Spleiß- & Montage-Fotos (z. B. Kassettenansicht, Muffen-Innenleben):
+      </label>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <input type="file" id="spliceCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this, 'splice')">
+        <button class="btn btn-outline" onclick="document.getElementById('spliceCameraInput').click()">📷 Montage-Foto mit Kamera</button>
+
+        <input type="file" id="spliceGalleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this, 'splice')">
+        <button class="btn btn-outline" onclick="document.getElementById('spliceGalleryInput').click()">📁 Aus Galerie</button>
+      </div>
+      <div class="photo-grid" id="splicePhotoContainer"></div>
     </div>
 
     <div class="form-group" style="margin-top: 16px;">
@@ -630,7 +656,7 @@
     img.src = LOCAL_LOGO_PATH;
   }
 
-  // Korrektes Mapping: Neu (DIN) vs. Alt (Corning / Telcordia)
+  // Farbmappings DIN vs. Corning
   const PALETTES = {
     neu: [
       { name: "Rot", class: "col-rot", hex: "#ef4444", num: 1 },
@@ -666,7 +692,8 @@
 
   let completedUnits = [];
   let currentUnitType = '';
-  let attachedPhotos = [];
+  let attachedLocationPhotos = [];
+  let attachedSplicePhotos = [];
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
@@ -983,7 +1010,6 @@
     showStep('step-splice-adjust');
   }
 
-  // Präzises Binding von Farbe & Faser ohne Vertauschung der Standards
   function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB, remarkText = "") {
     const tr = document.createElement('tr');
     tr.className = 'splice-data-row';
@@ -1029,11 +1055,9 @@
     const newNum = selectedOption.getAttribute('data-num');
     const newClass = selectedOption.getAttribute('data-class');
 
-    // Fasernummer sofort anpassen
     const fiberInput = tr.querySelector(`#cell-fas${side}-${nr} input`);
     if (fiberInput) fiberInput.value = newNum;
 
-    // Farbklasse auf Zelle und Fasernummer übertragen
     applyCellColor(tr, side, nr, newClass);
   }
 
@@ -1142,7 +1166,6 @@
       tbody.appendChild(headerRow);
 
       cassette.rows.forEach(r => {
-        // Exaktes Matching des Farbmodells anhand der Farbe und Nummer
         const isCorningA = (r.colA === "Blau" && parseInt(r.fasA) === 1) || (r.colA === "Orange" && parseInt(r.fasA) === 2);
         const isCorningB = (r.colB === "Blau" && parseInt(r.fasB) === 1) || (r.colB === "Orange" && parseInt(r.fasB) === 2);
         const typeA = isCorningA ? 'alt' : 'neu';
@@ -1205,7 +1228,8 @@
     showStep('step-final');
   }
 
-  function handlePhotoUpload(input) {
+  // Foto-Upload für Standort vs. Spleiß-Fotos
+  function handlePhotoUpload(input, category) {
     if (!input.files || input.files.length === 0) return;
 
     Array.from(input.files).forEach(file => {
@@ -1231,8 +1255,14 @@
           ctx.drawImage(img, 0, 0, w, h);
 
           const compressedData = canvas.toDataURL('image/jpeg', 0.75);
-          attachedPhotos.push({ src: compressedData, desc: "Kassettenansicht / Muffe" });
-          renderPhotoGallery();
+          const defaultDesc = category === 'location' ? 'Standort / Schachtansicht' : 'Kassettenansicht / Muffe';
+
+          if (category === 'location') {
+            attachedLocationPhotos.push({ src: compressedData, desc: defaultDesc });
+          } else {
+            attachedSplicePhotos.push({ src: compressedData, desc: defaultDesc });
+          }
+          renderPhotoGalleries();
         };
         img.src = e.target.result;
       };
@@ -1241,20 +1271,37 @@
     input.value = '';
   }
 
-  function renderPhotoGallery() {
-    const container = document.getElementById('photoContainer');
-    container.innerHTML = '';
-    attachedPhotos.forEach((photo, idx) => {
+  function renderPhotoGalleries() {
+    // 1. Standort-Fotos
+    const locContainer = document.getElementById('locPhotoContainer');
+    locContainer.innerHTML = '';
+    attachedLocationPhotos.forEach((photo, idx) => {
       const div = document.createElement('div');
       div.className = 'photo-card';
       div.innerHTML = `
         <img src="${photo.src}">
-        <button class="delete-btn" onclick="attachedPhotos.splice(${idx},1); renderPhotoGallery();">✕</button>
+        <button class="delete-btn" onclick="attachedLocationPhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
         <div class="photo-card-body">
-          <input type="text" value="${photo.desc}" onchange="attachedPhotos[${idx}].desc = this.value">
+          <input type="text" value="${photo.desc}" onchange="attachedLocationPhotos[${idx}].desc = this.value">
         </div>
       `;
-      container.appendChild(div);
+      locContainer.appendChild(div);
+    });
+
+    // 2. Spleiß-Fotos
+    const spliceContainer = document.getElementById('splicePhotoContainer');
+    spliceContainer.innerHTML = '';
+    attachedSplicePhotos.forEach((photo, idx) => {
+      const div = document.createElement('div');
+      div.className = 'photo-card';
+      div.innerHTML = `
+        <img src="${photo.src}">
+        <button class="delete-btn" onclick="attachedSplicePhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
+        <div class="photo-card-body">
+          <input type="text" value="${photo.desc}" onchange="attachedSplicePhotos[${idx}].desc = this.value">
+        </div>
+      `;
+      spliceContainer.appendChild(div);
     });
   }
 
@@ -1264,6 +1311,7 @@
     return match ? match.hex : '#ffffff';
   }
 
+  // Generierung des PDFs inklusive Standort- & Spleißfotos
   function buildVectorPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -1404,7 +1452,9 @@
       currentY += 12;
     }
 
-    if (attachedPhotos.length > 0) {
+    // FOTODOKUMENTATION ABSCHNITT IM PDF
+    const totalPhotos = attachedLocationPhotos.length + attachedSplicePhotos.length;
+    if (totalPhotos > 0) {
       doc.addPage();
       doc.setFontSize(11);
       doc.setTextColor(23, 84, 103);
@@ -1416,23 +1466,42 @@
       doc.line(14, 21, 196, 21);
 
       let pX = 14, pY = 26;
-      attachedPhotos.forEach((p, idx) => {
-        if (pY > 220) {
-          doc.addPage();
-          pY = 20;
-        }
-        doc.addImage(p.src, 'JPEG', pX, pY, 85, 60);
-        doc.setFontSize(7.5);
-        doc.setTextColor(15, 23, 42);
-        doc.text(p.desc || `Foto ${idx + 1}`, pX, pY + 64);
 
-        if (pX === 14) {
-          pX = 105;
-        } else {
-          pX = 14;
-          pY += 70;
-        }
-      });
+      const renderPhotoGroup = (photos, title) => {
+        if (photos.length === 0) return;
+        
+        doc.setFontSize(9.5);
+        doc.setTextColor(23, 84, 103);
+        doc.setFont(undefined, 'bold');
+        if (pY > 240) { doc.addPage(); pY = 20; pX = 14; }
+        doc.text(title, 14, pY);
+        pY += 5;
+
+        photos.forEach((p, idx) => {
+          if (pY > 210) {
+            doc.addPage();
+            pY = 20;
+            pX = 14;
+          }
+          doc.addImage(p.src, 'JPEG', pX, pY, 85, 60);
+          doc.setFontSize(7.5);
+          doc.setTextColor(15, 23, 42);
+          doc.setFont(undefined, 'normal');
+          doc.text(p.desc || `Foto ${idx + 1}`, pX, pY + 64);
+
+          if (pX === 14) {
+            pX = 105;
+          } else {
+            pX = 14;
+            pY += 70;
+          }
+        });
+
+        if (pX === 105) { pX = 14; pY += 70; }
+      };
+
+      renderPhotoGroup(attachedLocationPhotos, "1. STANDORT & UMGEBUNG");
+      renderPhotoGroup(attachedSplicePhotos, "2. SPLEISS- & MONTAGE-DETAILS");
     }
 
     const totalPages = doc.internal.getNumberOfPages();
@@ -1467,6 +1536,7 @@
     }
   }
 
+  // OPTIMIERTER E-MAIL-VERSAND FÜR IOS & ANDROID
   async function sendPDFViaEmail() {
     if (completedUnits.length === 0) {
       alert("Bitte zuerst mindestens eine Einheit erfassen!");
@@ -1478,29 +1548,39 @@
     const dateStr = document.getElementById('lblDate').textContent;
 
     const subject = `Spleißprotokoll: ${project} - ${location}`;
-    const body = `Hallo Technik-Team,\n\nanbei das Protokoll für ${project} (${location}).\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nDatum: ${dateStr}\nErfasste Einheiten: ${completedUnits.length}`;
+    const body = `Hallo Technik-Team,\n\nanbei das Spleißprotokoll für ${project} (${location}).\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nDatum: ${dateStr}\nErfasste Einheiten: ${completedUnits.length}`;
 
+    // 1. PDF im Speicher als Dateiobjekt generieren
     const { blob, filename } = generateVectorPDF(true);
     const pdfFile = new File([blob], filename, { type: 'application/pdf' });
 
-    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+    // 2. Auf Smartphones (iOS/Android) direkt das native Teilen-Menü inkl. Anhang aufrufen
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
       try {
         await navigator.share({
           title: subject,
           text: body,
           files: [pdfFile]
         });
+        return; // Erfolg: Betriebssystem hat das Teilen-Menü mit angehängter PDF geöffnet
       } catch (e) {
-        console.log("Freigabe abgebrochen:", e);
+        if (e.name !== 'AbortError') {
+          console.log("Fehler beim mobilen Teilen:", e);
+        } else {
+          return; // Benutzer hat das Teilen-Fenster abgebrochen
+        }
       }
-    } else {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-
-      window.location.href = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + "\n\n(Die PDF wurde im Download-Ordner gespeichert.)")}`;
     }
+
+    // 3. Fallback für Desktop-Browser (Download + Mailto-Aufruf)
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = filename;
+    downloadLink.click();
+
+    setTimeout(() => {
+      window.location.href = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + "\n\n(Hinweis: Die PDF wurde automatisch im Download-Ordner gespeichert.)")}`;
+    }, 500);
   }
 </script>
 
