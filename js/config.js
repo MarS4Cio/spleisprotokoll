@@ -9,5 +9,5 @@ const APP_CONFIG = {
     "Netzausbau@geothermie-unterhaching.de"
   ],
   // Hier deine Client-ID aus der Registrierung im Microsoft Entra Admin Center eintragen:
-  msalClientId: "DEINE_MICROSOFT_CLIENT_ID_HIER_EINFUEGEN"
+  msalClientId: "882a68f2-ae78-43c8-8941-29957b0dc3df"
 };
