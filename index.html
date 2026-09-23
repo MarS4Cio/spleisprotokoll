@@ -3,347 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LWL Montage-Assistent & Spleißprotokoll - Geothermie Unterhaching</title>
+  <title>LWL Montage-Assistent & Spleißprotokoll</title>
   
-  <!-- jsPDF & AutoTable -->
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/style.css">
+
+  <!-- Externe Bibliotheken (PDF & MSAL) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
-  <style>
-    :root {
-      --guh-petrol: #175467;
-      --guh-petrol-dark: #0f3946;
-      --guh-orange: #e85c24;
-      --guh-light: #f0f6f8;
-      --border-color: #cbd5e1;
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --danger: #ef4444;
-      --success: #16a34a;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 12px;
-      background-color: var(--bg-color);
-      color: var(--text);
-    }
-
-    .wizard-container {
-      max-width: 950px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-      border-top: 4px solid var(--guh-petrol);
-    }
-
-    .app-header {
-      border-bottom: 2px solid var(--guh-orange);
-      padding-bottom: 12px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-logo-img {
-      height: 48px;
-      max-width: 220px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .step-card {
-      display: none;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-
-    .step-card.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h2 {
-      font-size: 16px;
-      color: var(--guh-petrol);
-      margin-top: 0;
-      margin-bottom: 14px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 10px;
-    }
-
-    .form-group label {
-      font-size: 11px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      color: var(--guh-petrol);
-      text-transform: uppercase;
-    }
-
-    .form-group input, .form-group select, .form-group textarea {
-      padding: 8px 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      font-size: 13px;
-      background: #fff;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 12px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-    }
-
-    .choice-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin: 20px 0;
-    }
-
-    .choice-btn {
-      background: #fff;
-      border: 2px solid var(--border-color);
-      border-radius: 8px;
-      padding: 22px 16px;
-      text-align: center;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--guh-petrol);
-      transition: all 0.2s;
-    }
-
-    .choice-btn:hover {
-      border-color: var(--guh-petrol);
-      background: var(--guh-light);
-      transform: translateY(-2px);
-    }
-
-    .choice-btn span {
-      display: block;
-      font-size: 30px;
-      margin-bottom: 8px;
-    }
-
-    .cassette-box {
-      background: var(--guh-light);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-
-    .sub-cable-card {
-      background: #ffffff;
-      border: 1px dashed var(--border-color);
-      border-radius: 4px;
-      padding: 10px;
-      margin-top: 8px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      margin: 16px 0;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    th, td {
-      border: 1px solid var(--border-color);
-      padding: 6px 8px;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    th {
-      background-color: var(--guh-petrol);
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 12px;
-    }
-
-    .cassette-header-row td {
-      background-color: var(--guh-petrol-dark) !important;
-      color: #ffffff !important;
-      font-weight: bold;
-      text-align: left !important;
-      padding: 7px 10px !important;
-      font-size: 12px;
-    }
-
-    /* Farbcodes DIN / Corning */
-    .col-rot       { background-color: #ef4444 !important; color: #ffffff !important; }
-    .col-gruen     { background-color: #22c55e !important; color: #ffffff !important; }
-    .col-blau      { background-color: #3b82f6 !important; color: #ffffff !important; }
-    .col-gelb      { background-color: #eab308 !important; color: #000000 !important; }
-    .col-weiss     { background-color: #ffffff !important; color: #000000 !important; border: 1px dashed #94a3b8 !important; }
-    .col-grau      { background-color: #94a3b8 !important; color: #ffffff !important; }
-    .col-braun     { background-color: #854d0e !important; color: #ffffff !important; }
-    .col-violett   { background-color: #a855f7 !important; color: #ffffff !important; }
-    .col-tuerkis   { background-color: #14b8a6 !important; color: #ffffff !important; }
-    .col-schwarz   { background-color: #1e293b !important; color: #ffffff !important; }
-    .col-orange    { background-color: #f97316 !important; color: #ffffff !important; }
-    .col-rosa      { background-color: #ec4899 !important; color: #ffffff !important; }
-
-    .color-select {
-      width: 100%;
-      border: none;
-      background: transparent;
-      font-weight: bold;
-      color: inherit;
-      cursor: pointer;
-      text-align-last: center;
-    }
-    .color-select option { background: #fff; color: #000; }
-
-    .input-cell {
-      width: 100%;
-      border: none;
-      background: transparent;
-      text-align: center;
-      font-weight: bold;
-      color: inherit;
-    }
-
-    .unit-card {
-      background: var(--guh-light);
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--guh-petrol);
-      padding: 12px;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-
-    .unit-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      color: var(--guh-petrol);
-    }
-
-    .unit-card-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .photo-section {
-      background: var(--guh-light);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 16px;
-    }
-
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
-    }
-
-    .photo-card {
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative;
-      background: #fff;
-    }
-
-    .photo-card img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-    }
-
-    .photo-card-body { padding: 4px; }
-    .photo-card-body input {
-      width: 100%;
-      font-size: 11px;
-      padding: 4px;
-      border: 1px solid var(--border-color);
-    }
-
-    .delete-btn {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      background: rgba(239, 68, 68, 0.9);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      cursor: pointer;
-    }
-
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .btn {
-      padding: 9px 16px;
-      border-radius: 4px;
-      font-size: 13px;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-sm { padding: 5px 10px; font-size: 11px; }
-    .btn-primary { background: var(--guh-petrol); color: #fff; }
-    .btn-secondary { background: #64748b; color: #fff; }
-    .btn-success { background: var(--success); color: #fff; }
-    .btn-outline { background: #fff; border: 1px solid var(--border-color); color: var(--text); }
-    .btn-danger-outline { background: #fff; border: 1px solid var(--danger); color: var(--danger); }
-  </style>
+  <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 </head>
 <body>
 
 <div class="wizard-container">
   
   <div class="app-header">
-    <img id="webHeaderLogo" class="header-logo-img" src="./GUH_Logo.png" alt="Geothermie Unterhaching">
+    <img id="webHeaderLogo" class="header-logo-img" src="./GUH_Logo.png" alt="Logo">
     <div style="font-size: 12px; color: #64748b; text-align: right;">
-      <div style="font-weight: bold; color: var(--guh-petrol); font-size: 14px;">Spleiß- & Messprotokoll LWL</div>
+      <div style="font-weight: bold; color: var(--primary-color); font-size: 14px;">Spleiß- & Messprotokoll LWL</div>
       <div>Datum: <span id="lblDate"></span></div>
     </div>
   </div>
@@ -361,7 +38,7 @@
         <label>Einsatzort / Objektanschrift</label>
         <div style="display: flex; gap: 6px;">
           <input type="text" id="inLocation" value="Schacht 12 / Übergabestation" style="flex: 1;">
-          <button type="button" class="btn btn-outline" style="padding: 6px 10px;" onclick="getCurrentLocation()" title="GPS-Standort vom Smartphone abfragen">📍 GPS</button>
+          <button type="button" class="btn btn-outline" style="padding: 6px 10px;" onclick="getCurrentLocation()" title="GPS-Standort abfragen">📍 GPS</button>
         </div>
       </div>
 
@@ -375,7 +52,7 @@
       </div>
     </div>
 
-    <p style="font-weight: bold; margin-top: 16px; color: var(--guh-petrol);">Was montierst / spleißt du jetzt?</p>
+    <p style="font-weight: bold; margin-top: 16px; color: var(--primary-color);">Was montierst / spleißt du jetzt?</p>
     <div class="choice-grid">
       <button class="choice-btn" onclick="startMuffeWorkflow()">
         <span>🧰</span>
@@ -388,7 +65,7 @@
     </div>
   </div>
 
-  <!-- SCHRITT 2A (Muffe & Y-Muffe) -->
+  <!-- SCHRITT 2A (Muffe) -->
   <div id="step-muffe-config" class="step-card">
     <h2>2. Muffen-Typ & Kabel konfigurieren</h2>
     
@@ -401,8 +78,8 @@
     </div>
 
     <div id="muffe_2cable_grid" class="grid-2">
-      <div style="background: var(--guh-light); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel A</h3>
+      <div style="background: var(--light-bg); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary-color);">Kabel A</h3>
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableA_type">
@@ -421,8 +98,8 @@
         </div>
       </div>
 
-      <div style="background: var(--guh-light); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--guh-petrol);">Kabel B</h3>
+      <div style="background: var(--light-bg); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary-color);">Kabel B</h3>
         <div class="form-group">
           <label>Farbstandard</label>
           <select id="muffe_cableB_type">
@@ -443,8 +120,8 @@
     </div>
 
     <div id="muffe_3cable_grid" class="grid-3" style="display: none;">
-      <div style="background: var(--guh-light); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h4 style="margin: 0 0 6px 0; color: var(--guh-petrol); font-size: 13px;">Kabel 1 (A)</h4>
+      <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 1 (A)</h4>
         <div class="form-group">
           <label>Standard</label>
           <select id="ymuffe_c1_type">
@@ -462,8 +139,8 @@
         </div>
       </div>
 
-      <div style="background: var(--guh-light); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h4 style="margin: 0 0 6px 0; color: var(--guh-petrol); font-size: 13px;">Kabel 2 (B)</h4>
+      <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 2 (B)</h4>
         <div class="form-group">
           <label>Standard</label>
           <select id="ymuffe_c2_type">
@@ -481,8 +158,8 @@
         </div>
       </div>
 
-      <div style="background: var(--guh-light); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h4 style="margin: 0 0 6px 0; color: var(--guh-petrol); font-size: 13px;">Kabel 3 (C)</h4>
+      <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 3 (C)</h4>
         <div class="form-group">
           <label>Standard</label>
           <select id="ymuffe_c3_type">
@@ -541,7 +218,7 @@
   <!-- SCHRITT 3 -->
   <div id="step-splice-adjust" class="step-card">
     <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
-    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Farbe und Fasernummer sind gekoppelt. Passe die Zuordnung bei Bedarf an (z. B. bei defekten Fasern).</p>
+    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Farbe und Fasernummer sind gekoppelt. Passe die Zuordnung bei Bedarf an.</p>
 
     <div class="table-container">
       <table id="wizardTable">
@@ -574,8 +251,8 @@
     
     <div id="configuredUnitsList" style="margin-bottom: 20px;"></div>
 
-    <div style="background: var(--guh-light); padding: 16px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
-      <h3 style="margin-top: 0; color: var(--guh-petrol);">Möchtest du weitere Einheiten hinzufügen oder Stammdaten ändern?</h3>
+    <div style="background: var(--light-bg); padding: 16px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
+      <h3 style="margin-top: 0; color: var(--primary-color);">Möchtest du weitere Einheiten hinzufügen oder Stammdaten ändern?</h3>
       <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
         <button class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe / Y-Muffe</button>
         <button class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox</button>
@@ -585,13 +262,13 @@
     </div>
   </div>
 
-  <!-- SCHRITT 5 (STANDORT- & MONTAGE-FOTOS) -->
+  <!-- SCHRITT 5 -->
   <div id="step-final" class="step-card">
     <h2>5. Fotodokumentation & PDF Export</h2>
 
     <!-- STANDORT-FOTOS -->
     <div class="photo-section">
-      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--guh-petrol);">
+      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--primary-color);">
         📍 1. Standort-Fotos (z. B. Schacht, Gebäudeansicht, Trasse):
       </label>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -604,9 +281,9 @@
       <div class="photo-grid" id="locPhotoContainer"></div>
     </div>
 
-    <!-- SPLEISS- & MONTAGE-FOTOS -->
+    <!-- SPLEISS-FOTOS -->
     <div class="photo-section">
-      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--guh-petrol);">
+      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--primary-color);">
         🛠️ 2. Spleiß- & Montage-Fotos (z. B. Kassettenansicht, Muffen-Innenleben):
       </label>
       <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -624,1026 +301,24 @@
       <textarea id="finalNotes" rows="2" placeholder="z. B. Kassetten beschriftet, Dichtigkeit geprüft..."></textarea>
     </div>
 
-    <div class="nav-buttons" style="background: var(--guh-light); padding: 14px; border-radius: 6px;">
+    <div class="nav-buttons" style="background: var(--light-bg); padding: 14px; border-radius: 6px;">
       <button class="btn btn-secondary" onclick="showStep('step-next-unit-prompt')">⬅ Zurück zu den Einheiten</button>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="btn btn-primary" onclick="generateVectorPDF(false)">📄 PDF Generieren & Herunterladen</button>
-        <button class="btn btn-success" onclick="sendPDFViaEmail()">✉️ PDF per E-Mail versenden</button>
+        <button class="btn btn-primary" onclick="generateVectorPDF(false)">📄 PDF Herunterladen</button>
+        <button class="btn btn-success" onclick="sendDirectOutlookMail()">✉️ Per Outlook versenden</button>
       </div>
     </div>
   </div>
 
 </div>
 
-<script>
-  const LOCAL_LOGO_PATH = "./GUH_Logo.png";
-
-  let loadedLogoDataUrl = null;
-  let logoAspectRatio = 3.44;
-  let editingUnitIndex = -1;
-
-  function preloadLocalLogo() {
-    const img = new Image();
-    img.crossOrigin = "Anonymous";
-    img.onload = function() {
-      logoAspectRatio = img.naturalWidth / img.naturalHeight;
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      loadedLogoDataUrl = canvas.toDataURL('image/png');
-      document.getElementById('webHeaderLogo').src = loadedLogoDataUrl;
-    };
-    img.onerror = function() {
-      console.warn("Logo unter ./GUH_Logo.png konnte nicht geladen werden.");
-    };
-    img.src = LOCAL_LOGO_PATH;
-  }
-
-  // Farbmappings DIN vs. Corning
-  const PALETTES = {
-    neu: [
-      { name: "Rot", class: "col-rot", hex: "#ef4444", num: 1 },
-      { name: "Grün", class: "col-gruen", hex: "#22c55e", num: 2 },
-      { name: "Blau", class: "col-blau", hex: "#3b82f6", num: 3 },
-      { name: "Gelb", class: "col-gelb", hex: "#eab308", num: 4 },
-      { name: "Weiß", class: "col-weiss", hex: "#ffffff", num: 5 },
-      { name: "Grau", class: "col-grau", hex: "#94a3b8", num: 6 },
-      { name: "Braun", class: "col-braun", hex: "#854d0e", num: 7 },
-      { name: "Violett", class: "col-violett", hex: "#a855f7", num: 8 },
-      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6", num: 9 },
-      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b", num: 10 },
-      { name: "Orange", class: "col-orange", hex: "#f97316", num: 11 },
-      { name: "Rosa", class: "col-rosa", hex: "#ec4899", num: 12 }
-    ],
-    alt: [
-      { name: "Blau", class: "col-blau", hex: "#3b82f6", num: 1 },
-      { name: "Orange", class: "col-orange", hex: "#f97316", num: 2 },
-      { name: "Grün", class: "col-gruen", hex: "#22c55e", num: 3 },
-      { name: "Braun", class: "col-braun", hex: "#854d0e", num: 4 },
-      { name: "Grau", class: "col-grau", hex: "#94a3b8", num: 5 },
-      { name: "Weiß", class: "col-weiss", hex: "#ffffff", num: 6 },
-      { name: "Rot", class: "col-rot", hex: "#ef4444", num: 7 },
-      { name: "Schwarz", class: "col-schwarz", hex: "#1e293b", num: 8 },
-      { name: "Gelb", class: "col-gelb", hex: "#eab308", num: 9 },
-      { name: "Violett", class: "col-violett", hex: "#a855f7", num: 10 },
-      { name: "Rosa", class: "col-rosa", hex: "#ec4899", num: 11 },
-      { name: "Türkis", class: "col-tuerkis", hex: "#14b8a6", num: 12 }
-    ]
-  };
-
-  const RECIPIENTS = "technik@geothermie-unterhaching.de,f.elstein@geothermie-unterhaching.de,netzausbau@geothermie-unterhaching.de";
-
-  let completedUnits = [];
-  let currentUnitType = '';
-  let attachedLocationPhotos = [];
-  let attachedSplicePhotos = [];
-
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
-    preloadLocalLogo();
-  });
-
-  // GPS-STANDORT VOM SMARTPHONE ABFRAGEN & STRASSE/ORT AUFLÖSEN
-  function getCurrentLocation() {
-    if (!navigator.geolocation) {
-      alert("Geolocation wird von diesem Browser/Smartphone nicht unterstützt.");
-      return;
-    }
-
-    const locInput = document.getElementById('inLocation');
-    const origVal = locInput.value;
-    locInput.value = "📍 Standort wird ermittelt...";
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude.toFixed(6);
-        const lon = position.coords.longitude.toFixed(6);
-
-        try {
-          // OpenStreetMap Reverse Geocoding
-          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-          const data = await response.json();
-          if (data && data.address) {
-            const road = data.address.road || data.address.pedestrian || '';
-            const house = data.address.house_number || '';
-            const city = data.address.city || data.address.town || data.address.village || '';
-            const zip = data.address.postcode || '';
-            
-            let fullAddr = `${road} ${house}`.trim();
-            if (zip || city) fullAddr += `, ${zip} ${city}`.trim();
-            fullAddr += ` (${lat}, ${lon})`;
-
-            locInput.value = fullAddr;
-          } else {
-            locInput.value = `GPS: ${lat}, ${lon}`;
-          }
-        } catch (e) {
-          locInput.value = `GPS: ${lat}, ${lon}`;
-        }
-      },
-      (error) => {
-        locInput.value = origVal;
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            alert("Standortzugriff wurde im Smartphone/Browser abgelehnt.");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            alert("GPS-Signal ist aktuell nicht verfügbar.");
-            break;
-          case error.TIMEOUT:
-            alert("Zeitüberschreitung bei der GPS-Abfrage.");
-            break;
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }
-
-  function showStep(stepId) {
-    document.querySelectorAll('.step-card').forEach(el => el.classList.remove('active'));
-    document.getElementById(stepId).classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function startMuffeWorkflow() {
-    editingUnitIndex = -1;
-    currentUnitType = 'Muffe';
-    showStep('step-muffe-config');
-  }
-
-  function startBoxWorkflow() {
-    editingUnitIndex = -1;
-    currentUnitType = 'Spleißbox';
-    renderCassetteForms();
-    showStep('step-box-config');
-  }
-
-  function toggleMuffeMode() {
-    const mode = document.getElementById('muffe_mode').value;
-    document.getElementById('muffe_2cable_grid').style.display = mode === 'standard' ? 'grid' : 'none';
-    document.getElementById('muffe_3cable_grid').style.display = mode === 'ymuffe' ? 'grid' : 'none';
-  }
-
-  function renderCassetteForms() {
-    const countSelect = document.getElementById('box_cassette_count');
-    const count = parseInt(countSelect ? countSelect.value : 2) || 2;
-    const container = document.getElementById('cassetteFormsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    let nextSuggestedPigtail = 1;
-
-    for (let c = 1; c <= count; c++) {
-      const box = document.createElement('div');
-      box.className = 'cassette-box';
-      box.id = `cassette_box_${c}`;
-      box.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <h4 style="margin: 0; color: var(--guh-petrol); font-size: 14px;">Kassette ${c}</h4>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <label style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Kabel-Modus:</label>
-            <select id="box_c${c}_cableMode" onchange="toggleCableMode(${c})">
-              <option value="single">1 Kabel / Bündel</option>
-              <option value="multi" selected>Mehrere Kabel / Bündel</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="box_c${c}_single_wrapper" class="grid-3" style="display: none;">
-          <div class="form-group">
-            <label>Kabel A Standard</label>
-            <select id="box_c${c}_cableType">
-              <option value="neu">Neu (DIN: Rot, Grün...)</option>
-              <option value="alt">Alt (Corning: Blau, Orange...)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Fasern in dieser Kassette</label>
-            <select id="box_c${c}_fiberCount" onchange="updatePigtailChain()">
-              <option value="4">4 Fasern</option>
-              <option value="8" selected>8 Fasern</option>
-              <option value="12">12 Fasern</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Start-Pigtail Faser (1-12)</label>
-            <input type="number" id="box_c${c}_pigtailStart" value="${nextSuggestedPigtail}" min="1" max="12" onchange="updatePigtailChain()">
-          </div>
-        </div>
-
-        <div id="box_c${c}_multi_wrapper" style="display: block;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 12px; font-weight: bold; color: #475569;">Teilkabel:</span>
-              <label style="font-size: 11px; font-weight: bold;">Start-Pigtail:</label>
-              <input type="number" id="box_c${c}_multi_pigtailStart" value="${nextSuggestedPigtail}" min="1" max="12" style="width: 55px; padding: 2px 4px;" onchange="updatePigtailChain()">
-            </div>
-            <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addSubCable(${c})">➕ Weiteres Kabel</button>
-          </div>
-          <div id="box_c${c}_subcables_container"></div>
-        </div>
-      `;
-      container.appendChild(box);
-
-      addSubCable(c, "Kabel 1", "neu", 4);
-      addSubCable(c, "Kabel 2", c === 1 ? "neu" : "alt", 4);
-
-      nextSuggestedPigtail = ((nextSuggestedPigtail + 8 - 1) % 12) + 1;
-    }
-
-    updatePigtailChain();
-  }
-
-  function updatePigtailChain() {
-    const countSelect = document.getElementById('box_cassette_count');
-    if (!countSelect) return;
-    const count = parseInt(countSelect.value) || 1;
-
-    const firstSingle = document.getElementById('box_c1_single_wrapper');
-    if (!firstSingle) return;
-
-    let currentStart = parseInt(firstSingle.style.display !== 'none' 
-      ? (document.getElementById('box_c1_pigtailStart') ? document.getElementById('box_c1_pigtailStart').value : 1)
-      : (document.getElementById('box_c1_multi_pigtailStart') ? document.getElementById('box_c1_multi_pigtailStart').value : 1)) || 1;
-
-    for (let c = 1; c <= count; c++) {
-      const singleEl = document.getElementById(`box_c${c}_single_wrapper`);
-      if (!singleEl) continue;
-      const isSingle = singleEl.style.display !== 'none';
-      let fibersInBox = 0;
-
-      if (isSingle) {
-        const pStart = document.getElementById(`box_c${c}_pigtailStart`);
-        if (pStart) pStart.value = currentStart;
-        const fCount = document.getElementById(`box_c${c}_fiberCount`);
-        fibersInBox = parseInt(fCount ? fCount.value : 8) || 8;
-      } else {
-        const mpStart = document.getElementById(`box_c${c}_multi_pigtailStart`);
-        if (mpStart) mpStart.value = currentStart;
-        document.querySelectorAll(`#box_c${c}_subcables_container .sub-count`).forEach(sel => {
-          fibersInBox += parseInt(sel.value) || 4;
-        });
-      }
-
-      currentStart = ((currentStart + fibersInBox - 1) % 12) + 1;
-    }
-  }
-
-  function toggleCableMode(c) {
-    const mode = document.getElementById(`box_c${c}_cableMode`).value;
-    const singleWrap = document.getElementById(`box_c${c}_single_wrapper`);
-    const multiWrap = document.getElementById(`box_c${c}_multi_wrapper`);
-
-    if (mode === 'multi') {
-      singleWrap.style.display = 'none';
-      multiWrap.style.display = 'block';
-    } else {
-      singleWrap.style.display = 'grid';
-      multiWrap.style.display = 'none';
-    }
-    updatePigtailChain();
-  }
-
-  function addSubCable(c, nameDef = "", typeDef = "neu", countDef = 4) {
-    const container = document.getElementById(`box_c${c}_subcables_container`);
-    if (!container) return;
-    const num = container.children.length + 1;
-    const card = document.createElement('div');
-    card.className = 'sub-cable-card';
-    card.innerHTML = `
-      <div class="grid-3">
-        <div class="form-group">
-          <label>Kabel-Bezeichnung</label>
-          <input type="text" class="sub-name" value="${nameDef || 'Kabel ' + num}">
-        </div>
-        <div class="form-group">
-          <label>Farbstandard</label>
-          <select class="sub-type">
-            <option value="neu" ${typeDef === 'neu' ? 'selected' : ''}>Neu (DIN)</option>
-            <option value="alt" ${typeDef === 'alt' ? 'selected' : ''}>Alt (Corning)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Fasern</label>
-          <div style="display: flex; gap: 6px; align-items: center;">
-            <select class="sub-count" style="width: 100%;" onchange="updatePigtailChain()">
-              <option value="2" ${countDef === 2 ? 'selected' : ''}>2 Fasern</option>
-              <option value="4" ${countDef === 4 ? 'selected' : ''}>4 Fasern</option>
-              <option value="6" ${countDef === 6 ? 'selected' : ''}>6 Fasern</option>
-              <option value="8" ${countDef === 8 ? 'selected' : ''}>8 Fasern</option>
-              <option value="12" ${countDef === 12 ? 'selected' : ''}>12 Fasern</option>
-            </select>
-            <button class="delete-btn" style="position: static; width: 24px; height: 24px;" onclick="this.closest('.sub-cable-card').remove(); updatePigtailChain();">✕</button>
-          </div>
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-    updatePigtailChain();
-  }
-
-  function buildMuffeSpliceTable() {
-    const mode = document.getElementById('muffe_mode').value;
-    const tbody = document.getElementById('wizardTableBody');
-    tbody.innerHTML = '';
-
-    if (mode === 'standard') {
-      const typeA = document.getElementById('muffe_cableA_type').value;
-      const countA = parseInt(document.getElementById('muffe_cableA_count').value);
-      const typeB = document.getElementById('muffe_cableB_type').value;
-      const countB = parseInt(document.getElementById('muffe_cableB_count').value);
-      const maxCount = Math.max(countA, countB);
-
-      document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
-
-      const headerRow = document.createElement('tr');
-      headerRow.className = 'cassette-header-row';
-      headerRow.setAttribute('data-kassette-id', 'K1');
-      headerRow.setAttribute('data-kassette-title', 'Muffe');
-      headerRow.innerHTML = `<td colspan="9">Muffe (Kabel A ➜ Kabel B)</td>`;
-      tbody.appendChild(headerRow);
-
-      for (let i = 1; i <= maxCount; i++) {
-        const colA = PALETTES[typeA][(i - 1) % 12];
-        const colB = PALETTES[typeB][(i - 1) % 12];
-        const tr = createSpliceRowHTML(i, "K1", typeA, colA, colA.num, typeB, colB, colB.num, "Kabel A -> Kabel B");
-        tbody.appendChild(tr);
-      }
-    } else {
-      const t1 = document.getElementById('ymuffe_c1_type').value;
-      const t2 = document.getElementById('ymuffe_c2_type').value;
-      const t3 = document.getElementById('ymuffe_c3_type').value;
-
-      document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung: Y-Muffe (Kabel 1 ➜ Kabel 2 ➜ Kabel 3)`;
-
-      addYBlock(tbody, "K1", "Kassette 1: Kabel 1 (Fas. 1-2) auf Kabel 2 (Fas. 1-2)", 1, t1, 1, 2, t2, 1, 2, "Kabel 1 -> Kabel 2");
-      addYBlock(tbody, "K2", "Kassette 2: Kabel 2 (Fas. 3-4) auf Kabel 3 (Fas. 1-2)", 3, t2, 3, 4, t3, 1, 2, "Kabel 2 -> Kabel 3");
-      addYBlock(tbody, "K3", "Kassette 3: Kabel 3 (Fas. 3-4) auf Kabel 1 (Fas. 3-4)", 5, t3, 3, 4, t1, 3, 4, "Kabel 3 -> Kabel 1");
-    }
-
-    showStep('step-splice-adjust');
-  }
-
-  function addYBlock(tbody, kId, title, startNr, typeA, aStart, aEnd, typeB, bStart, bEnd, note) {
-    const headerRow = document.createElement('tr');
-    headerRow.className = 'cassette-header-row';
-    headerRow.setAttribute('data-kassette-id', kId);
-    headerRow.setAttribute('data-kassette-title', title);
-    headerRow.innerHTML = `<td colspan="9">${title}</td>`;
-    tbody.appendChild(headerRow);
-
-    let nr = startNr;
-    let bFas = bStart;
-    for (let aFas = aStart; aFas <= aEnd; aFas++) {
-      const colA = PALETTES[typeA][(aFas - 1) % 12];
-      const colB = PALETTES[typeB][(bFas - 1) % 12];
-      const tr = createSpliceRowHTML(nr, kId, typeA, colA, aFas, typeB, colB, bFas, note);
-      tbody.appendChild(tr);
-      nr++;
-      bFas++;
-    }
-  }
-
-  function buildBoxSpliceTable() {
-    const countSelect = document.getElementById('box_cassette_count');
-    const cassetteCount = parseInt(countSelect ? countSelect.value : 2) || 2;
-    const globalPigtailType = document.getElementById('box_global_pigtail_type').value;
-    const tbody = document.getElementById('wizardTableBody');
-    tbody.innerHTML = '';
-    document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Spleißbox (${cassetteCount} Kassetten)`;
-
-    let globalIndex = 1;
-
-    for (let c = 1; c <= cassetteCount; c++) {
-      const modeEl = document.getElementById(`box_c${c}_cableMode`);
-      const mode = modeEl ? modeEl.value : 'single';
-
-      const headerRow = document.createElement('tr');
-      headerRow.className = 'cassette-header-row';
-      headerRow.setAttribute('data-kassette-id', `K${c}`);
-      headerRow.setAttribute('data-kassette-title', `Kassette ${c}`);
-      headerRow.innerHTML = `<td colspan="9">Kassette ${c}</td>`;
-      tbody.appendChild(headerRow);
-
-      if (mode === 'single') {
-        const typeEl = document.getElementById(`box_c${c}_cableType`);
-        const typeCable = typeEl ? typeEl.value : 'neu';
-        const fiberEl = document.getElementById(`box_c${c}_fiberCount`);
-        const fiberCount = parseInt(fiberEl ? fiberEl.value : 8) || 8;
-        const pStartEl = document.getElementById(`box_c${c}_pigtailStart`);
-        let pigtailNum = parseInt(pStartEl ? pStartEl.value : 1) || 1;
-
-        for (let f = 1; f <= fiberCount; f++) {
-          const colA = PALETTES[typeCable][(f - 1) % 12];
-          const colB = PALETTES[globalPigtailType][(pigtailNum - 1) % 12];
-          const tr = createSpliceRowHTML(globalIndex, `K${c}`, typeCable, colA, f, globalPigtailType, colB, pigtailNum, "Kabel -> Pigtail");
-          tbody.appendChild(tr);
-          globalIndex++;
-          pigtailNum = (pigtailNum % 12) + 1;
-        }
-      } else {
-        const subCards = document.querySelectorAll(`#box_c${c}_subcables_container .sub-cable-card`);
-        const mpStartEl = document.getElementById(`box_c${c}_multi_pigtailStart`);
-        let pigtailNum = parseInt(mpStartEl ? mpStartEl.value : 1) || 1;
-
-        subCards.forEach((card, subIdx) => {
-          const nameEl = card.querySelector('.sub-name');
-          const cableName = nameEl ? nameEl.value : `Kabel ${subIdx + 1}`;
-          const typeEl = card.querySelector('.sub-type');
-          const cableType = typeEl ? typeEl.value : 'neu';
-          const countEl = card.querySelector('.sub-count');
-          const fiberCount = parseInt(countEl ? countEl.value : 4) || 4;
-
-          for (let f = 1; f <= fiberCount; f++) {
-            const colA = PALETTES[cableType][(f - 1) % 12];
-            const colB = PALETTES[globalPigtailType][(pigtailNum - 1) % 12];
-            const tr = createSpliceRowHTML(globalIndex, `K${c}`, cableType, colA, f, globalPigtailType, colB, pigtailNum, `${cableName}`);
-            tbody.appendChild(tr);
-            globalIndex++;
-            pigtailNum = (pigtailNum % 12) + 1;
-          }
-        });
-      }
-    }
-
-    showStep('step-splice-adjust');
-  }
-
-  function createSpliceRowHTML(nr, kassette, typeA, defaultColA, faserA, typeB, defaultColB, faserB, remarkText = "") {
-    const tr = document.createElement('tr');
-    tr.className = 'splice-data-row';
-    tr.setAttribute('data-kassette-ref', kassette);
-    tr.setAttribute('data-type-a', typeA);
-    tr.setAttribute('data-type-b', typeB);
-
-    tr.innerHTML = `
-      <td style="font-weight: bold;">${nr}</td>
-      <td><input class="input-cell" type="text" value="${kassette}"></td>
-      
-      <!-- Kabel A -->
-      <td class="${defaultColA.class}" id="cell-colA-${nr}">
-        <select class="color-select" onchange="onColorSelectChange(this, 'A', ${nr})">
-          ${PALETTES[typeA].map(c => `<option value="${c.name}" data-class="${c.class}" data-num="${c.num}" ${c.name === defaultColA.name ? 'selected' : ''}>${c.name}</option>`).join('')}
-        </select>
-      </td>
-      <td class="${defaultColA.class}" id="cell-fasA-${nr}">
-        <input class="input-cell" type="number" value="${faserA}" min="1" max="12" onchange="onFiberInputChange(this, 'A', ${nr})">
-      </td>
-
-      <td style="color: #64748b; font-weight: bold;">-></td>
-
-      <!-- Kabel B / Pigtail -->
-      <td class="${defaultColB.class}" id="cell-colB-${nr}">
-        <select class="color-select" onchange="onColorSelectChange(this, 'B', ${nr})">
-          ${PALETTES[typeB].map(c => `<option value="${c.name}" data-class="${c.class}" data-num="${c.num}" ${c.name === defaultColB.name ? 'selected' : ''}>${c.name}</option>`).join('')}
-        </select>
-      </td>
-      <td class="${defaultColB.class}" id="cell-fasB-${nr}">
-        <input class="input-cell" type="number" value="${faserB}" min="1" max="12" onchange="onFiberInputChange(this, 'B', ${nr})">
-      </td>
-
-      <td><input class="input-cell" type="text" value="0.02 dB"></td>
-      <td><input class="input-cell" type="text" value="${remarkText}"></td>
-    `;
-    return tr;
-  }
-
-  function onColorSelectChange(selectEl, side, nr) {
-    const tr = selectEl.closest('tr');
-    const selectedOption = selectEl.selectedOptions[0];
-    const newNum = selectedOption.getAttribute('data-num');
-    const newClass = selectedOption.getAttribute('data-class');
-
-    const fiberInput = tr.querySelector(`#cell-fas${side}-${nr} input`);
-    if (fiberInput) fiberInput.value = newNum;
-
-    applyCellColor(tr, side, nr, newClass);
-  }
-
-  function onFiberInputChange(inputEl, side, nr) {
-    const tr = inputEl.closest('tr');
-    const type = tr.getAttribute(`data-type-${side.toLowerCase()}`) || 'neu';
-    let num = parseInt(inputEl.value) || 1;
-    if (num < 1) num = 1;
-    const colorIndex = (num - 1) % 12;
-    const colorObj = PALETTES[type][colorIndex];
-
-    if (colorObj) {
-      const colorSelect = tr.querySelector(`#cell-col${side}-${nr} select`);
-      if (colorSelect) colorSelect.value = colorObj.name;
-      applyCellColor(tr, side, nr, colorObj.class);
-    }
-  }
-
-  function applyCellColor(tr, side, nr, newClass) {
-    const colCell = tr.querySelector(`#cell-col${side}-${nr}`);
-    const fasCell = tr.querySelector(`#cell-fas${side}-${nr}`);
-    const allClasses = Object.values(PALETTES).flat().map(c => c.class);
-
-    allClasses.forEach(cls => {
-      if (colCell) colCell.classList.remove(cls);
-      if (fasCell) fasCell.classList.remove(cls);
-    });
-
-    if (colCell) colCell.classList.add(newClass);
-    if (fasCell) fasCell.classList.add(newClass);
-  }
-
-  function goBackFromAdjust() {
-    if (editingUnitIndex >= 0) {
-      editingUnitIndex = -1;
-      showStep('step-next-unit-prompt');
-    } else {
-      if (currentUnitType === 'Muffe') showStep('step-muffe-config');
-      else showStep('step-box-config');
-    }
-  }
-
-  function saveCurrentUnitAndAskNext() {
-    const unitName = document.getElementById('inUnitName').value || `${currentUnitType} ${completedUnits.length + 1}`;
-    const cassetteMap = new Map();
-
-    document.querySelectorAll('#wizardTableBody tr').forEach(tr => {
-      if (tr.classList.contains('cassette-header-row')) {
-        const kId = tr.getAttribute('data-kassette-id') || 'K1';
-        let kTitle = tr.getAttribute('data-kassette-title') || 'Kassette';
-        kTitle = kTitle.replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim();
-        if (!cassetteMap.has(kId)) {
-          cassetteMap.set(kId, { title: kTitle, rows: [] });
-        }
-      } else if (tr.classList.contains('splice-data-row')) {
-        const kId = tr.cells[1].querySelector('input').value.trim() || 'K1';
-        if (!cassetteMap.has(kId)) {
-          cassetteMap.set(kId, { title: `Kassette ${kId.replace(/[^0-9]/g, '')}`, rows: [] });
-        }
-        cassetteMap.get(kId).rows.push({
-          nr: tr.cells[0].textContent.trim(),
-          cassette: kId,
-          colA: tr.cells[2].querySelector('select').selectedOptions[0].text,
-          fasA: tr.cells[3].querySelector('input').value,
-          colB: tr.cells[5].querySelector('select').selectedOptions[0].text,
-          fasB: tr.cells[6].querySelector('input').value,
-          attenuation: tr.cells[7].querySelector('input').value,
-          notes: tr.cells[8].querySelector('input').value
-        });
-      }
-    });
-
-    const unitData = {
-      type: currentUnitType,
-      name: unitName,
-      cassettes: Array.from(cassetteMap.values())
-    };
-
-    if (editingUnitIndex >= 0) {
-      completedUnits[editingUnitIndex] = unitData;
-      editingUnitIndex = -1;
-    } else {
-      completedUnits.push(unitData);
-    }
-
-    updateConfiguredUnitsSummary();
-    showStep('step-next-unit-prompt');
-  }
-
-  function editUnit(index) {
-    editingUnitIndex = index;
-    const unit = completedUnits[index];
-    currentUnitType = unit.type;
-    document.getElementById('inUnitName').value = unit.name;
-    document.getElementById('adjustTableTitle').textContent = `3. Bearbeite: ${unit.name} (${unit.type})`;
-
-    const tbody = document.getElementById('wizardTableBody');
-    tbody.innerHTML = '';
-
-    unit.cassettes.forEach((cassette, cIdx) => {
-      const headerRow = document.createElement('tr');
-      headerRow.className = 'cassette-header-row';
-      headerRow.setAttribute('data-kassette-id', `K${cIdx + 1}`);
-      headerRow.setAttribute('data-kassette-title', cassette.title);
-      headerRow.innerHTML = `<td colspan="9">${cassette.title}</td>`;
-      tbody.appendChild(headerRow);
-
-      cassette.rows.forEach(r => {
-        const isCorningA = (r.colA === "Blau" && parseInt(r.fasA) === 1) || (r.colA === "Orange" && parseInt(r.fasA) === 2);
-        const isCorningB = (r.colB === "Blau" && parseInt(r.fasB) === 1) || (r.colB === "Orange" && parseInt(r.fasB) === 2);
-        const typeA = isCorningA ? 'alt' : 'neu';
-        const typeB = isCorningB ? 'alt' : 'neu';
-
-        const colObjA = PALETTES[typeA].find(c => c.name === r.colA) || PALETTES.neu[0];
-        const colObjB = PALETTES[typeB].find(c => c.name === r.colB) || PALETTES.neu[0];
-
-        const tr = createSpliceRowHTML(r.nr, r.cassette, typeA, colObjA, r.fasA, typeB, colObjB, r.fasB, r.notes);
-        tr.querySelector('input[value="0.02 dB"]').value = r.attenuation;
-        tbody.appendChild(tr);
-      });
-    });
-
-    showStep('step-splice-adjust');
-  }
-
-  function deleteUnit(index) {
-    if (confirm(`Möchtest du "${completedUnits[index].name}" wirklich löschen?`)) {
-      completedUnits.splice(index, 1);
-      updateConfiguredUnitsSummary();
-    }
-  }
-
-  function updateConfiguredUnitsSummary() {
-    const list = document.getElementById('configuredUnitsList');
-    list.innerHTML = '<h3>Bisher erfasste Einheiten:</h3>';
-    if (completedUnits.length === 0) {
-      list.innerHTML += '<p style="font-size: 13px; color: #64748b;">Noch keine Einheiten vorhanden.</p>';
-      return;
-    }
-    completedUnits.forEach((u, i) => {
-      let totalFibers = 0;
-      u.cassettes.forEach(c => totalFibers += c.rows.length);
-
-      const div = document.createElement('div');
-      div.className = 'unit-card';
-      div.innerHTML = `
-        <div class="unit-card-header">
-          <span>${i + 1}. ${u.name} (${u.type}) - <small style="color: #64748b;">${u.cassettes.length} Kassetten / ${totalFibers} Spleiße</small></span>
-          <div class="unit-card-actions">
-            <button class="btn btn-sm btn-outline" onclick="editUnit(${i})">✏️ Bearbeiten</button>
-            <button class="btn btn-sm btn-danger-outline" onclick="deleteUnit(${i})">🗑️ Löschen</button>
-          </div>
-        </div>
-      `;
-      list.appendChild(div);
-    });
-  }
-
-  function addNewUnitWorkflow(type) {
-    editingUnitIndex = -1;
-    currentUnitType = type;
-    document.getElementById('inUnitName').value = `${type} ${completedUnits.length + 1}`;
-    if (type === 'Muffe') showStep('step-muffe-config');
-    else showStep('step-box-config');
-  }
-
-  function goToFinalOverview() {
-    showStep('step-final');
-  }
-
-  // Foto-Upload für Standort- vs. Spleiß-Fotos
-  function handlePhotoUpload(input, category) {
-    if (!input.files || input.files.length === 0) return;
-
-    Array.from(input.files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const MAX_DIM = 1200;
-          let w = img.width, h = img.height;
-
-          if (w > h && w > MAX_DIM) {
-            h *= MAX_DIM / w;
-            w = MAX_DIM;
-          } else if (h > MAX_DIM) {
-            w *= MAX_DIM / h;
-            h = MAX_DIM;
-          }
-
-          canvas.width = w;
-          canvas.height = h;
-          ctx.drawImage(img, 0, 0, w, h);
-
-          const compressedData = canvas.toDataURL('image/jpeg', 0.75);
-          const defaultDesc = category === 'location' ? 'Standort / Schachtansicht' : 'Kassettenansicht / Muffe';
-
-          if (category === 'location') {
-            attachedLocationPhotos.push({ src: compressedData, desc: defaultDesc });
-          } else {
-            attachedSplicePhotos.push({ src: compressedData, desc: defaultDesc });
-          }
-          renderPhotoGalleries();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-    input.value = '';
-  }
-
-  function renderPhotoGalleries() {
-    // 1. Standort-Fotos
-    const locContainer = document.getElementById('locPhotoContainer');
-    locContainer.innerHTML = '';
-    attachedLocationPhotos.forEach((photo, idx) => {
-      const div = document.createElement('div');
-      div.className = 'photo-card';
-      div.innerHTML = `
-        <img src="${photo.src}">
-        <button class="delete-btn" onclick="attachedLocationPhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
-        <div class="photo-card-body">
-          <input type="text" value="${photo.desc}" onchange="attachedLocationPhotos[${idx}].desc = this.value">
-        </div>
-      `;
-      locContainer.appendChild(div);
-    });
-
-    // 2. Spleiß-Fotos
-    const spliceContainer = document.getElementById('splicePhotoContainer');
-    spliceContainer.innerHTML = '';
-    attachedSplicePhotos.forEach((photo, idx) => {
-      const div = document.createElement('div');
-      div.className = 'photo-card';
-      div.innerHTML = `
-        <img src="${photo.src}">
-        <button class="delete-btn" onclick="attachedSplicePhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
-        <div class="photo-card-body">
-          <input type="text" value="${photo.desc}" onchange="attachedSplicePhotos[${idx}].desc = this.value">
-        </div>
-      `;
-      spliceContainer.appendChild(div);
-    });
-  }
-
-  function getColorHex(colorName) {
-    const all = [...PALETTES.neu, ...PALETTES.alt];
-    const match = all.find(c => c.name.toLowerCase() === colorName.toLowerCase());
-    return match ? match.hex : '#ffffff';
-  }
-
-  // PDF RENDERING (Vektor, Tabellen, Standort- & Spleißfotos)
-  function buildVectorPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const project = document.getElementById('inProject').value;
-    const location = document.getElementById('inLocation').value;
-    const technician = document.getElementById('inTechnician').value;
-    const notes = document.getElementById('finalNotes').value;
-    const dateStr = document.getElementById('lblDate').textContent;
-
-    if (loadedLogoDataUrl) {
-      const targetHeight = 13;
-      const targetWidth = targetHeight * logoAspectRatio;
-      doc.addImage(loadedLogoDataUrl, 'PNG', 14, 9, targetWidth, targetHeight);
-    } else {
-      doc.setFontSize(14);
-      doc.setTextColor(23, 84, 103);
-      doc.setFont(undefined, 'bold');
-      doc.text("GEOTHERMIE UNTERHACHING", 14, 18);
-    }
-
-    doc.setFontSize(12);
-    doc.setTextColor(23, 84, 103);
-    doc.setFont(undefined, 'bold');
-    doc.text("SPLEISS- & MESSPROTOKOLL LWL", 196, 17.5, { align: 'right' });
-
-    doc.setDrawColor(232, 92, 36);
-    doc.setLineWidth(0.8);
-    doc.line(14, 25, 196, 25);
-
-    doc.autoTable({
-      startY: 28,
-      theme: 'plain',
-      styles: { fontSize: 8.5, cellPadding: 1.5, textColor: [15, 23, 42] },
-      columnStyles: {
-        0: { fontStyle: 'bold', textColor: [23, 84, 103], cellWidth: 35 },
-        1: { cellWidth: 60 },
-        2: { fontStyle: 'bold', textColor: [23, 84, 103], cellWidth: 25 },
-        3: { cellWidth: 'auto' }
-      },
-      body: [
-        ['Auftraggeber:', 'Geothermie Unterhaching GmbH & Co. KG', 'Datum:', dateStr],
-        ['Projekt / Trasse:', project, 'Monteur:', technician],
-        ['Einsatzort / Objekt:', location, 'Firma:', 'Technik GUH']
-      ]
-    });
-
-    let currentY = doc.lastAutoTable.finalY + 4;
-
-    completedUnits.forEach((unit, uIdx) => {
-      if (currentY > 240) { doc.addPage(); currentY = 20; }
-
-      doc.setFontSize(10.5);
-      doc.setTextColor(23, 84, 103);
-      doc.setFont(undefined, 'bold');
-      doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, currentY);
-      currentY += 4;
-
-      unit.cassettes.forEach((cassette) => {
-        if (currentY > 230) { doc.addPage(); currentY = 20; }
-
-        const safeTitle = (cassette.title || "Kassette").replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
-
-        doc.setFillColor(23, 84, 103);
-        doc.roundedRect(14, currentY, 182, 5.5, 0.5, 0.5, 'F');
-        doc.setFontSize(8);
-        doc.setTextColor(255, 255, 255);
-        doc.setFont(undefined, 'bold');
-        doc.text(safeTitle, 17, currentY + 3.8);
-        currentY += 6.5;
-
-        const tableData = cassette.rows.map(r => [
-          r.nr,
-          r.cassette,
-          r.colA,
-          r.fasA,
-          "->",
-          r.colB,
-          r.fasB,
-          r.attenuation,
-          r.notes
-        ]);
-
-        doc.autoTable({
-          startY: currentY,
-          head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
-          body: tableData,
-          theme: 'grid',
-          headStyles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 7.5 },
-          styles: { fontSize: 7.5, halign: 'center', cellPadding: 1.8, lineColor: [203, 213, 225], lineWidth: 0.1 },
-          columnStyles: {
-            0: { cellWidth: 9 },
-            1: { cellWidth: 12 },
-            2: { cellWidth: 26 },
-            3: { cellWidth: 12 },
-            4: { cellWidth: 7 },
-            5: { cellWidth: 26 },
-            6: { cellWidth: 12 },
-            7: { cellWidth: 20 },
-            8: { cellWidth: 'auto' }
-          },
-          didParseCell: function(data) {
-            if (data.section === 'body') {
-              const rawRow = cassette.rows[data.row.index];
-              if (rawRow) {
-                if (data.column.index === 2 || data.column.index === 3) {
-                  const hex = getColorHex(rawRow.colA);
-                  data.cell.styles.fillColor = hex;
-                  data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-                  data.cell.styles.fontStyle = 'bold';
-                }
-                if (data.column.index === 5 || data.column.index === 6) {
-                  const hex = getColorHex(rawRow.colB);
-                  data.cell.styles.fillColor = hex;
-                  data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-                  data.cell.styles.fontStyle = 'bold';
-                }
-              }
-            }
-          }
-        });
-
-        currentY = doc.lastAutoTable.finalY + 5;
-      });
-
-      currentY += 3;
-    });
-
-    if (notes) {
-      if (currentY > 240) { doc.addPage(); currentY = 20; }
-      doc.setFontSize(9);
-      doc.setTextColor(23, 84, 103);
-      doc.setFont(undefined, 'bold');
-      doc.text("Hinweise / Bemerkungen:", 14, currentY);
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(8);
-      doc.setTextColor(15, 23, 42);
-      doc.text(notes, 14, currentY + 4.5);
-      currentY += 12;
-    }
-
-    // FOTODOKUMENTATION ABSCHNITT IM PDF
-    const totalPhotos = attachedLocationPhotos.length + attachedSplicePhotos.length;
-    if (totalPhotos > 0) {
-      doc.addPage();
-      doc.setFontSize(11);
-      doc.setTextColor(23, 84, 103);
-      doc.setFont(undefined, 'bold');
-      doc.text("FOTODOKUMENTATION", 14, 18);
-      
-      doc.setDrawColor(232, 92, 36);
-      doc.setLineWidth(0.5);
-      doc.line(14, 21, 196, 21);
-
-      let pX = 14, pY = 26;
-
-      const renderPhotoGroup = (photos, title) => {
-        if (photos.length === 0) return;
-        
-        doc.setFontSize(9.5);
-        doc.setTextColor(23, 84, 103);
-        doc.setFont(undefined, 'bold');
-        if (pY > 240) { doc.addPage(); pY = 20; pX = 14; }
-        doc.text(title, 14, pY);
-        pY += 5;
-
-        photos.forEach((p, idx) => {
-          if (pY > 210) {
-            doc.addPage();
-            pY = 20;
-            pX = 14;
-          }
-          doc.addImage(p.src, 'JPEG', pX, pY, 85, 60);
-          doc.setFontSize(7.5);
-          doc.setTextColor(15, 23, 42);
-          doc.setFont(undefined, 'normal');
-          doc.text(p.desc || `Foto ${idx + 1}`, pX, pY + 64);
-
-          if (pX === 14) {
-            pX = 105;
-          } else {
-            pX = 14;
-            pY += 70;
-          }
-        });
-
-        if (pX === 105) { pX = 14; pY += 70; }
-      };
-
-      renderPhotoGroup(attachedLocationPhotos, "1. STANDORT & UMGEBUNG");
-      renderPhotoGroup(attachedSplicePhotos, "2. SPLEISS- & MONTAGE-DETAILS");
-    }
-
-    const totalPages = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= totalPages; i++) {
-      doc.setPage(i);
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.3);
-      doc.line(14, 285, 196, 285);
-
-      doc.setFontSize(7);
-      doc.setTextColor(100, 116, 139);
-      doc.text("Geothermie Unterhaching GmbH & Co. KG - Technisches Protokoll LWL", 14, 289);
-      doc.text(`Seite ${i} von ${totalPages}`, 196, 289, { align: 'right' });
-    }
-
-    return doc;
-  }
-
-  function generateVectorPDF(isBlob = false) {
-    if (completedUnits.length === 0) {
-      alert("Bitte zuerst mindestens eine Einheit erfassen!");
-      return;
-    }
-    const doc = buildVectorPDF();
-    const loc = document.getElementById('inLocation').value.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const filename = `Spleissprotokoll_${loc}.pdf`;
-
-    if (isBlob) {
-      return { blob: doc.output('blob'), filename: filename };
-    } else {
-      doc.save(filename);
-    }
-  }
-
-  // E-MAIL-VERSAND / NATIVES TEILEN MIT PDF-ANHANG
-  async function sendPDFViaEmail() {
-    if (completedUnits.length === 0) {
-      alert("Bitte zuerst mindestens eine Einheit erfassen!");
-      return;
-    }
-
-    const project = document.getElementById('inProject').value;
-    const location = document.getElementById('inLocation').value;
-    const dateStr = document.getElementById('lblDate').textContent;
-
-    const subject = `Spleißprotokoll: ${project} - ${location}`;
-    const body = `Hallo Technik-Team,\n\nanbei das Spleißprotokoll für ${project} (${location}).\n\nFirma: Geothermie Unterhaching GmbH & Co. KG\nDatum: ${dateStr}\nErfasste Einheiten: ${completedUnits.length}`;
-
-    // 1. PDF im Speicher als Dateiobjekt generieren
-    const { blob, filename } = generateVectorPDF(true);
-    const pdfFile = new File([blob], filename, { type: 'application/pdf' });
-
-    // 2. Auf Smartphones (iOS/Android) direkt das native Teilen-Menü inkl. Anhang aufrufen
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-      try {
-        await navigator.share({
-          title: subject,
-          text: body,
-          files: [pdfFile]
-        });
-        return; // Erfolg: OS hat das Teilen-Menü geöffnet
-      } catch (e) {
-        if (e.name !== 'AbortError') {
-          console.log("Fehler beim mobilen Teilen:", e);
-        } else {
-          return; // Benutzer hat abgebrochen
-        }
-      }
-    }
-
-    // 3. Fallback für Desktop-Browser (Download + Mailto)
-    const downloadLink = document.createElement('a');
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = filename;
-    downloadLink.click();
-
-    setTimeout(() => {
-      window.location.href = `mailto:${RECIPIENTS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + "\n\n(Hinweis: Die PDF wurde automatisch im Download-Ordner gespeichert.)")}`;
-    }, 500);
-  }
-</script>
+<!-- Anwendungsskripte -->
+<script src="./js/config.js"></script>
+<script src="./js/core/gps.js"></script>
+<script src="./js/core/photo.js"></script>
+<script src="./js/core/pdf-builder.js"></script>
+<script src="./js/core/msal-mail.js"></script>
+<script src="./js/modules/lwl-splice.js"></script>
 
 </body>
 </html>
