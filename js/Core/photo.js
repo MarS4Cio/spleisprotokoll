@@ -40,10 +40,13 @@ function handlePhotoUpload(input, category) {
     };
     reader.readAsDataURL(file);
   });
+  
+  // Input zurücksetzen, damit dasselbe Bild erneut gewählt werden kann
   input.value = '';
 }
 
 function renderPhotoGalleries() {
+  // 1. Standort-Fotos rendern
   const locContainer = document.getElementById('locPhotoContainer');
   if (locContainer) {
     locContainer.innerHTML = '';
@@ -51,8 +54,8 @@ function renderPhotoGalleries() {
       const div = document.createElement('div');
       div.className = 'photo-card';
       div.innerHTML = `
-        <img src="${photo.src}">
-        <button class="delete-btn" onclick="attachedLocationPhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
+        <img src="${photo.src}" alt="Standortfoto">
+        <button type="button" class="delete-btn" onclick="attachedLocationPhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
         <div class="photo-card-body">
           <input type="text" value="${photo.desc}" onchange="attachedLocationPhotos[${idx}].desc = this.value">
         </div>
@@ -61,6 +64,7 @@ function renderPhotoGalleries() {
     });
   }
 
+  // 2. Spleiß-Fotos rendern
   const spliceContainer = document.getElementById('splicePhotoContainer');
   if (spliceContainer) {
     spliceContainer.innerHTML = '';
@@ -68,8 +72,8 @@ function renderPhotoGalleries() {
       const div = document.createElement('div');
       div.className = 'photo-card';
       div.innerHTML = `
-        <img src="${photo.src}">
-        <button class="delete-btn" onclick="attachedSplicePhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
+        <img src="${photo.src}" alt="Spleißfoto">
+        <button type="button" class="delete-btn" onclick="attachedSplicePhotos.splice(${idx},1); renderPhotoGalleries();">✕</button>
         <div class="photo-card-body">
           <input type="text" value="${photo.desc}" onchange="attachedSplicePhotos[${idx}].desc = this.value">
         </div>
