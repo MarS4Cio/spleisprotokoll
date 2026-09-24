@@ -10,14 +10,13 @@ function initMSAL() {
     auth: {
       clientId: APP_CONFIG.msalClientId,
       authority: "https://login.microsoftonline.com/common",
-      redirectUri: window.location.origin
+      redirectUri: window.location.href.split('?')[0].split('#')[0] // Garantiert die exakte URL inklusive /spleisprotokoll/
     },
     cache: {
       cacheLocation: "localStorage",
       storeAuthStateInCookie: false
     }
   };
-
   msalInstance = new msal.PublicClientApplication(msalConfig);
 }
 
