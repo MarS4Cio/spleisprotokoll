@@ -80,19 +80,20 @@ function renderCassetteForms() {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <h4 style="margin: 0; color: var(--primary-color); font-size: 14px;">Kassette ${c}</h4>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Kabel-Modus:</label>
+          <label style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Kabel-Struktur:</label>
           <select id="box_c${c}_cableMode" onchange="toggleCableMode(${c})">
-            <option value="single">1 Kabel / Bündel</option>
-            <option value="multi" selected>Mehrere Kabel / Bündel</option>
+            <option value="single" selected>1 durchgehendes Kabel</option>
+            <option value="multi">Mehrere Teilkabel / Bündel</option>
           </select>
         </div>
       </div>
 
-      <div id="box_c${c}_single_wrapper" class="grid-3" style="display: none;">
+      <!-- EINZELKABEL OPTION (Mit Kabel-Typ Auswahl: DIN vs Corning) -->
+      <div id="box_c${c}_single_wrapper" class="grid-3" style="display: grid;">
         <div class="form-group">
-          <label>Kabel A Standard</label>
+          <label>Kabel A Farbstandard</label>
           <select id="box_c${c}_cableType">
-            <option value="neu">Neu (DIN: Rot, Grün...)</option>
+            <option value="neu" selected>Neu (DIN VDE: Rot, Grün...)</option>
             <option value="alt">Alt (Corning: Blau, Orange...)</option>
           </select>
         </div>
@@ -110,22 +111,24 @@ function renderCassetteForms() {
         </div>
       </div>
 
-      <div id="box_c${c}_multi_wrapper" style="display: block;">
+      <!-- MEHRERE TEILKABEL OPTION -->
+      <div id="box_c${c}_multi_wrapper" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 12px; font-weight: bold; color: #475569;">Teilkabel:</span>
             <label style="font-size: 11px; font-weight: bold;">Start-Pigtail:</label>
             <input type="number" id="box_c${c}_multi_pigtailStart" value="${nextSuggestedPigtail}" min="1" max="12" style="width: 55px; padding: 2px 4px;" onchange="updatePigtailChain()">
           </div>
-          <button class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addSubCable(${c})">➕ Weiteres Kabel</button>
+          <button type="button" class="btn btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addSubCable(${c})">➕ Weiteres Kabel</button>
         </div>
         <div id="box_c${c}_subcables_container"></div>
       </div>
     `;
     container.appendChild(box);
 
+    // Initial 2 Teilkabel vorbereiten falls auf Multi umgeschaltet wird
     addSubCable(c, "Kabel 1", "neu", 4);
-    addSubCable(c, "Kabel 2", c === 1 ? "neu" : "alt", 4);
+    addSubCable(c, "Kabel 2", "alt", 4);
 
     nextSuggestedPigtail = ((nextSuggestedPigtail + 8 - 1) % 12) + 1;
   }
@@ -212,7 +215,7 @@ function addSubCable(c, nameDef = "", typeDef = "neu", countDef = 4) {
             <option value="8" ${countDef === 8 ? 'selected' : ''}>8 Fasern</option>
             <option value="12" ${countDef === 12 ? 'selected' : ''}>12 Fasern</option>
           </select>
-          <button class="delete-btn" style="position: static; width: 24px; height: 24px;" onclick="this.closest('.sub-cable-card').remove(); updatePigtailChain();">✕</button>
+          <button type="button" class="delete-btn" style="position: static; width: 24px; height: 24px;" onclick="this.closest('.sub-cable-card').remove(); updatePigtailChain();">✕</button>
         </div>
       </div>
     </div>
@@ -543,8 +546,8 @@ function updateConfiguredUnitsSummary() {
       <div class="unit-card-header">
         <span>${i + 1}. ${u.name} (${u.type}) - <small style="color: #64748b;">${u.cassettes.length} Kassetten / ${totalFibers} Spleiße</small></span>
         <div class="unit-card-actions">
-          <button class="btn btn-sm btn-outline" onclick="editUnit(${i})">✏️ Bearbeiten</button>
-          <button class="btn btn-sm btn-danger-outline" onclick="deleteUnit(${i})">🗑️ Löschen</button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="editUnit(${i})">✏️ Bearbeiten</button>
+          <button type="button" class="btn btn-sm btn-danger-outline" onclick="deleteUnit(${i})">🗑️ Löschen</button>
         </div>
       </div>
     `;
