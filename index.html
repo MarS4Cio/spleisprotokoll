@@ -42,10 +42,25 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Monteur / Spleißer</label>
-        <input type="text" id="inTechnician" value="Elstein,  Florian">
-      </div>
+     <div class="form-group" style="grid-column: span 2;">
+  <label>Monteur(e) / Spleißer</label>
+  <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 4px; background: var(--light-bg); padding: 8px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; text-transform: none; font-size: 13px;">
+      <input type="checkbox" name="tech_select" value="Florian Elstein" checked onchange="updateTechnicianInputValue()">
+      Florian Elstein
+    </label>
+    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; text-transform: none; font-size: 13px;">
+      <input type="checkbox" name="tech_select" value="Alexander Neubauer" onchange="updateTechnicianInputValue()">
+      Alexander Neubauer
+    </label>
+    <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+      <span style="font-size: 11px; color: #64748b; font-weight: bold;">Weitere:</span>
+      <input type="text" id="inTechnicianOther" placeholder="z. B. Name Partnerfirma" style="padding: 4px 8px; font-size: 12px; width: 160px;" oninput="updateTechnicianInputValue()">
+    </div>
+  </div>
+  <!-- Verstecktes Feld, das alle Namen kommagetrennt für die PDF zusammenfasst -->
+  <input type="hidden" id="inTechnician" value="Florian Elstein">
+</div>
       <div class="form-group">
         <label>Bezeichnung der aktuellen Einheit</label>
         <input type="text" id="inUnitName" value="Muffe 1 / Spleisbox 1">
