@@ -4,361 +4,446 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LWL Montage-Assistent & Spleißprotokoll</title>
-  
-  <!-- CSS -->
-  <link rel="stylesheet" href="./css/style.css">
 
-  <!-- Externe Bibliotheken (PDF & MSAL) -->
+  <!-- Externe Bibliotheken (PDF & Graph API) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+
+  <!-- CSS Style -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="wizard-container">
-  
-  <div class="app-header">
-    <img id="webHeaderLogo" class="header-logo-img" src="./GUH_Logo.png" alt="Logo">
-    <div style="font-size: 12px; color: #64748b; text-align: right;">
-      <div style="font-weight: bold; color: var(--primary-color); font-size: 14px;">Spleiß- & Messprotokoll LWL</div>
-      <div>Datum: <span id="lblDate"></span></div>
+  <!-- FIRMEN HEADER -->
+  <header class="app-header">
+    <img src="GUH_Logo.png" alt="Geothermie Unterhaching Logo" class="logo">
+    <div class="header-text">
+      <h1>LWL Spleiß- & Messprotokoll</h1>
+      <span class="sub-text">Geothermie Unterhaching GmbH & Co. KG</span>
     </div>
-  </div>
+  </header>
 
-  <!-- STARTBILDSCHIRM / PROTOKOLL-AUSWAHL -->
-<div id="step-dashboard" class="step-card active">
-  <h2>📋 Welches Protokoll möchtest du erstellen?</h2>
-  <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Wähle die passende Protokoll-Vorlage für deinen heutigen Einsatz aus:</p>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
-    <!-- OPTION 1: SPLEISSPROTOKOLL -->
-    <div style="border: 2px solid var(--border-color); border-radius: 8px; padding: 18px; background: white; cursor: pointer; transition: all 0.2s;" onclick="startSpleissWorkflow()">
-      <div style="font-size: 28px; margin-bottom: 8px;">🛠️</div>
-      <h3 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 16px;">LWL-Spleißprotokoll</h3>
-      <p style="font-size: 12px; color: #64748b; margin: 0;">Für Standard-Muffen, Y-Muffen und reine Spleißboxen (DIN / Corning).</p>
-      <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 14px;">Spleißprotokoll starten ➔</button>
-    </div>
+  <div class="container">
 
-    <!-- OPTION 2: SCHRANK & SWITCH PROTOKOLL -->
-    <div style="border: 2px solid var(--border-color); border-radius: 8px; padding: 18px; background: white; cursor: pointer; transition: all 0.2s;" onclick="startSwitchBoxWorkflow()">
-      <div style="font-size: 28px; margin-bottom: 8px;">🔌</div>
-      <h3 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 16px;">LWL-Kasten & Switch</h3>
-      <p style="font-size: 12px; color: #64748b; margin: 0;">Für Netzwerkschränke, Switch-Einbau, Regleradresse & DIN-Spleiße.</p>
-      <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 14px; background-color: var(--accent-color); border-color: var(--accent-color);">Schrank-Protokoll starten ➔</button>
-    </div>
-  </div>
-</div>
-  
-  <!-- SCHRITT 1 -->
-  <div id="step-start" class="step-card active">
-    <h2>1. Stammdaten & Einheit wählen</h2>
-    <div class="grid-2">
-      <div class="form-group">
-        <label>Projekt / Trasse</label>
-        <input type="text" id="inProject" value="Projektname">
+    <!-- STARTBILDSCHIRM / PROTOKOLL-AUSWAHL -->
+    <div id="step-dashboard" class="step-card active">
+      <h2>📋 Welches Protokoll möchtest du erstellen?</h2>
+      <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Wähle die passende Protokoll-Vorlage für deinen heutigen Einsatz aus:</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <!-- OPTION 1: SPLEISSPROTOKOLL -->
+        <div style="border: 2px solid var(--border-color); border-radius: 8px; padding: 18px; background: white; cursor: pointer; transition: all 0.2s;" onclick="startSpleissWorkflow()">
+          <div style="font-size: 28px; margin-bottom: 8px;">🛠️</div>
+          <h3 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 16px;">LWL-Spleißprotokoll</h3>
+          <p style="font-size: 12px; color: #64748b; margin: 0;">Für Standard-Muffen, Y-Muffen und reine Spleißboxen (DIN / Corning).</p>
+          <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 14px;">Spleißprotokoll starten ➔</button>
+        </div>
+
+        <!-- OPTION 2: SCHRANK & SWITCH PROTOKOLL -->
+        <div style="border: 2px solid var(--border-color); border-radius: 8px; padding: 18px; background: white; cursor: pointer; transition: all 0.2s;" onclick="startSwitchBoxWorkflow()">
+          <div style="font-size: 28px; margin-bottom: 8px;">🔌</div>
+          <h3 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 16px;">LWL-Kasten & Switch</h3>
+          <p style="font-size: 12px; color: #64748b; margin: 0;">Für Netzwerkschränke, Switch-Einbau, Regleradresse & DIN-Spleiße.</p>
+          <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 14px; background-color: var(--accent-color); border-color: var(--accent-color);">Schrank-Protokoll starten ➔</button>
+        </div>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label>Einsatzort / Objektanschrift</label>
-        <div style="display: flex; gap: 6px;">
-          <input type="text" id="inLocation" value="Standort" style="flex: 1;">
-          <button type="button" class="btn btn-outline" style="padding: 6px 10px;" onclick="getCurrentLocation()" title="GPS-Standort abfragen">📍 GPS</button>
+    <!-- PROTOKOLL TYP 2: SCHRANK & SWITCH STAMMDATEN -->
+    <div id="step-switchbox-1" class="step-card">
+      <h2>1. Schrank-Stammdaten & Hardware</h2>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Projekt / Trasse</label>
+          <input type="text" id="sw_project" placeholder="z. B. Fernwärmetrasse Nord">
+        </div>
+        <div class="form-group">
+          <label>Einsatzort / Gebäudeadresse</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="sw_address" placeholder="Str. & Nr., PLZ Ort">
+            <button type="button" class="btn btn-outline" style="padding: 0 10px;" onclick="getCurrentGPS('sw_address')">📍 GPS</button>
+          </div>
         </div>
       </div>
 
-     <div class="form-group" style="grid-column: span 2;">
-  <label>Monteur(e) / Spleißer</label>
-  <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 4px; background: var(--light-bg); padding: 8px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; text-transform: none; font-size: 13px;">
-      <input type="checkbox" name="tech_select" value="Florian Elstein" checked onchange="updateTechnicianInputValue()">
-      Florian Elstein
-    </label>
-    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; text-transform: none; font-size: 13px;">
-      <input type="checkbox" name="tech_select" value="Alexander Neubauer" onchange="updateTechnicianInputValue()">
-      Alexander Neubauer
-    </label>
-    <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
-      <span style="font-size: 11px; color: #64748b; font-weight: bold;">Weitere:</span>
-      <input type="text" id="inTechnicianOther" placeholder="z. B. Name Partnerfirma" style="padding: 4px 8px; font-size: 12px; width: 160px;" oninput="updateTechnicianInputValue()">
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-group">
+          <label>Schrank-Bezeichnung / ID</label>
+          <input type="text" id="sw_box_id" placeholder="z. B. Schaltschrank UST-01">
+        </div>
+        <div class="form-group">
+          <label>Fabrikationsnummer (P...)</label>
+          <input type="text" id="sw_fab_nr" placeholder="PXXXXXXXXXXXXX" onblur="validateFabrikationsnr(this)">
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-group">
+          <label>Switch verbaut?</label>
+          <select id="sw_switch_installed" onchange="toggleSwitchFields()">
+            <option value="ja" selected>Ja</option>
+            <option value="nein">Nein</option>
+          </select>
+        </div>
+        <div class="form-group" id="sw_ip_group">
+          <label>Switch-IP-Adresse</label>
+          <input type="text" id="sw_ip" placeholder="192.168.x.x">
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-group">
+          <label>Regleradresse</label>
+          <input type="text" id="sw_regler_addr" placeholder="z. B. Bus-Adresse / Steuerung">
+        </div>
+        <div class="form-group">
+          <label>Verwendetes Material</label>
+          <textarea id="sw_material" rows="2" placeholder="z. B. Rittal Kasten, Patchkabel LC-LC 2m, SFP-Modul..."></textarea>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px; background: var(--light-bg); padding: 10px; border-radius: 6px;">
+        <div class="form-group">
+          <label>Faseranzahl im Kasten</label>
+          <select id="sw_fiber_count">
+            <option value="4">4 Fasern</option>
+            <option value="8" selected>8 Fasern</option>
+            <option value="12">12 Fasern</option>
+            <option value="24">24 Fasern</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ankommendes Kabel Standard</label>
+          <select id="sw_cable_type">
+            <option value="neu" selected>Neu (DIN VDE: Rot, Grün...)</option>
+            <option value="alt">Alt (Corning: Blau, Orange...)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="nav-buttons" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" onclick="showStep('step-dashboard')">⬅ Zurück zum Start</button>
+        <button type="button" class="btn btn-primary" onclick="startSwitchSpliceConfig()">Weiter zur Spleißbelegung ➔</button>
+      </div>
     </div>
-  </div>
-  <!-- Verstecktes Feld, das alle Namen kommagetrennt für die PDF zusammenfasst -->
-  <input type="hidden" id="inTechnician" value="Florian Elstein">
-</div>
-      <div class="form-group">
+
+    <!-- PROTOKOLL TYP 1: SCHRITT 1 - STAMMDATEN (SPLEISSPROTOKOLL) -->
+    <div id="step-1" class="step-card">
+      <h2>1. Stammdaten & Einheit wählen</h2>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Projekt / Trasse</label>
+          <input type="text" id="inProject" placeholder="z. B. Fernwärmetrasse Nord">
+        </div>
+        <div class="form-group">
+          <label>Einsatzort / Objektanschrift</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="inLocation" placeholder="z. B. Schacht 12 / Übergabestation">
+            <button type="button" class="btn btn-outline" style="padding: 0 10px;" onclick="getCurrentGPS('inLocation')">📍 GPS</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Monteur(e) / Spleißer</label>
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 4px; background: var(--light-bg); padding: 8px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; text-transform: none; font-size: 13px;">
+              <input type="checkbox" name="tech_select" value="Florian Elstein" checked onchange="updateTechnicianInputValue()">
+              Florian Elstein
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; text-transform: none; font-size: 13px;">
+              <input type="checkbox" name="tech_select" value="Alexander Neubauer" onchange="updateTechnicianInputValue()">
+              Alexander Neubauer
+            </label>
+            <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+              <span style="font-size: 11px; color: #64748b; font-weight: bold;">Weitere:</span>
+              <input type="text" id="inTechnicianOther" placeholder="z. B. Partnerfirma" style="padding: 4px 8px; font-size: 12px; width: 150px;" oninput="updateTechnicianInputValue()">
+            </div>
+          </div>
+          <input type="hidden" id="inTechnician" value="Florian Elstein">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 10px;">
         <label>Bezeichnung der aktuellen Einheit</label>
-        <input type="text" id="inUnitName" value="Muffe 1 / Spleisbox 1">
+        <input type="text" id="inUnitName" placeholder="z. B. Muffe 01 / SpleißBox 01">
       </div>
-    </div>
 
-    <p style="font-weight: bold; margin-top: 16px; color: var(--primary-color);">Was montierst / spleißt du jetzt?</p>
-    <div class="choice-grid">
-      <button class="choice-btn" onclick="startMuffeWorkflow()">
-        <span>🧰</span>
-        Muffe (Standard & Y-Muffe)
-      </button>
-      <button class="choice-btn" onclick="startBoxWorkflow()">
-        <span>🔲</span>
-        Spleißbox (Kassetten & Pigtails)
-      </button>
-    </div>
-  </div>
-
-  <!-- SCHRITT 2A (Muffe) -->
-  <div id="step-muffe-config" class="step-card">
-    <h2>2. Muffen-Typ & Kabel konfigurieren</h2>
-    
-    <div class="form-group" style="max-width: 320px; margin-bottom: 16px;">
-      <label>Muffen-Bauform</label>
-      <select id="muffe_mode" onchange="toggleMuffeMode()">
-        <option value="standard" selected>Standard-Muffe (2 Kabel: A ⟷ B)</option>
-        <option value="ymuffe">Y-Muffe / 3-Wege (Kabel A ⟷ B ⟷ C)</option>
-      </select>
-    </div>
-
-    <div id="muffe_2cable_grid" class="grid-2">
-      <div style="background: var(--light-bg); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary-color);">Kabel A</h3>
-        <div class="form-group">
-          <label>Farbstandard</label>
-          <select id="muffe_cableA_type">
-            <option value="neu">Neu (DIN: Rot, Grün, Blau...)</option>
-            <option value="alt">Alt (Corning: Blau, Orange, Grün...)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Faseranzahl</label>
-          <select id="muffe_cableA_count">
-            <option value="4">4 Fasern</option>
-            <option value="8">8 Fasern</option>
-            <option value="12" selected>12 Fasern</option>
-            <option value="24">24 Fasern</option>
-          </select>
+      <div class="form-group" style="margin-top: 16px;">
+        <label style="font-weight: bold; color: var(--primary-color);">Was montierst / spleißt du jetzt?</label>
+        <div style="display: flex; gap: 10px; margin-top: 6px;">
+          <button type="button" class="btn btn-primary" style="flex: 1;" onclick="startMuffeWorkflow()">🛣️ Muffe (Standard & Y-Muffe)</button>
+          <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="startBoxWorkflow()">🔲 Spleißbox (Kassetten & Pigtails)</button>
         </div>
       </div>
 
-      <div style="background: var(--light-bg); padding: 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h3 style="margin-top: 0; font-size: 14px; color: var(--primary-color);">Kabel B</h3>
-        <div class="form-group">
-          <label>Farbstandard</label>
-          <select id="muffe_cableB_type">
-            <option value="neu">Neu (DIN: Rot, Grün, Blau...)</option>
-            <option value="alt">Alt (Corning: Blau, Orange, Grün...)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Faseranzahl</label>
-          <select id="muffe_cableB_count">
-            <option value="4">4 Fasern</option>
-            <option value="8">8 Fasern</option>
-            <option value="12" selected>12 Fasern</option>
-            <option value="24">24 Fasern</option>
-          </select>
-        </div>
+      <div class="nav-buttons" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" onclick="showStep('step-dashboard')">⬅ Zurück zum Start</button>
       </div>
     </div>
 
-    <div id="muffe_3cable_grid" class="grid-3" style="display: none;">
-      <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 1 (A)</h4>
-        <div class="form-group">
-          <label>Standard</label>
-          <select id="ymuffe_c1_type">
-            <option value="neu">Neu (DIN)</option>
-            <option value="alt">Alt (Corning)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Fasern</label>
-          <select id="ymuffe_c1_count">
-            <option value="4" selected>4 Fasern (2x2)</option>
-            <option value="8">8 Fasern (4x4)</option>
-            <option value="12">12 Fasern (6x6)</option>
-          </select>
-        </div>
-      </div>
+    <!-- SCHRITT 2A: MUFFEN-TYP & KABEL KONFIGURIEREN -->
+    <div id="step-muffe-config" class="step-card">
+      <h2>2. Muffen-Typ & Kabel konfigurieren</h2>
 
-      <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 2 (B)</h4>
-        <div class="form-group">
-          <label>Standard</label>
-          <select id="ymuffe_c2_type">
-            <option value="neu">Neu (DIN)</option>
-            <option value="alt">Alt (Corning)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Fasern</label>
-          <select id="ymuffe_c2_count">
-            <option value="4" selected>4 Fasern (2x2)</option>
-            <option value="8">8 Fasern (4x4)</option>
-            <option value="12">12 Fasern (6x6)</option>
-          </select>
-        </div>
-      </div>
-
-      <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
-        <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 3 (C)</h4>
-        <div class="form-group">
-          <label>Standard</label>
-          <select id="ymuffe_c3_type">
-            <option value="neu">Neu (DIN)</option>
-            <option value="alt">Alt (Corning)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Fasern</label>
-          <select id="ymuffe_c3_count">
-            <option value="4" selected>4 Fasern (2x2)</option>
-            <option value="8">8 Fasern (4x4)</option>
-            <option value="12">12 Fasern (6x6)</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="nav-buttons">
-      <button class="btn btn-secondary" onclick="showStep('step-start')">⬅ Zurück</button>
-      <button class="btn btn-primary" onclick="buildMuffeSpliceTable()">Weiter zur Faserbelegung ➔</button>
-    </div>
-  </div>
-
-  <!-- SCHRITT 2B (Spleißbox) -->
-  <div id="step-box-config" class="step-card">
-    <h2>2. Spleißbox: Kassetten & Pigtail-Fortlauf</h2>
-    <div class="grid-2" style="max-width: 600px; margin-bottom: 14px;">
       <div class="form-group">
-        <label>Anzahl der Kassetten</label>
-        <select id="box_cassette_count" onchange="renderCassetteForms()">
-          <option value="1">1 Kassette</option>
-          <option value="2" selected>2 Kassetten</option>
-          <option value="3">3 Kassetten</option>
-          <option value="4">4 Kassetten</option>
-          <option value="6">6 Kassetten</option>
+        <label>Muffen-Bauform</label>
+        <select id="muffe_mode" onchange="toggleMuffeMode()">
+          <option value="standard" selected>Standard-Muffe (2 Kabel: A ➔ B)</option>
+          <option value="ymuffe">Y-Muffe (3 Kabel: A ➔ B ➔ C / Durchgang & Abzweig)</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Pigtails Standard (12er Bündel)</label>
-        <select id="box_global_pigtail_type" onchange="renderCassetteForms()">
-          <option value="neu" selected>Neu (DIN VDE: Rot, Grün, Blau...)</option>
-          <option value="alt">Alt (Corning: Blau, Orange, Grün...)</option>
-        </select>
+
+      <!-- STANDARD MUFFE ZWEI KABEL -->
+      <div id="muffe_2cable_grid" class="grid-2" style="margin-top: 10px;">
+        <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel A</h4>
+          <div class="form-group">
+            <label>Farbstandard</label>
+            <select id="muffe_cableA_type">
+              <option value="neu" selected>Neu (DIN VDE: Rot, Grün...)</option>
+              <option value="alt">Alt (Corning: Blau, Orange...)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Faseranzahl</label>
+            <select id="muffe_cableA_count">
+              <option value="12" selected>12 Fasern</option>
+              <option value="24">24 Fasern</option>
+              <option value="48">48 Fasern</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel B</h4>
+          <div class="form-group">
+            <label>Farbstandard</label>
+            <select id="muffe_cableB_type">
+              <option value="neu" selected>Neu (DIN VDE: Rot, Grün...)</option>
+              <option value="alt">Alt (Corning: Blau, Orange...)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Faseranzahl</label>
+            <select id="muffe_cableB_count">
+              <option value="12" selected>12 Fasern</option>
+              <option value="24">24 Fasern</option>
+              <option value="48">48 Fasern</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Y-MUFFE DREI KABEL -->
+      <div id="muffe_3cable_grid" class="grid-3" style="display: none; margin-top: 10px;">
+        <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 1 (A)</h4>
+          <div class="form-group">
+            <label>Standard</label>
+            <select id="ymuffe_c1_type">
+              <option value="neu">Neu (DIN VDE)</option>
+              <option value="alt">Alt (Corning)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fasern</label>
+            <select id="ymuffe_c1_count">
+              <option value="4" selected>4 Fasern (2x2)</option>
+              <option value="8">8 Fasern (4x4)</option>
+              <option value="12">12 Fasern (6x6)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 2 (B)</h4>
+          <div class="form-group">
+            <label>Standard</label>
+            <select id="ymuffe_c2_type">
+              <option value="neu">Neu (DIN VDE)</option>
+              <option value="alt">Alt (Corning)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fasern</label>
+            <select id="ymuffe_c2_count">
+              <option value="4" selected>4 Fasern (2x2)</option>
+              <option value="8">8 Fasern (4x4)</option>
+              <option value="12">12 Fasern (6x6)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel 3 (C)</h4>
+          <div class="form-group">
+            <label>Standard</label>
+            <select id="ymuffe_c3_type">
+              <option value="neu">Neu (DIN VDE)</option>
+              <option value="alt">Alt (Corning)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fasern</label>
+            <select id="ymuffe_c3_count">
+              <option value="4" selected>4 Fasern (2x2)</option>
+              <option value="8">8 Fasern (4x4)</option>
+              <option value="12">12 Fasern (6x6)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" onclick="showStep('step-1')">⬅ Zurück</button>
+        <button type="button" class="btn btn-primary" onclick="buildMuffeSpliceTable()">Weiter zur Faserbelegung ➔</button>
       </div>
     </div>
 
-    <div id="cassetteFormsContainer" style="margin-top: 14px;"></div>
+    <!-- SCHRITT 2B: SPLEISSBOX KASSETTEN -->
+    <div id="step-box-config" class="step-card">
+      <h2>2. Spleißbox: Kassetten & Pigtail-Fortlauf</h2>
 
-    <div class="nav-buttons">
-      <button class="btn btn-secondary" onclick="showStep('step-start')">⬅ Zurück</button>
-      <button class="btn btn-primary" onclick="buildBoxSpliceTable()">Weiter zur Faserbelegung ➔</button>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Anzahl der Kassetten</label>
+          <select id="box_cassette_count" onchange="renderCassetteForms()">
+            <option value="1">1 Kassette</option>
+            <option value="2" selected>2 Kassetten</option>
+            <option value="3">3 Kassetten</option>
+            <option value="4">4 Kassetten</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pigtails Standard (12er Bündel)</label>
+          <select id="box_global_pigtail_type">
+            <option value="neu" selected>Neu (DIN VDE: Rot, Grün...)</option>
+            <option value="alt">Alt (Corning: Blau, Orange...)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="cassetteFormsContainer" style="margin-top: 12px;"></div>
+
+      <div class="nav-buttons" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" onclick="showStep('step-1')">⬅ Zurück</button>
+        <button type="button" class="btn btn-primary" onclick="buildBoxSpliceTable()">Weiter zur Faserbelegung ➔</button>
+      </div>
     </div>
+
+    <!-- SCHRITT 3: FASERBELEGUNG PRÜFEN & ANPASSEN -->
+    <div id="step-splice-adjust" class="step-card">
+      <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
+      <p style="font-size: 12px; color: #64748b; margin-top: -6px;">Farbe und Fasernummer sind gekoppelt. Passe die Zuordnung bei Bedarf an.</p>
+
+      <div style="overflow-x: auto;">
+        <table class="splice-table">
+          <thead>
+            <tr>
+              <th>Nr.</th>
+              <th>Kassette</th>
+              <th>Kabel A Farbe</th>
+              <th>Fas. A</th>
+              <th>↔</th>
+              <th>Kabel B / Pigtail</th>
+              <th>Fas. B</th>
+              <th>Dämpfung</th>
+              <th>Bemerkung / Kabel</th>
+            </tr>
+          </thead>
+          <tbody id="wizardTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="nav-buttons" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" onclick="goBackFromAdjust()">⬅ Zurück</button>
+        <button type="button" class="btn btn-primary" onclick="saveCurrentUnitAndAskNext()">Einheit speichern & Weiter ➔</button>
+      </div>
+    </div>
+
+    <!-- SCHRITT 4: ÜBERSICHT DER EINHEITEN -->
+    <div id="step-next-unit-prompt" class="step-card">
+      <h2>4. Übersicht der erfassten Einheiten</h2>
+
+      <div id="configuredUnitsList" style="margin-bottom: 16px;"></div>
+
+      <p style="font-weight: bold; font-size: 13px; color: var(--primary-color);">Möchtest du weitere Einheiten hinzufügen oder Stammdaten ändern?</p>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+        <button type="button" class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe / Y-Muffe</button>
+        <button type="button" class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox</button>
+        <button type="button" class="btn btn-secondary" onclick="showStep('step-1')">✏️️ Stammdaten bearbeiten</button>
+      </div>
+
+      <div class="nav-buttons" style="border-top: 1px solid var(--border-color); padding-top: 12px;">
+        <button type="button" class="btn btn-primary" style="width: 100%; font-size: 15px;" onclick="goToFinalOverview()">➔ Weiter zum Abschluss (Fotos & PDF)</button>
+      </div>
+    </div>
+
+    <!-- SCHRITT 5: FOTODOKUMENTATION & PDF EXPORT -->
+    <div id="step-final" class="step-card">
+      <h2>5. Fotodokumentation & PDF Export</h2>
+
+      <!-- STANDORT-FOTOS -->
+      <div class="photo-section">
+        <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--primary-color);">
+          📍 1. Standort-Fotos (z. B. Schacht, Gebäudeansicht, Trasse, Kasten außen):
+        </label>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <input type="file" id="locCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this, 'location')">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('locCameraInput').click()">📷 Standort-Foto mit Kamera</button>
+
+          <input type="file" id="locGalleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this, 'location')">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('locGalleryInput').click()">📁 Aus Galerie</button>
+        </div>
+        <div class="photo-grid" id="locPhotoContainer"></div>
+      </div>
+
+      <!-- SPLEISS-FOTOS -->
+      <div class="photo-section">
+        <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--primary-color);">
+          🛠️ 2. Spleiß- & Montage-Fotos (z. B. Kassettenansicht, Muffen- / Schrank-Innenleben):
+        </label>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <input type="file" id="spliceCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this, 'splice')">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('spliceCameraInput').click()">📷 Montage-Foto mit Kamera</button>
+
+          <input type="file" id="spliceGalleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this, 'splice')">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('spliceGalleryInput').click()">📁 Aus Galerie</button>
+        </div>
+        <div class="photo-grid" id="splicePhotoContainer"></div>
+      </div>
+
+      <div class="form-group" style="margin-top: 16px;">
+        <label>Abschließende Bemerkungen</label>
+        <textarea id="finalNotes" rows="2" placeholder="z. B. Kassetten beschriftet, Dichtigkeit geprüft..."></textarea>
+      </div>
+
+      <div class="nav-buttons" style="background: var(--light-bg); padding: 14px; border-radius: 6px;">
+        <button type="button" class="btn btn-secondary" onclick="showStep('step-next-unit-prompt')">⬅ Zurück zu den Einheiten</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-primary" onclick="generateVectorPDF(false)">📄 PDF Herunterladen</button>
+          <!-- Outlook Button temporär ausgeblendet -->
+          <button type="button" class="btn btn-success" onclick="sendDirectOutlookMail()" style="display: none;">✉️ Per Outlook versenden</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- SCHRITT 3 -->
-  <div id="step-splice-adjust" class="step-card">
-    <h2 id="adjustTableTitle">3. Faserbelegung & Spleißplan prüfen / anpassen</h2>
-    <p style="font-size: 13px; color: #64748b; margin-top: -6px;">Farbe und Fasernummer sind gekoppelt. Passe die Zuordnung bei Bedarf an.</p>
+  <!-- Anwendungsskripte -->
+  <script src="js/config.js"></script>
+  <script src="js/core/gps.js"></script>
+  <script src="js/core/photo.js"></script>
+  <script src="js/core/pdf-builder.js"></script>
+  <script src="js/core/msal-mail.js"></script>
+  <script src="js/modules/lwl-splice.js"></script>
+  <script src="js/modules/switch-box.js"></script>
 
-    <div class="table-container">
-      <table id="wizardTable">
-        <thead>
-          <tr>
-            <th style="width: 35px;">Nr.</th>
-            <th style="width: 65px;">Kassette</th>
-            <th style="width: 135px;">Kabel A Farbe</th>
-            <th style="width: 55px;">Fas. A</th>
-            <th style="width: 30px;">⟷</th>
-            <th style="width: 135px;">Kabel B / Pigtail</th>
-            <th style="width: 55px;">Fas. B</th>
-            <th style="width: 80px;">Dämpfung</th>
-            <th>Bemerkung / Kabel</th>
-          </tr>
-        </thead>
-        <tbody id="wizardTableBody"></tbody>
-      </table>
-    </div>
-
-    <div class="nav-buttons">
-      <button class="btn btn-secondary" onclick="goBackFromAdjust()">⬅ Zurück</button>
-      <button class="btn btn-success" onclick="saveCurrentUnitAndAskNext()">Einheit speichern & Weiter ➔</button>
-    </div>
-  </div>
-
-  <!-- SCHRITT 4 -->
-  <div id="step-next-unit-prompt" class="step-card">
-    <h2>4. Übersicht der erfassten Einheiten</h2>
-    
-    <div id="configuredUnitsList" style="margin-bottom: 20px;"></div>
-
-    <div style="background: var(--light-bg); padding: 16px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
-      <h3 style="margin-top: 0; color: var(--primary-color);">Möchtest du weitere Einheiten hinzufügen oder Stammdaten ändern?</h3>
-      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
-        <button class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe / Y-Muffe</button>
-        <button class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox</button>
-        <button class="btn btn-secondary" onclick="showStep('step-start')">✏️ Stammdaten bearbeiten</button>
-        <button class="btn btn-success" onclick="goToFinalOverview()">➔ Weiter zum Abschluss (Fotos & PDF)</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCHRITT 5 -->
-  <div id="step-final" class="step-card">
-    <h2>5. Fotodokumentation & PDF Export</h2>
-
-    <!-- STANDORT-FOTOS -->
-    <div class="photo-section">
-      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--primary-color);">
-        📍 1. Standort-Fotos (z. B. Schacht, Gebäudeansicht, Trasse):
-      </label>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <input type="file" id="locCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this, 'location')">
-        <button class="btn btn-outline" onclick="document.getElementById('locCameraInput').click()">📷 Standort-Foto mit Kamera</button>
-
-        <input type="file" id="locGalleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this, 'location')">
-        <button class="btn btn-outline" onclick="document.getElementById('locGalleryInput').click()">📁 Aus Galerie</button>
-      </div>
-      <div class="photo-grid" id="locPhotoContainer"></div>
-    </div>
-
-    <!-- SPLEISS-FOTOS -->
-    <div class="photo-section">
-      <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px; color: var(--primary-color);">
-        🛠️ 2. Spleiß- & Montage-Fotos (z. B. Kassettenansicht, Muffen-Innenleben):
-      </label>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <input type="file" id="spliceCameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(this, 'splice')">
-        <button class="btn btn-outline" onclick="document.getElementById('spliceCameraInput').click()">📷 Montage-Foto mit Kamera</button>
-
-        <input type="file" id="spliceGalleryInput" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(this, 'splice')">
-        <button class="btn btn-outline" onclick="document.getElementById('spliceGalleryInput').click()">📁 Aus Galerie</button>
-      </div>
-      <div class="photo-grid" id="splicePhotoContainer"></div>
-    </div>
-
-    <div class="form-group" style="margin-top: 16px;">
-      <label>Abschließende Bemerkungen</label>
-      <textarea id="finalNotes" rows="2" placeholder="z. B. Kassetten beschriftet, Dichtigkeit geprüft..."></textarea>
-    </div>
-
-    <div class="nav-buttons" style="background: var(--light-bg); padding: 14px; border-radius: 6px;">
-      <button class="btn btn-secondary" onclick="showStep('step-next-unit-prompt')">⬅ Zurück zu den Einheiten</button>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="btn btn-primary" onclick="generateVectorPDF(false)">📄 PDF Herunterladen</button>
-        <button class="btn btn-success" onclick="sendDirectOutlookMail()">✉️ Per Outlook versenden</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Anwendungsskripte -->
-<script src="js/config.js"></script>
-<script src="js/core/gps.js"></script>
-<script src="js/core/photo.js"></script>
-<script src="js/core/pdf-builder.js"></script>
-<script src="js/core/msal-mail.js"></script>
-<script src="js/modules/lwl-splice.js"></script>
-<script src="js/modules/switch-box.js"></script>
-  
 </body>
 </html>
