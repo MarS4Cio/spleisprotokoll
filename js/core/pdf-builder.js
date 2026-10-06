@@ -372,9 +372,10 @@ function generateVectorPDF(isBlob = false) {
     ? (document.getElementById('sw_address')?.value || document.getElementById('sw_box_id')?.value || 'Kasten')
     : (document.getElementById('inLocation')?.value || 'SpleissProtokoll');
 
-  const loc = locRaw.replace(/[^a-zA-Z0-9_-]/g, '_');
+  // Ungültige Dateipfad-Zeichen (wie / \ : * ? " < > |) entfernen, aber Umlaute & Leerzeichen behalten
+  const locClean = locRaw.trim().replace(/[/\\?%*:|"<>]/g, '');
   const doc = buildVectorPDF();
-  const filename = `${isSwitchBox ? 'Kasten' : 'Spleissprotokoll'}_${loc}.pdf`;
+  const filename = `${isSwitchBox ? 'Kasten' : 'Spleissprotokoll'}_${locClean}.pdf`;
 
   if (isBlob) {
     return { blob: doc.output('blob'), filename: filename };
@@ -382,6 +383,5 @@ function generateVectorPDF(isBlob = false) {
     doc.save(filename);
   }
 }
-
 // Logo direkt beim Skriptstart laden
 preloadLocalLogo();
