@@ -34,14 +34,39 @@ let currentUnitType = '';
 let editingUnitIndex = -1;
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('lblDate').textContent = new Date().toLocaleDateString('de-DE');
-  preloadLocalLogo();
+  const lblDate = document.getElementById('lblDate');
+  if (lblDate) lblDate.textContent = new Date().toLocaleDateString('de-DE');
+  if (typeof preloadLocalLogo === 'function') preloadLocalLogo();
 });
 
-function showStep(stepId) {
+// ==========================================
+// INTELLIGENTE VERLAUFS-NAVIGATION (STACK)
+// ==========================================
+let navigationHistory = ['step-dashboard'];
+
+function showStep(stepId, isBack = false) {
+  const currentActive = document.querySelector('.step-card.active');
+  const currentActiveId = currentActive ? currentActive.id : null;
+
+  if (!isBack && currentActiveId && currentActiveId !== stepId) {
+    navigationHistory.push(currentActiveId);
+  }
+
   document.querySelectorAll('.step-card').forEach(el => el.classList.remove('active'));
-  document.getElementById(stepId).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const targetCard = document.getElementById(stepId);
+  if (targetCard) {
+    targetCard.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function goBack() {
+  if (navigationHistory.length > 0) {
+    const previousStep = navigationHistory.pop();
+    showStep(previousStep, true);
+  } else {
+    showStep('step-dashboard', true);
+  }
 }
 
 function startMuffeWorkflow() {
