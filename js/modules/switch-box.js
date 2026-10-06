@@ -84,14 +84,14 @@ function startSwitchSpliceConfig() {
   tbody.innerHTML = '';
 
   let globalIndex = 1;
-  let pigtailNum = 1; // Startet immer bei Rot (1)
+  let pigtailNum = 1;
   let totalSplices = 0;
 
   const headerRow = document.createElement('tr');
   headerRow.className = 'cassette-header-row';
   headerRow.setAttribute('data-kassette-id', 'K1');
   headerRow.setAttribute('data-kassette-title', `Kassette ${boxId}`);
-  headerRow.innerHTML = `<td colspan="9">Spleißkassette: ${boxId}</td>`;
+  headerRow.innerHTML = `<td colspan="9">SPLEISSKASSETTE: ${boxId}</td>`;
   tbody.appendChild(headerRow);
 
   cableCards.forEach((card, cIdx) => {
@@ -101,7 +101,7 @@ function startSwitchSpliceConfig() {
 
     for (let f = 1; f <= countVal; f++) {
       const colA = PALETTES[typeVal][(f - 1) % 12];
-      const colB = PALETTES['neu'][(pigtailNum - 1) % 12]; // Pigtails immer DIN VDE ab Rot
+      const colB = PALETTES['neu'][(pigtailNum - 1) % 12];
       
       const tr = createSpliceRowHTML(globalIndex, 'K1', typeVal, colA, f, 'neu', colB, pigtailNum, `${nameVal}`);
       tbody.appendChild(tr);
@@ -112,25 +112,22 @@ function startSwitchSpliceConfig() {
     }
   });
 
-  // Material-Feld "Spleiße" automatisch anpassen
   const splicesInput = document.getElementById('mat_splices_count');
-  if (splicesInput) {
-    splicesInput.value = totalSplices;
-  }
+  if (splicesInput) splicesInput.value = totalSplices;
 
   document.getElementById('adjustTableTitle').textContent = `3. Spleißbelegung im Kasten: ${boxId} (${totalSplices} Spleiße)`;
   showStep('step-splice-adjust');
 }
 
-// Zusammenfassung des gebuchten Materials für das PDF
+// Für die PDF-Erstellung: Material zusammenfassen
 function getFormattedMaterialSummary() {
-  const boxType = document.getElementById('mat_box_type').value;
-  const splices = document.getElementById('mat_splices_count').value;
-  const m20Pipe = document.getElementById('mat_m20_pipe').value.trim();
-  const m20Clamps = document.getElementById('mat_m20_clamps').value.trim();
-  const nym = document.getElementById('mat_nym_cable').value.trim();
-  const oelflex = document.getElementById('mat_oelflex_cable').value.trim();
-  const other = document.getElementById('mat_other').value.trim();
+  const boxType = document.getElementById('mat_box_type')?.value || '';
+  const splices = document.getElementById('mat_splices_count')?.value || '';
+  const m20Pipe = document.getElementById('mat_m20_pipe')?.value.trim() || '';
+  const m20Clamps = document.getElementById('mat_m20_clamps')?.value.trim() || '';
+  const nym = document.getElementById('mat_nym_cable')?.value.trim() || '';
+  const oelflex = document.getElementById('mat_oelflex_cable')?.value.trim() || '';
+  const other = document.getElementById('mat_other')?.value.trim() || '';
 
   let matList = [];
   if (boxType && boxType !== 'Kein / Bestand') matList.push(`• Kasten: ${boxType}`);
@@ -143,11 +140,12 @@ function getFormattedMaterialSummary() {
 
   return matList.length > 0 ? matList.join('\n') : 'Standard-Material';
 }
-// Geht beim Schrank-Protokoll direkt von Schritt 3 zu Schritt 5 (Fotos & PDF)
+
+// Direktes Weiterleiten nach der Kasten-Spleißtabelle zu den Fotos
 function handleSwitchBoxNext() {
-  if (currentProtocolType === 'switchbox') {
+  if (typeof currentProtocolType !== 'undefined' && currentProtocolType === 'switchbox') {
     showStep('step-final');
-  } else {
-    showStep('step-next-unit-prompt');
+  } else if (typeof saveCurrentUnitAndAskNext === 'function') {
+    saveCurrentUnitAndAskNext();
   }
 }
