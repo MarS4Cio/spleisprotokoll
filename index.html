@@ -25,6 +25,30 @@
     </div>
   </div>
 
+  <!-- STARTBILDSCHIRM / PROTOKOLL-AUSWAHL -->
+<div id="step-dashboard" class="step-card active">
+  <h2>📋 Welches Protokoll möchtest du erstellen?</h2>
+  <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Wähle die passende Protokoll-Vorlage für deinen heutigen Einsatz aus:</p>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+    <!-- OPTION 1: SPLEISSPROTOKOLL -->
+    <div style="border: 2px solid var(--border-color); border-radius: 8px; padding: 18px; background: white; cursor: pointer; transition: all 0.2s;" onclick="startSpleissWorkflow()">
+      <div style="font-size: 28px; margin-bottom: 8px;">🛠️</div>
+      <h3 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 16px;">LWL-Spleißprotokoll</h3>
+      <p style="font-size: 12px; color: #64748b; margin: 0;">Für Standard-Muffen, Y-Muffen und reine Spleißboxen (DIN / Corning).</p>
+      <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 14px;">Spleißprotokoll starten ➔</button>
+    </div>
+
+    <!-- OPTION 2: SCHRANK & SWITCH PROTOKOLL -->
+    <div style="border: 2px solid var(--border-color); border-radius: 8px; padding: 18px; background: white; cursor: pointer; transition: all 0.2s;" onclick="startSwitchBoxWorkflow()">
+      <div style="font-size: 28px; margin-bottom: 8px;">🔌</div>
+      <h3 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 16px;">LWL-Kasten & Switch</h3>
+      <p style="font-size: 12px; color: #64748b; margin: 0;">Für Netzwerkschränke, Switch-Einbau, Regleradresse & DIN-Spleiße.</p>
+      <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 14px; background-color: var(--accent-color); border-color: var(--accent-color);">Schrank-Protokoll starten ➔</button>
+    </div>
+  </div>
+</div>
+  
   <!-- SCHRITT 1 -->
   <div id="step-start" class="step-card active">
     <h2>1. Stammdaten & Einheit wählen</h2>
@@ -334,6 +358,7 @@
 <script src="js/core/pdf-builder.js"></script>
 <script src="js/core/msal-mail.js"></script>
 <script src="js/modules/lwl-splice.js"></script>
+<script src="js/modules/switch-box.js"></script>
   
 </body>
 </html>
