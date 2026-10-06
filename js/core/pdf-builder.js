@@ -369,13 +369,15 @@ if (isSwitchBox) {
 function generateVectorPDF(isBlob = false) {
   const isSwitchBox = (typeof currentProtocolType !== 'undefined' && currentProtocolType === 'switchbox');
   const locRaw = isSwitchBox 
-    ? (document.getElementById('sw_address')?.value || document.getElementById('sw_box_id')?.value || 'Kasten')
-    : (document.getElementById('inLocation')?.value || 'SpleissProtokoll');
+    ? (document.getElementById('sw_address')?.value || document.getElementById('sw_box_id')?.value || 'Protokoll')
+    : (document.getElementById('inLocation')?.value || 'Protokoll');
 
-  // Ungültige Dateipfad-Zeichen (wie / \ : * ? " < > |) entfernen, aber Umlaute & Leerzeichen behalten
+  // Ungültige Zeichen entfernen (Umlaute und Leerzeichen bleiben erhalten)
   const locClean = locRaw.trim().replace(/[/\\?%*:|"<>]/g, '');
   const doc = buildVectorPDF();
-  const filename = `${isSwitchBox ? 'Kasten' : 'Spleissprotokoll'}_${locClean}.pdf`;
+  
+  // Rein über die Adresse / den Ort benennen
+  const filename = `${locClean || 'Protokoll'}.pdf`;
 
   if (isBlob) {
     return { blob: doc.output('blob'), filename: filename };
