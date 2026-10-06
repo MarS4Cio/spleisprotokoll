@@ -256,9 +256,9 @@ function buildMuffeSpliceTable() {
 
   if (mode === 'standard') {
     const typeA = document.getElementById('muffe_cableA_type').value;
-    const countA = parseInt(document.getElementById('muffe_cableA_count').value);
+    const countA = parseInt(document.getElementById('muffe_cableA_count').value) || 4;
     const typeB = document.getElementById('muffe_cableB_type').value;
-    const countB = parseInt(document.getElementById('muffe_cableB_count').value);
+    const countB = parseInt(document.getElementById('muffe_cableB_count').value) || 4;
     const maxCount = Math.max(countA, countB);
 
     document.getElementById('adjustTableTitle').textContent = `3. Faserbelegung für Muffe (${maxCount} Fasern)`;
