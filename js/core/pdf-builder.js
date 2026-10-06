@@ -18,38 +18,52 @@ function preloadLocalLogo() {
   img.onerror = function() {
     console.warn("Logo konnte nicht geladen werden.");
   };
-  img.src = APP_CONFIG.logoPath;
+  img.src = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.logoPath ? APP_CONFIG.logoPath : 'GUH_Logo.png';
 }
 
 function buildVectorPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
-  const project = document.getElementById('inProject').value;
-  const location = document.getElementById('inLocation').value;
-  const technician = document.getElementById('inTechnician').value;
-  const notes = document.getElementById('finalNotes').value;
-  const dateStr = document.getElementById('lblDate').textContent;
 
+  const isSwitchBox = (typeof currentProtocolType !== 'undefined' && currentProtocolType === 'switchbox');
+
+  // STAMMDATEN HOLEN
+  const project = isSwitchBox 
+    ? (document.getElementById('sw_project')?.value || '—')
+    : (document.getElementById('inProject')?.value || '—');
+    
+  const location = isSwitchBox 
+    ? (document.getElementById('sw_address')?.value || '—')
+    : (document.getElementById('inLocation')?.value || '—');
+    
+  const technician = document.getElementById('inTechnician')?.value || 'Florian Elstein';
+  const notes = document.getElementById('finalNotes')?.value || '';
+  
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('de-DE') + ' ' + now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+  // 1. LOGO & HEADER
   if (loadedLogoDataUrl) {
     const targetHeight = 13;
     const targetWidth = targetHeight * logoAspectRatio;
     doc.addImage(loadedLogoDataUrl, 'PNG', 14, 9, targetWidth, targetHeight);
   } else {
-    doc.setFontSize(14);
+    doc.setFontSize(13);
     doc.setTextColor(23, 84, 103);
     doc.setFont(undefined, 'bold');
-    doc.text(APP_CONFIG.companyName.toUpperCase(), 14, 18);
+    doc.text(typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.companyName.toUpperCase() : 'GEOTHERMIE UNTERHACHING', 14, 18);
   }
 
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(23, 84, 103);
   doc.setFont(undefined, 'bold');
-  doc.text("SPLEISS- & MESSPROTOKOLL LWL", 196, 17.5, { align: 'right' });
+  doc.text(isSwitchBox ? "LWL-KASTEN & SWITCH PROTOKOLL" : "SPLEISS- & MESSPROTOKOLL LWL", 196, 17.5, { align: 'right' });
 
   doc.setDrawColor(232, 92, 36);
   doc.setLineWidth(0.8);
   doc.line(14, 25, 196, 25);
 
+  // STAMMDATEN TABELLE
   doc.autoTable({
     startY: 28,
     theme: 'plain',
@@ -61,93 +75,137 @@ function buildVectorPDF() {
       3: { cellWidth: 'auto' }
     },
     body: [
-      ['Auftraggeber:', APP_CONFIG.companyName, 'Datum:', dateStr],
+      ['Auftraggeber:', typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.companyName : 'Geothermie Unterhaching', 'Datum:', dateStr],
       ['Projekt / Trasse:', project, 'Monteur:', technician],
-      ['Einsatzort / Objekt:', location, 'Firma:', APP_CONFIG.companySubtext]
+      ['Einsatzort / Objekt:', location, 'Firma:', typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.companySubtext : 'Geothermie Unterhaching GmbH & Co. KG']
     ]
   });
 
   let currentY = doc.lastAutoTable.finalY + 4;
 
-  completedUnits.forEach((unit, uIdx) => {
-    if (currentY > 240) { doc.addPage(); currentY = 20; }
-
-    doc.setFontSize(10.5);
+  // 2. HARDWARE & MATERIAL (NUR BEI LWL-KASTEN)
+  if (isSwitchBox) {
+    doc.setFillColor(241, 245, 249);
+    doc.rect(14, currentY, 182, 18, 'F');
+    
+    doc.setFontSize(8.5);
     doc.setTextColor(23, 84, 103);
     doc.setFont(undefined, 'bold');
-    doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, currentY);
-    currentY += 4;
+    doc.text('HARDWARE & NETZWERK-EINSTELLUNGEN:', 17, currentY + 4.5);
+    
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(15, 23, 42);
 
-    unit.cassettes.forEach((cassette) => {
-      if (currentY > 230) { doc.addPage(); currentY = 20; }
+    const fabNr = document.getElementById('sw_fab_nr')?.value || '—';
+    const regAddr = document.getElementById('sw_regler_addr')?.value || '—';
+    const switchInst = document.getElementById('sw_switch_installed')?.value || 'nein';
+    const switchIp = document.getElementById('sw_ip')?.value || '—';
+    const workTime = document.getElementById('sw_work_duration')?.value || '—';
 
-      const safeTitle = (cassette.title || "Kassette").replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
+    doc.text(`Fabrikations-Nr.: ${fabNr}`, 17, currentY + 9.5);
+    doc.text(`Regleradresse: ${regAddr}`, 85, currentY + 9.5);
+    doc.text(`Arbeitszeit: ${workTime}`, 145, currentY + 9.5);
 
-      doc.setFillColor(23, 84, 103);
-      doc.roundedRect(14, currentY, 182, 5.5, 0.5, 0.5, 'F');
-      doc.setFontSize(8);
-      doc.setTextColor(255, 255, 255);
+    doc.text(`Switch verbaut: ${switchInst.toUpperCase()}`, 17, currentY + 14.5);
+    if (switchInst === 'ja') {
+      doc.text(`Switch-IP: ${switchIp}`, 85, currentY + 14.5);
+    }
+
+    currentY += 22;
+
+    if (typeof getFormattedMaterialSummary === 'function') {
+      const matSummary = getFormattedMaterialSummary();
+      doc.setFontSize(8.5);
+      doc.setTextColor(23, 84, 103);
       doc.setFont(undefined, 'bold');
-      doc.text(safeTitle, 17, currentY + 3.8);
-      currentY += 6.5;
+      doc.text("VERWENDETES MATERIAL:", 14, currentY);
+      
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(15, 23, 42);
+      const splitMat = doc.splitTextToSize(matSummary, 182);
+      doc.text(splitMat, 14, currentY + 4);
+      currentY += 5 + (splitMat.length * 3.8);
+    }
+  }
 
-      const tableData = cassette.rows.map(r => [
-        r.nr,
-        r.cassette,
-        r.colA,
-        r.fasA,
-        "->",
-        r.colB,
-        r.fasB,
-        r.attenuation,
-        r.notes
-      ]);
+  // 3. SPLEISSTABELLE ERZEUGEN
+  const tableRows = [];
+  const rows = document.querySelectorAll('#wizardTableBody tr');
 
-      doc.autoTable({
-        startY: currentY,
-        head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 7.5 },
-        styles: { fontSize: 7.5, halign: 'center', cellPadding: 1.8, lineColor: [203, 213, 225], lineWidth: 0.1 },
-        columnStyles: {
-          0: { cellWidth: 9 },
-          1: { cellWidth: 12 },
-          2: { cellWidth: 26 },
-          3: { cellWidth: 12 },
-          4: { cellWidth: 7 },
-          5: { cellWidth: 26 },
-          6: { cellWidth: 12 },
-          7: { cellWidth: 20 },
-          8: { cellWidth: 'auto' }
-        },
-        didParseCell: function(data) {
-          if (data.section === 'body') {
-            const rawRow = cassette.rows[data.row.index];
-            if (rawRow) {
-              if (data.column.index === 2 || data.column.index === 3) {
-                const hex = getColorHex(rawRow.colA);
-                data.cell.styles.fillColor = hex;
-                data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-                data.cell.styles.fontStyle = 'bold';
-              }
-              if (data.column.index === 5 || data.column.index === 6) {
-                const hex = getColorHex(rawRow.colB);
-                data.cell.styles.fillColor = hex;
-                data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
-                data.cell.styles.fontStyle = 'bold';
-              }
+  rows.forEach(tr => {
+    if (tr.classList.contains('cassette-header-row')) {
+      const title = tr.textContent.replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
+      tableRows.push([{ content: title, colSpan: 9, styles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }]);
+    } else {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length >= 7) {
+        const nr = tds[0].textContent.trim();
+        const cass = tds[1] ? tds[1].textContent.trim() : 'K1';
+        const colA = tds[2].textContent.trim();
+        const fasA = tds[3].textContent.trim();
+        const colB = tds[5].textContent.trim();
+        const fasB = tds[6].textContent.trim();
+        
+        const lossInput = tr.querySelector('.loss-input');
+        const loss = lossInput ? lossInput.value : '—';
+        
+        const remInput = tr.querySelector('.remark-input');
+        const rem = remInput ? remInput.value : '';
+
+        tableRows.push([nr, cass, colA, fasA, "->", colB, fasB, loss, rem]);
+      }
+    }
+  });
+
+  if (tableRows.length > 0) {
+    doc.autoTable({
+      startY: currentY,
+      head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
+      body: tableRows,
+      theme: 'grid',
+      headStyles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 7.5 },
+      styles: { fontSize: 7.5, halign: 'center', cellPadding: 1.8, lineColor: [203, 213, 225], lineWidth: 0.1 },
+      columnStyles: {
+        0: { cellWidth: 9 },
+        1: { cellWidth: 12 },
+        2: { cellWidth: 26 },
+        3: { cellWidth: 12 },
+        4: { cellWidth: 7 },
+        5: { cellWidth: 26 },
+        6: { cellWidth: 12 },
+        7: { cellWidth: 20 },
+        8: { cellWidth: 'auto' }
+      },
+      didParseCell: function(data) {
+        if (data.section === 'body' && data.row.cells[0]?.raw?.content === undefined) {
+          if (data.column.index === 2 || data.column.index === 3) {
+            const colorName = data.row.cells[2].raw;
+            if (typeof getColorHex === 'function') {
+              const hex = getColorHex(colorName);
+              data.cell.styles.fillColor = hex;
+              data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+              data.cell.styles.fontStyle = 'bold';
+            }
+          }
+          if (data.column.index === 5 || data.column.index === 6) {
+            const colorName = data.row.cells[5].raw;
+            if (typeof getColorHex === 'function') {
+              const hex = getColorHex(colorName);
+              data.cell.styles.fillColor = hex;
+              data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+              data.cell.styles.fontStyle = 'bold';
             }
           }
         }
-      });
-
-      currentY = doc.lastAutoTable.finalY + 5;
+      }
     });
 
-    currentY += 3;
-  });
+    currentY = doc.lastAutoTable.finalY + 5;
+  }
 
+  // 4. BEMERKUNGEN
   if (notes) {
     if (currentY > 240) { doc.addPage(); currentY = 20; }
     doc.setFontSize(9);
@@ -161,7 +219,11 @@ function buildVectorPDF() {
     currentY += 12;
   }
 
-  const totalPhotos = attachedLocationPhotos.length + attachedSplicePhotos.length;
+  // 5. FOTODOKUMENTATION
+  const locPhotos = typeof attachedLocationPhotos !== 'undefined' ? attachedLocationPhotos : [];
+  const splPhotos = typeof attachedSplicePhotos !== 'undefined' ? attachedSplicePhotos : [];
+  const totalPhotos = locPhotos.length + splPhotos.length;
+
   if (totalPhotos > 0) {
     doc.addPage();
     doc.setFontSize(11);
@@ -191,11 +253,15 @@ function buildVectorPDF() {
           pY = 20;
           pX = 14;
         }
-        doc.addImage(p.src, 'JPEG', pX, pY, 85, 60);
-        doc.setFontSize(7.5);
-        doc.setTextColor(15, 23, 42);
-        doc.setFont(undefined, 'normal');
-        doc.text(p.desc || `Foto ${idx + 1}`, pX, pY + 64);
+        try {
+          doc.addImage(p.src, 'JPEG', pX, pY, 85, 60);
+          doc.setFontSize(7.5);
+          doc.setTextColor(15, 23, 42);
+          doc.setFont(undefined, 'normal');
+          doc.text(p.desc || `Foto ${idx + 1}`, pX, pY + 64);
+        } catch(e) {
+          console.error("Foto konnte nicht im PDF platziert werden", e);
+        }
 
         if (pX === 14) {
           pX = 105;
@@ -208,10 +274,11 @@ function buildVectorPDF() {
       if (pX === 105) { pX = 14; pY += 70; }
     };
 
-    renderPhotoGroup(attachedLocationPhotos, "1. STANDORT & UMGEBUNG");
-    renderPhotoGroup(attachedSplicePhotos, "2. SPLEISS- & MONTAGE-DETAILS");
+    renderPhotoGroup(locPhotos, "1. STANDORT & UMGEBUNG");
+    renderPhotoGroup(splPhotos, "2. SPLEISS- & MONTAGE-DETAILS");
   }
 
+  // 6. SEITENZAHLEN
   const totalPages = doc.internal.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
@@ -221,7 +288,7 @@ function buildVectorPDF() {
 
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
-    doc.text(`${APP_CONFIG.companyName} - Technisches Protokoll LWL`, 14, 289);
+    doc.text(`${typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.companyName : 'Geothermie Unterhaching'} - Technisches Protokoll LWL`, 14, 289);
     doc.text(`Seite ${i} von ${totalPages}`, 196, 289, { align: 'right' });
   }
 
@@ -229,13 +296,14 @@ function buildVectorPDF() {
 }
 
 function generateVectorPDF(isBlob = false) {
-  if (completedUnits.length === 0) {
-    alert("Bitte zuerst mindestens eine Einheit erfassen!");
-    return;
-  }
+  const isSwitchBox = (typeof currentProtocolType !== 'undefined' && currentProtocolType === 'switchbox');
+  const locRaw = isSwitchBox 
+    ? (document.getElementById('sw_address')?.value || document.getElementById('sw_box_id')?.value || 'Kasten')
+    : (document.getElementById('inLocation')?.value || 'SpleissProtokoll');
+
+  const loc = locRaw.replace(/[^a-zA-Z0-9_-]/g, '_');
   const doc = buildVectorPDF();
-  const loc = document.getElementById('inLocation').value.replace(/[^a-zA-Z0-9_-]/g, '_');
-  const filename = `Spleissprotokoll_${loc}.pdf`;
+  const filename = `${isSwitchBox ? 'Kasten' : 'Spleissprotokoll'}_${loc}.pdf`;
 
   if (isBlob) {
     return { blob: doc.output('blob'), filename: filename };
@@ -243,3 +311,6 @@ function generateVectorPDF(isBlob = false) {
     doc.save(filename);
   }
 }
+
+// Logo direkt beim Skriptstart laden
+preloadLocalLogo();
