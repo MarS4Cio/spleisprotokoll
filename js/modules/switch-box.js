@@ -143,3 +143,11 @@ function getFormattedMaterialSummary() {
 
   return matList.length > 0 ? matList.join('\n') : 'Standard-Material';
 }
+// Geht beim Schrank-Protokoll direkt von Schritt 3 zu Schritt 5 (Fotos & PDF)
+function handleSwitchBoxNext() {
+  if (currentProtocolType === 'switchbox') {
+    showStep('step-final');
+  } else {
+    showStep('step-next-unit-prompt');
+  }
+}
