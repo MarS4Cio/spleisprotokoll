@@ -51,83 +51,122 @@
     </div>
 
     <!-- PROTOKOLL TYP 2: SCHRANK & SWITCH STAMMDATEN -->
-    <div id="step-switchbox-1" class="step-card">
-      <h2>1. Schrank-Stammdaten & Hardware</h2>
+<!-- SCHRANK-PROTOKOLL: SCHRITT 1 - STAMMDATEN & HARDWARE -->
+<div id="step-switchbox-1" class="step-card">
+  <h2>1. Schrank-Stammdaten, Hardware & Material</h2>
 
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Projekt / Trasse</label>
-          <input type="text" id="sw_project" placeholder="z. B. Fernwärmetrasse Nord">
-        </div>
-        <div class="form-group">
-          <label>Einsatzort / Gebäudeadresse</label>
-          <div style="display: flex; gap: 6px;">
-            <input type="text" id="sw_address" placeholder="Str. & Nr., PLZ Ort">
-            <button type="button" class="btn btn-outline" style="padding: 0 10px;" onclick="getCurrentGPS('sw_address')">📍 GPS</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top: 10px;">
-        <div class="form-group">
-          <label>Schrank-Bezeichnung / ID</label>
-          <input type="text" id="sw_box_id" placeholder="z. B. Schaltschrank UST-01">
-        </div>
-        <div class="form-group">
-          <label>Fabrikationsnummer (P...)</label>
-          <input type="text" id="sw_fab_nr" placeholder="PXXXXXXXXXXXXX" onblur="validateFabrikationsnr(this)">
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top: 10px;">
-        <div class="form-group">
-          <label>Switch verbaut?</label>
-          <select id="sw_switch_installed" onchange="toggleSwitchFields()">
-            <option value="ja" selected>Ja</option>
-            <option value="nein">Nein</option>
-          </select>
-        </div>
-        <div class="form-group" id="sw_ip_group">
-          <label>Switch-IP-Adresse</label>
-          <input type="text" id="sw_ip" placeholder="192.168.x.x">
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top: 10px;">
-        <div class="form-group">
-          <label>Regleradresse</label>
-          <input type="text" id="sw_regler_addr" placeholder="z. B. Bus-Adresse / Steuerung">
-        </div>
-        <div class="form-group">
-          <label>Verwendetes Material</label>
-          <textarea id="sw_material" rows="2" placeholder="z. B. Rittal Kasten, Patchkabel LC-LC 2m, SFP-Modul..."></textarea>
-        </div>
-      </div>
-
-      <div class="grid-2" style="margin-top: 10px; background: var(--light-bg); padding: 10px; border-radius: 6px;">
-        <div class="form-group">
-          <label>Faseranzahl im Kasten</label>
-          <select id="sw_fiber_count">
-            <option value="4">4 Fasern</option>
-            <option value="8" selected>8 Fasern</option>
-            <option value="12">12 Fasern</option>
-            <option value="24">24 Fasern</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Ankommendes Kabel Standard</label>
-          <select id="sw_cable_type">
-            <option value="neu" selected>Neu (DIN VDE: Rot, Grün...)</option>
-            <option value="alt">Alt (Corning: Blau, Orange...)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="nav-buttons" style="margin-top: 16px;">
-        <button type="button" class="btn btn-secondary" onclick="showStep('step-dashboard')">⬅ Zurück zum Start</button>
-        <button type="button" class="btn btn-primary" onclick="startSwitchSpliceConfig()">Weiter zur Spleißbelegung ➔</button>
+  <div class="grid-2">
+    <div class="form-group">
+      <label>Projekt / Trasse</label>
+      <input type="text" id="sw_project" placeholder="z. B. Fernwärmetrasse Nord">
+    </div>
+    <div class="form-group">
+      <label>Einsatzort / Gebäudeadresse</label>
+      <div style="display: flex; gap: 6px;">
+        <input type="text" id="sw_address" placeholder="Str. & Nr., PLZ Ort">
+        <button type="button" class="btn btn-outline" style="padding: 0 10px;" onclick="getCurrentGPS('sw_address')">📍 GPS</button>
       </div>
     </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 10px;">
+    <div class="form-group">
+      <label>Schrank-Bezeichnung / ID</label>
+      <input type="text" id="sw_box_id" placeholder="z. B. Schaltschrank UST-01">
+    </div>
+    <div class="form-group">
+      <label>Fabrikationsnummer (P...)</label>
+      <input type="text" id="sw_fab_nr" placeholder="PXXXXXXXXXXXXX" onblur="validateFabrikationsnr(this)">
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 10px;">
+    <div class="form-group">
+      <label>Switch verbaut?</label>
+      <select id="sw_switch_installed" onchange="toggleSwitchFields()">
+        <option value="ja" selected>Ja</option>
+        <option value="nein">Nein</option>
+      </select>
+    </div>
+    <div class="form-group" id="sw_ip_group">
+      <label>Switch-IP-Adresse</label>
+      <input type="text" id="sw_ip" placeholder="192.168.x.x">
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 10px;">
+    <div class="form-group">
+      <label>Regleradresse</label>
+      <input type="text" id="sw_regler_addr" placeholder="z. B. Bus-Adresse / Steuerung">
+    </div>
+    <div class="form-group">
+      <label>⏱️ Arbeitszeit / Dauer (ca.)</label>
+      <input type="text" id="sw_work_duration" placeholder="z. B. 1,5 Std. / 2 Std. 30 Min.">
+    </div>
+  </div>
+
+  <!-- MATERIAL-LISTE & VERBRAUCH -->
+  <div style="margin-top: 14px; background: var(--light-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+    <h3 style="margin: 0 0 10px 0; font-size: 14px; color: var(--primary-color);">📦 Verwendetes Material & Mengen</h3>
+    
+    <div class="grid-2">
+      <div class="form-group">
+        <label>LWL-Kasten Typ</label>
+        <select id="mat_box_type">
+          <option value="GUH Eigenbau" selected>GUH Eigenbau-Kasten</option>
+          <option value="Bavaria LWL">Bavaria LWL Kasten</option>
+          <option value="Kein / Bestand">Kein / Bestand</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Spleiße (Anzahl)</label>
+        <input type="number" id="mat_splices_count" value="8" min="0">
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 8px;">
+      <div class="form-group">
+        <label>M20 Stangenrohr (Meter / Stk.)</label>
+        <input type="text" id="mat_m20_pipe" placeholder="z. B. 2m oder 1 Stk.">
+      </div>
+      <div class="form-group">
+        <label>M20 Schellen (Anzahl Stk.)</label>
+        <input type="number" id="mat_m20_clamps" placeholder="z. B. 4" min="0">
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 8px;">
+      <div class="form-group">
+        <label>NYM-J 3x1,5 mm² (Meter)</label>
+        <input type="text" id="mat_nym_cable" placeholder="z. B. 3m">
+      </div>
+      <div class="form-group">
+        <label>2YSLCY 3x1,5 mm² Ölflex (Meter)</label>
+        <input type="text" id="mat_oelflex_cable" placeholder="z. B. 5m">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top: 8px;">
+      <label>Sonstiges Material / Bemerkungen</label>
+      <input type="text" id="mat_other" placeholder="z. B. Patchkabel LC-LC 2m, SFP-Modul 1310nm...">
+    </div>
+  </div>
+
+  <!-- KABEL & SPLEISS KONFIGURATION -->
+  <div style="margin-top: 14px; background: #f1f5f9; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <h3 style="margin: 0; font-size: 14px; color: var(--primary-color);">🔌 Ankommende Kabel im Kasten</h3>
+      <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;" onclick="addSwitchIncomingCable()">➕ Kabel hinzufügen</button>
+    </div>
+    
+    <div id="sw_cables_container"></div>
+  </div>
+
+  <div class="nav-buttons" style="margin-top: 16px;">
+    <button type="button" class="btn btn-secondary" onclick="showStep('step-dashboard')">⬅ Zurück zum Start</button>
+    <button type="button" class="btn btn-primary" onclick="startSwitchSpliceConfig()">Weiter zur Spleißbelegung ➔</button>
+  </div>
+</div>
 
     <!-- PROTOKOLL TYP 1: SCHRITT 1 - STAMMDATEN (SPLEISSPROTOKOLL) -->
     <div id="step-1" class="step-card">
