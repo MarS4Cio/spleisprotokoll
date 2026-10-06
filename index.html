@@ -17,7 +17,7 @@
 
   <!-- FIRMEN HEADER -->
   <header class="app-header">
-    <img src="GUH_Logo.png" alt="Geothermie Unterhaching Logo" class="logo">
+    <img src="GUH_Logo.png" alt="Geothermie Unterhaching Logo" class="logo" id="webHeaderLogo">
     <div class="header-text">
       <h1>LWL Spleiß- & Messprotokoll</h1>
       <span class="sub-text">Geothermie Unterhaching GmbH & Co. KG</span>
@@ -51,122 +51,121 @@
     </div>
 
     <!-- PROTOKOLL TYP 2: SCHRANK & SWITCH STAMMDATEN -->
-<!-- SCHRANK-PROTOKOLL: SCHRITT 1 - STAMMDATEN & HARDWARE -->
-<div id="step-switchbox-1" class="step-card">
-  <h2>1. Schrank-Stammdaten, Hardware & Material</h2>
+    <div id="step-switchbox-1" class="step-card">
+      <h2>1. Schrank-Stammdaten, Hardware & Material</h2>
 
-  <div class="grid-2">
-    <div class="form-group">
-      <label>Projekt / Trasse</label>
-      <input type="text" id="sw_project" placeholder="z. B. Fernwärmetrasse Nord">
-    </div>
-    <div class="form-group">
-      <label>Einsatzort / Gebäudeadresse</label>
-      <div style="display: flex; gap: 6px;">
-        <input type="text" id="sw_address" placeholder="Str. & Nr., PLZ Ort">
-        <button type="button" class="btn btn-outline" style="padding: 0 10px;" onclick="getCurrentGPS('sw_address')">📍 GPS</button>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Projekt / Trasse</label>
+          <input type="text" id="sw_project" placeholder="z. B. Fernwärmetrasse Nord">
+        </div>
+        <div class="form-group">
+          <label>Einsatzort / Gebäudeadresse</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="sw_address" placeholder="Str. & Nr., PLZ Ort">
+            <button type="button" class="btn btn-outline" style="padding: 0 10px;" onclick="getCurrentGPS('sw_address')">📍 GPS</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-group">
+          <label>Schrank-Bezeichnung / ID</label>
+          <input type="text" id="sw_box_id" placeholder="z. B. Schaltschrank UST-01">
+        </div>
+        <div class="form-group">
+          <label>Fabrikationsnummer (P...)</label>
+          <input type="text" id="sw_fab_nr" placeholder="PXXXXXXXXXXXXX" onblur="validateFabrikationsnr(this)">
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-group">
+          <label>Switch verbaut?</label>
+          <select id="sw_switch_installed" onchange="toggleSwitchFields()">
+            <option value="ja" selected>Ja</option>
+            <option value="nein">Nein</option>
+          </select>
+        </div>
+        <div class="form-group" id="sw_ip_group">
+          <label>Switch-IP-Adresse</label>
+          <input type="text" id="sw_ip" placeholder="192.168.x.x">
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-group">
+          <label>Regleradresse</label>
+          <input type="text" id="sw_regler_addr" placeholder="z. B. Bus-Adresse / Steuerung">
+        </div>
+        <div class="form-group">
+          <label>⏱️ Arbeitszeit / Dauer (ca.)</label>
+          <input type="text" id="sw_work_duration" placeholder="z. B. 1,5 Std. / 2 Std. 30 Min.">
+        </div>
+      </div>
+
+      <!-- MATERIAL-LISTE & VERBRAUCH -->
+      <div style="margin-top: 14px; background: var(--light-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+        <h3 style="margin: 0 0 10px 0; font-size: 14px; color: var(--primary-color);">📦 Verwendetes Material & Mengen</h3>
+        
+        <div class="grid-2">
+          <div class="form-group">
+            <label>LWL-Kasten Typ</label>
+            <select id="mat_box_type">
+              <option value="GUH Eigenbau" selected>GUH Eigenbau-Kasten</option>
+              <option value="Bavaria LWL">Bavaria LWL Kasten</option>
+              <option value="Kein / Bestand">Kein / Bestand</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Spleiße (Anzahl)</label>
+            <input type="number" id="mat_splices_count" value="8" min="0">
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 8px;">
+          <div class="form-group">
+            <label>M20 Stangenrohr (Meter / Stk.)</label>
+            <input type="text" id="mat_m20_pipe" placeholder="z. B. 2m oder 1 Stk.">
+          </div>
+          <div class="form-group">
+            <label>M20 Schellen (Anzahl Stk.)</label>
+            <input type="number" id="mat_m20_clamps" placeholder="z. B. 4" min="0">
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 8px;">
+          <div class="form-group">
+            <label>NYM-J 3x1,5 mm² (Meter)</label>
+            <input type="text" id="mat_nym_cable" placeholder="z. B. 3m">
+          </div>
+          <div class="form-group">
+            <label>2YSLCY 3x1,5 mm² Ölflex (Meter)</label>
+            <input type="text" id="mat_oelflex_cable" placeholder="z. B. 5m">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 8px;">
+          <label>Sonstiges Material / Bemerkungen</label>
+          <input type="text" id="mat_other" placeholder="z. B. Patchkabel LC-LC 2m, SFP-Modul 1310nm...">
+        </div>
+      </div>
+
+      <!-- KABEL & SPLEISS KONFIGURATION -->
+      <div style="margin-top: 14px; background: #f1f5f9; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h3 style="margin: 0; font-size: 14px; color: var(--primary-color);">🔌 Ankommende Kabel im Kasten</h3>
+          <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;" onclick="addSwitchIncomingCable()">➕ Kabel hinzufügen</button>
+        </div>
+        
+        <div id="sw_cables_container"></div>
+      </div>
+
+      <div class="nav-buttons" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" onclick="goBack()">⬅ Zurück</button>
+        <button type="button" class="btn btn-primary" onclick="startSwitchSpliceConfig()">Weiter zur Spleißbelegung ➔</button>
       </div>
     </div>
-  </div>
-
-  <div class="grid-2" style="margin-top: 10px;">
-    <div class="form-group">
-      <label>Schrank-Bezeichnung / ID</label>
-      <input type="text" id="sw_box_id" placeholder="z. B. Schaltschrank UST-01">
-    </div>
-    <div class="form-group">
-      <label>Fabrikationsnummer (P...)</label>
-      <input type="text" id="sw_fab_nr" placeholder="PXXXXXXXXXXXXX" onblur="validateFabrikationsnr(this)">
-    </div>
-  </div>
-
-  <div class="grid-2" style="margin-top: 10px;">
-    <div class="form-group">
-      <label>Switch verbaut?</label>
-      <select id="sw_switch_installed" onchange="toggleSwitchFields()">
-        <option value="ja" selected>Ja</option>
-        <option value="nein">Nein</option>
-      </select>
-    </div>
-    <div class="form-group" id="sw_ip_group">
-      <label>Switch-IP-Adresse</label>
-      <input type="text" id="sw_ip" placeholder="192.168.x.x">
-    </div>
-  </div>
-
-  <div class="grid-2" style="margin-top: 10px;">
-    <div class="form-group">
-      <label>Regleradresse</label>
-      <input type="text" id="sw_regler_addr" placeholder="z. B. Bus-Adresse / Steuerung">
-    </div>
-    <div class="form-group">
-      <label>⏱️ Arbeitszeit / Dauer (ca.)</label>
-      <input type="text" id="sw_work_duration" placeholder="z. B. 1,5 Std. / 2 Std. 30 Min.">
-    </div>
-  </div>
-
-  <!-- MATERIAL-LISTE & VERBRAUCH -->
-  <div style="margin-top: 14px; background: var(--light-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-    <h3 style="margin: 0 0 10px 0; font-size: 14px; color: var(--primary-color);">📦 Verwendetes Material & Mengen</h3>
-    
-    <div class="grid-2">
-      <div class="form-group">
-        <label>LWL-Kasten Typ</label>
-        <select id="mat_box_type">
-          <option value="GUH Eigenbau" selected>GUH Eigenbau-Kasten</option>
-          <option value="Bavaria LWL">Bavaria LWL Kasten</option>
-          <option value="Kein / Bestand">Kein / Bestand</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Spleiße (Anzahl)</label>
-        <input type="number" id="mat_splices_count" value="8" min="0">
-      </div>
-    </div>
-
-    <div class="grid-2" style="margin-top: 8px;">
-      <div class="form-group">
-        <label>M20 Stangenrohr (Meter / Stk.)</label>
-        <input type="text" id="mat_m20_pipe" placeholder="z. B. 2m oder 1 Stk.">
-      </div>
-      <div class="form-group">
-        <label>M20 Schellen (Anzahl Stk.)</label>
-        <input type="number" id="mat_m20_clamps" placeholder="z. B. 4" min="0">
-      </div>
-    </div>
-
-    <div class="grid-2" style="margin-top: 8px;">
-      <div class="form-group">
-        <label>NYM-J 3x1,5 mm² (Meter)</label>
-        <input type="text" id="mat_nym_cable" placeholder="z. B. 3m">
-      </div>
-      <div class="form-group">
-        <label>2YSLCY 3x1,5 mm² Ölflex (Meter)</label>
-        <input type="text" id="mat_oelflex_cable" placeholder="z. B. 5m">
-      </div>
-    </div>
-
-    <div class="form-group" style="margin-top: 8px;">
-      <label>Sonstiges Material / Bemerkungen</label>
-      <input type="text" id="mat_other" placeholder="z. B. Patchkabel LC-LC 2m, SFP-Modul 1310nm...">
-    </div>
-  </div>
-
-  <!-- KABEL & SPLEISS KONFIGURATION -->
-  <div style="margin-top: 14px; background: #f1f5f9; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-      <h3 style="margin: 0; font-size: 14px; color: var(--primary-color);">🔌 Ankommende Kabel im Kasten</h3>
-      <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;" onclick="addSwitchIncomingCable()">➕ Kabel hinzufügen</button>
-    </div>
-    
-    <div id="sw_cables_container"></div>
-  </div>
-
-  <div class="nav-buttons" style="margin-top: 16px;">
-    <button type="button" class="btn btn-secondary" onclick="showStep('step-dashboard')">⬅ Zurück zum Start</button>
-    <button type="button" class="btn btn-primary" onclick="startSwitchSpliceConfig()">Weiter zur Spleißbelegung ➔</button>
-  </div>
-</div>
 
     <!-- PROTOKOLL TYP 1: SCHRITT 1 - STAMMDATEN (SPLEISSPROTOKOLL) -->
     <div id="step-1" class="step-card">
@@ -221,7 +220,7 @@
       </div>
 
       <div class="nav-buttons" style="margin-top: 16px;">
-        <button type="button" class="btn btn-secondary" onclick="showStep('step-dashboard')">⬅ Zurück zum Start</button>
+        <button type="button" class="btn btn-secondary" onclick="goBack()">⬅ Zurück zum Start</button>
       </div>
     </div>
 
@@ -237,7 +236,6 @@
         </select>
       </div>
 
-      <!-- STANDARD MUFFE ZWEI KABEL -->
       <!-- STANDARD MUFFE ZWEI KABEL -->
       <div id="muffe_2cable_grid" class="grid-2" style="margin-top: 10px;">
         <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
@@ -278,25 +276,6 @@
               <option value="4" selected>4 Fasern</option>
               <option value="8">8 Fasern</option>
               <option value="12">12 Fasern</option>
-              <option value="24">24 Fasern</option>
-              <option value="48">48 Fasern</option>
-            </select>
-          </div>
-        </div>
-      </div>
-        <div style="background: var(--light-bg); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
-          <h4 style="margin: 0 0 6px 0; color: var(--primary-color); font-size: 13px;">Kabel B</h4>
-          <div class="form-group">
-            <label>Farbstandard</label>
-            <select id="muffe_cableB_type">
-              <option value="neu" selected>Neu (DIN VDE: Rot, Grün...)</option>
-              <option value="alt">Alt (Corning: Blau, Orange...)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Faseranzahl</label>
-            <select id="muffe_cableB_count">
-              <option value="12" selected>12 Fasern</option>
               <option value="24">24 Fasern</option>
               <option value="48">48 Fasern</option>
             </select>
@@ -365,7 +344,7 @@
       </div>
 
       <div class="nav-buttons" style="margin-top: 16px;">
-        <button type="button" class="btn btn-secondary" onclick="showStep('step-1')">⬅ Zurück</button>
+        <button type="button" class="btn btn-secondary" onclick="goBack()">⬅ Zurück</button>
         <button type="button" class="btn btn-primary" onclick="buildMuffeSpliceTable()">Weiter zur Faserbelegung ➔</button>
       </div>
     </div>
@@ -396,7 +375,7 @@
       <div id="cassetteFormsContainer" style="margin-top: 12px;"></div>
 
       <div class="nav-buttons" style="margin-top: 16px;">
-        <button type="button" class="btn btn-secondary" onclick="showStep('step-1')">⬅ Zurück</button>
+        <button type="button" class="btn btn-secondary" onclick="goBack()">⬅ Zurück</button>
         <button type="button" class="btn btn-primary" onclick="buildBoxSpliceTable()">Weiter zur Faserbelegung ➔</button>
       </div>
     </div>
@@ -424,9 +403,9 @@
           <tbody id="wizardTableBody"></tbody>
         </table>
       </div>
-      
-<div class="nav-buttons" style="margin-top: 16px;">
-        <button type="button" class="btn btn-secondary" onclick="goBackFromAdjust()">⬅ Zurück</button>
+
+      <div class="nav-buttons" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" onclick="goBack()">⬅ Zurück</button>
         <button type="button" class="btn btn-primary" onclick="handleSwitchBoxNext()">
           Einheit speichern & Weiter zu Fotos / PDF ➔
         </button>
@@ -444,7 +423,7 @@
       <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
         <button type="button" class="btn btn-outline" onclick="addNewUnitWorkflow('Muffe')">➕ Weitere Muffe / Y-Muffe</button>
         <button type="button" class="btn btn-outline" onclick="addNewUnitWorkflow('Spleißbox')">➕ Weitere Spleißbox</button>
-        <button type="button" class="btn btn-secondary" onclick="showStep('step-1')">✏️️ Stammdaten bearbeiten</button>
+        <button type="button" class="btn btn-secondary" onclick="goBack()">✏ Stammdaten bearbeiten</button>
       </div>
 
       <div class="nav-buttons" style="border-top: 1px solid var(--border-color); padding-top: 12px;">
@@ -492,7 +471,7 @@
       </div>
 
       <div class="nav-buttons" style="background: var(--light-bg); padding: 14px; border-radius: 6px;">
-        <button type="button" class="btn btn-secondary" onclick="showStep('step-next-unit-prompt')">⬅ Zurück zu den Einheiten</button>
+        <button type="button" class="btn btn-secondary" onclick="goBack()">⬅ Zurück</button>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button type="button" class="btn btn-primary" onclick="generateVectorPDF(false)">📄 PDF Herunterladen</button>
           <!-- Outlook Button temporär ausgeblendet -->
