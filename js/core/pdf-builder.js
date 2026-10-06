@@ -132,87 +132,148 @@ if (isSwitchBox) {
   }
 }
 
-// 3. SPLEISSTABELLE SAUBER AUSLESEN
-const tableRows = [];
-const rows = document.querySelectorAll('#wizardTableBody tr');
+  // 3. SPLEISSTABELLE ERZEUGEN
+  if (isSwitchBox) {
+    // --- LWL-KASTEN PROTOKOLL (Liest direkt aus der Formular-Tabelle) ---
+    const tableRows = [];
+    const rows = document.querySelectorAll('#wizardTableBody tr');
 
-rows.forEach(tr => {
-  if (tr.classList.contains('cassette-header-row')) {
-    let title = tr.textContent.replace(/SPLEIKASSETTE/g, 'SPLEISSKASSETTE').replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
-    tableRows.push([{ content: title, colSpan: 9, styles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }]);
-  } else {
-    const tds = tr.querySelectorAll('td');
-    if (tds.length >= 7) {
-      const nr = tds[0].textContent.trim();
-      const cass = tds[1] ? tds[1].textContent.trim() : 'K1';
+    rows.forEach(tr => {
+      if (tr.classList.contains('cassette-header-row')) {
+        const title = tr.textContent.replace(/SPLEIKASSETTE/g, 'SPLEISSKASSETTE').replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
+        tableRows.push([{ content: title, colSpan: 9, styles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }]);
+      } else {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 7) {
+          const nr = tds[0].textContent.trim();
+          const cass = tds[1] ? tds[1].textContent.trim() : 'K1';
+          
+          const selectA = tds[2].querySelector('select');
+          const colA = selectA ? selectA.options[selectA.selectedIndex]?.text : (tds[2].getAttribute('data-color-name') || tds[2].textContent.trim());
+          const fasA = tds[3].querySelector('input')?.value || tds[3].textContent.trim() || nr;
 
-      // Farbe A aus Select oder Data-Attribut auslesen
-      const selectA = tds[2].querySelector('select');
-      const colA = selectA ? selectA.options[selectA.selectedIndex]?.text : (tds[2].getAttribute('data-color-name') || tds[2].textContent.trim());
+          const selectB = tds[5].querySelector('select');
+          const colB = selectB ? selectB.options[selectB.selectedIndex]?.text : (tds[5].getAttribute('data-color-name') || tds[5].textContent.trim());
+          const fasB = tds[6].querySelector('input')?.value || tds[6].textContent.trim() || nr;
 
-      const fasA = tds[3].textContent.trim() || nr;
+          const lossInput = tr.querySelector('.loss-input');
+          const loss = lossInput ? lossInput.value : '—';
+          const remInput = tr.querySelector('.remark-input');
+          const rem = remInput ? remInput.value : '';
 
-      // Farbe B aus Select oder Data-Attribut auslesen
-      const selectB = tds[5].querySelector('select');
-      const colB = selectB ? selectB.options[selectB.selectedIndex]?.text : (tds[5].getAttribute('data-color-name') || tds[5].textContent.trim());
+          tableRows.push([nr, cass, colA, fasA, "->", colB, fasB, loss, rem]);
+        }
+      }
+    });
 
-      const fasB = tds[6].textContent.trim() || nr;
-
-      const lossInput = tr.querySelector('.loss-input');
-      const loss = lossInput ? lossInput.value : '—';
-      
-      const remInput = tr.querySelector('.remark-input');
-      const rem = remInput ? remInput.value : '';
-
-      tableRows.push([nr, cass, colA, fasA, "->", colB, fasB, loss, rem]);
-    }
-  }
-});
-
-  if (tableRows.length > 0) {
-    doc.autoTable({
-      startY: currentY,
-      head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
-      body: tableRows,
-      theme: 'grid',
-      headStyles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 7.5 },
-      styles: { fontSize: 7.5, halign: 'center', cellPadding: 1.8, lineColor: [203, 213, 225], lineWidth: 0.1 },
-      columnStyles: {
-        0: { cellWidth: 9 },
-        1: { cellWidth: 12 },
-        2: { cellWidth: 26 },
-        3: { cellWidth: 12 },
-        4: { cellWidth: 7 },
-        5: { cellWidth: 26 },
-        6: { cellWidth: 12 },
-        7: { cellWidth: 20 },
-        8: { cellWidth: 'auto' }
-      },
-      didParseCell: function(data) {
-        if (data.section === 'body' && data.row.cells[0]?.raw?.content === undefined) {
-          if (data.column.index === 2 || data.column.index === 3) {
-            const colorName = data.row.cells[2].raw;
-            if (typeof getColorHex === 'function') {
-              const hex = getColorHex(colorName);
+    if (tableRows.length > 0) {
+      doc.autoTable({
+        startY: currentY,
+        head: [['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 7.5 },
+        styles: { fontSize: 7.5, halign: 'center', cellPadding: 1.8, lineColor: [203, 213, 225], lineWidth: 0.1 },
+        columnStyles: {
+          0: { cellWidth: 9 }, 1: { cellWidth: 12 }, 2: { cellWidth: 26 }, 3: { cellWidth: 12 },
+          4: { cellWidth: 7 }, 5: { cellWidth: 26 }, 6: { cellWidth: 12 }, 7: { cellWidth: 20 }, 8: { cellWidth: 'auto' }
+        },
+        didParseCell: function(data) {
+          if (data.section === 'body' && data.row.cells[0]?.raw?.content === undefined) {
+            if (data.column.index === 2 || data.column.index === 3) {
+              const hex = getColorHex(data.row.cells[2].raw);
               data.cell.styles.fillColor = hex;
               data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
               data.cell.styles.fontStyle = 'bold';
             }
-          }
-          if (data.column.index === 5 || data.column.index === 6) {
-            const colorName = data.row.cells[5].raw;
-            if (typeof getColorHex === 'function') {
-              const hex = getColorHex(colorName);
+            if (data.column.index === 5 || data.column.index === 6) {
+              const hex = getColorHex(data.row.cells[5].raw);
               data.cell.styles.fillColor = hex;
               data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
               data.cell.styles.fontStyle = 'bold';
             }
           }
         }
-      }
-    });
+      });
+      currentY = doc.lastAutoTable.finalY + 6;
+    }
 
-    currentY = doc.lastAutoTable.finalY + 5;
+  } else {
+    // --- SPLEISSPROTOKOLL (Liest ALLE gespeicherten Einheiten aus completedUnits) ---
+    const unitsToRender = (typeof completedUnits !== 'undefined' && completedUnits.length > 0)
+      ? completedUnits
+      : [];
+
+    if (unitsToRender.length === 0) {
+      alert("Keine Einheiten zum Generieren des PDFs gefunden!");
+      return;
+    }
+
+    unitsToRender.forEach((unit, uIdx) => {
+      if (currentY > 230) { doc.addPage(); currentY = 20; }
+
+      // Überschrift der Einheit (z. B. "Einheit 1: Spleißbox 1 (Spleißbox)")
+      doc.setFontSize(10.5);
+      doc.setTextColor(23, 84, 103);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Einheit ${uIdx + 1}: ${unit.name} (${unit.type})`, 14, currentY);
+      currentY += 4;
+
+      unit.cassettes.forEach((cassette) => {
+        if (currentY > 220) { doc.addPage(); currentY = 20; }
+
+        const safeTitle = (cassette.title || "Kassette").replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
+
+        const tableData = cassette.rows.map(r => [
+          r.nr,
+          r.cassette,
+          r.colA,
+          r.fasA,
+          "->",
+          r.colB,
+          r.fasB,
+          r.attenuation || "—",
+          r.notes || ""
+        ]);
+
+        doc.autoTable({
+          startY: currentY,
+          head: [[{ content: safeTitle, colSpan: 9, styles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }],
+                 ['Nr.', 'Kass.', 'Kabel A Farbe', 'Fas. A', '', 'Kabel B / Pigtail', 'Fas. B', 'Daempfung', 'Bemerkung / Kabel']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 7.5 },
+          styles: { fontSize: 7.5, halign: 'center', cellPadding: 1.8, lineColor: [203, 213, 225], lineWidth: 0.1 },
+          columnStyles: {
+            0: { cellWidth: 9 }, 1: { cellWidth: 12 }, 2: { cellWidth: 26 }, 3: { cellWidth: 12 },
+            4: { cellWidth: 7 }, 5: { cellWidth: 26 }, 6: { cellWidth: 12 }, 7: { cellWidth: 20 }, 8: { cellWidth: 'auto' }
+          },
+          didParseCell: function(data) {
+            if (data.section === 'body') {
+              const rawRow = cassette.rows[data.row.index];
+              if (rawRow) {
+                if (data.column.index === 2 || data.column.index === 3) {
+                  const hex = getColorHex(rawRow.colA);
+                  data.cell.styles.fillColor = hex;
+                  data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+                  data.cell.styles.fontStyle = 'bold';
+                }
+                if (data.column.index === 5 || data.column.index === 6) {
+                  const hex = getColorHex(rawRow.colB);
+                  data.cell.styles.fillColor = hex;
+                  data.cell.styles.textColor = (hex === '#ffffff' || hex === '#eab308') ? [0, 0, 0] : [255, 255, 255];
+                  data.cell.styles.fontStyle = 'bold';
+                }
+              }
+            }
+          }
+        });
+
+        currentY = doc.lastAutoTable.finalY + 5;
+      });
+
+      currentY += 3;
+    });
   }
 
   // 4. BEMERKUNGEN
