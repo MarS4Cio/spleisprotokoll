@@ -83,81 +83,91 @@ function buildVectorPDF() {
 
   let currentY = doc.lastAutoTable.finalY + 4;
 
-  // 2. HARDWARE & MATERIAL (NUR BEI LWL-KASTEN)
-  if (isSwitchBox) {
-    doc.setFillColor(241, 245, 249);
-    doc.rect(14, currentY, 182, 18, 'F');
-    
+ // 2. HARDWARE & MATERIAL (NUR BEI LWL-KASTEN)
+if (isSwitchBox) {
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, currentY, 182, 22, 'F');
+  
+  doc.setFontSize(8.5);
+  doc.setTextColor(23, 84, 103);
+  doc.setFont(undefined, 'bold');
+  doc.text('HARDWARE & NETZWERK-EINSTELLUNGEN:', 17, currentY + 4.5);
+  
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(15, 23, 42);
+
+  const fabNr = document.getElementById('sw_fab_nr')?.value || '—';
+  const regAddr = document.getElementById('sw_regler_addr')?.value || '—';
+  const switchInst = document.getElementById('sw_switch_installed')?.value || 'nein';
+  const switchIp = document.getElementById('sw_ip')?.value || '—';
+  const workTime = document.getElementById('sw_work_duration')?.value || '—';
+
+  // Zeile 1
+  doc.text(`Fabrikations-Nr.: ${fabNr}`, 17, currentY + 10);
+  doc.text(`Regleradresse: ${regAddr}`, 85, currentY + 10);
+  doc.text(`Arbeitszeit: ${workTime}`, 145, currentY + 10);
+
+  // Zeile 2
+  doc.text(`Switch verbaut: ${switchInst.toUpperCase()}`, 17, currentY + 16);
+  if (switchInst === 'ja') {
+    doc.text(`Switch-IP: ${switchIp}`, 85, currentY + 16);
+  }
+
+  currentY += 26;
+
+  if (typeof getFormattedMaterialSummary === 'function') {
+    const matSummary = getFormattedMaterialSummary();
     doc.setFontSize(8.5);
     doc.setTextColor(23, 84, 103);
     doc.setFont(undefined, 'bold');
-    doc.text('HARDWARE & NETZWERK-EINSTELLUNGEN:', 17, currentY + 4.5);
+    doc.text("VERWENDETES MATERIAL:", 14, currentY);
     
     doc.setFont(undefined, 'normal');
     doc.setFontSize(8);
     doc.setTextColor(15, 23, 42);
+    const splitMat = doc.splitTextToSize(matSummary, 182);
+    doc.text(splitMat, 14, currentY + 4);
+    currentY += 6 + (splitMat.length * 3.8);
+  }
+}
 
-    const fabNr = document.getElementById('sw_fab_nr')?.value || '—';
-    const regAddr = document.getElementById('sw_regler_addr')?.value || '—';
-    const switchInst = document.getElementById('sw_switch_installed')?.value || 'nein';
-    const switchIp = document.getElementById('sw_ip')?.value || '—';
-    const workTime = document.getElementById('sw_work_duration')?.value || '—';
+// 3. SPLEISSTABELLE SAUBER AUSLESEN
+const tableRows = [];
+const rows = document.querySelectorAll('#wizardTableBody tr');
 
-    doc.text(`Fabrikations-Nr.: ${fabNr}`, 17, currentY + 9.5);
-    doc.text(`Regleradresse: ${regAddr}`, 85, currentY + 9.5);
-    doc.text(`Arbeitszeit: ${workTime}`, 145, currentY + 9.5);
+rows.forEach(tr => {
+  if (tr.classList.contains('cassette-header-row')) {
+    let title = tr.textContent.replace(/SPLEIKASSETTE/g, 'SPLEISSKASSETTE').replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
+    tableRows.push([{ content: title, colSpan: 9, styles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }]);
+  } else {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length >= 7) {
+      const nr = tds[0].textContent.trim();
+      const cass = tds[1] ? tds[1].textContent.trim() : 'K1';
 
-    doc.text(`Switch verbaut: ${switchInst.toUpperCase()}`, 17, currentY + 14.5);
-    if (switchInst === 'ja') {
-      doc.text(`Switch-IP: ${switchIp}`, 85, currentY + 14.5);
-    }
+      // Farbe A aus Select oder Data-Attribut auslesen
+      const selectA = tds[2].querySelector('select');
+      const colA = selectA ? selectA.options[selectA.selectedIndex]?.text : (tds[2].getAttribute('data-color-name') || tds[2].textContent.trim());
 
-    currentY += 22;
+      const fasA = tds[3].textContent.trim() || nr;
 
-    if (typeof getFormattedMaterialSummary === 'function') {
-      const matSummary = getFormattedMaterialSummary();
-      doc.setFontSize(8.5);
-      doc.setTextColor(23, 84, 103);
-      doc.setFont(undefined, 'bold');
-      doc.text("VERWENDETES MATERIAL:", 14, currentY);
+      // Farbe B aus Select oder Data-Attribut auslesen
+      const selectB = tds[5].querySelector('select');
+      const colB = selectB ? selectB.options[selectB.selectedIndex]?.text : (tds[5].getAttribute('data-color-name') || tds[5].textContent.trim());
+
+      const fasB = tds[6].textContent.trim() || nr;
+
+      const lossInput = tr.querySelector('.loss-input');
+      const loss = lossInput ? lossInput.value : '—';
       
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(8);
-      doc.setTextColor(15, 23, 42);
-      const splitMat = doc.splitTextToSize(matSummary, 182);
-      doc.text(splitMat, 14, currentY + 4);
-      currentY += 5 + (splitMat.length * 3.8);
+      const remInput = tr.querySelector('.remark-input');
+      const rem = remInput ? remInput.value : '';
+
+      tableRows.push([nr, cass, colA, fasA, "->", colB, fasB, loss, rem]);
     }
   }
-
-  // 3. SPLEISSTABELLE ERZEUGEN
-  const tableRows = [];
-  const rows = document.querySelectorAll('#wizardTableBody tr');
-
-  rows.forEach(tr => {
-    if (tr.classList.contains('cassette-header-row')) {
-      const title = tr.textContent.replace(/[^a-zA-Z0-9 :_()\-]/g, '').trim().toUpperCase();
-      tableRows.push([{ content: title, colSpan: 9, styles: { fillColor: [23, 84, 103], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }]);
-    } else {
-      const tds = tr.querySelectorAll('td');
-      if (tds.length >= 7) {
-        const nr = tds[0].textContent.trim();
-        const cass = tds[1] ? tds[1].textContent.trim() : 'K1';
-        const colA = tds[2].textContent.trim();
-        const fasA = tds[3].textContent.trim();
-        const colB = tds[5].textContent.trim();
-        const fasB = tds[6].textContent.trim();
-        
-        const lossInput = tr.querySelector('.loss-input');
-        const loss = lossInput ? lossInput.value : '—';
-        
-        const remInput = tr.querySelector('.remark-input');
-        const rem = remInput ? remInput.value : '';
-
-        tableRows.push([nr, cass, colA, fasA, "->", colB, fasB, loss, rem]);
-      }
-    }
-  });
+});
 
   if (tableRows.length > 0) {
     doc.autoTable({
